@@ -1,0 +1,160 @@
+@inject IEduDataService Data
+@{
+    ViewData["Title"] = L.T("Роли и права", "Рөлдер және құқықтар", "Roles & permissions");
+    ViewData["Nav"] = "a-roles";
+    ViewData["Role"] = "admin";
+    var users = Data.GetUsers();
+    int Count(string r) => users.Count(u => u.Role == r);
+
+    // Columns: system roles + contextual roles
+    var roles = new[]
+    {
+        ("student", L.T("Студент", "Студент", "Student"), "Student", Count("student")),
+        ("leader", L.T("Староста", "Топ басшысы", "Class leader"), "Class leader", 0),
+        ("teacher", L.T("Преподаватель", "Оқытушы", "Teacher"), "Instructor", Count("teacher")),
+        ("curator", L.T("Куратор курса", "Курс кураторы", "Curator"), "Curator", 0),
+        ("dean", L.T("Деканат", "Деканат", "Dean's office"), "Dean office", 0),
+        ("admin", L.T("Администратор", "Әкімші", "Administrator"), "Root admin", Count("admin")),
+    };
+    // y = full, n = denied, anything else = limited (the text explains the limit)
+    var perms = new (string Icon, string Name, string[] Cells)[]
+    {
+        ("book-open", L.T("Материалы и AI-тьютор", "Материалдар және AI-тьютор", "Materials & AI tutor"), ["y", "y", "y", "y", "y", "y"]),
+        ("clipboard-check", L.T("Сдача заданий и тесты", "Тапсырмалар мен тесттер", "Submit work & take tests"), ["y", "y", L.T("Тест", "Тест", "Test"), "n", "n", "y"]),
+        ("star", L.T("Оценивание и AI-проверка кода", "Бағалау және AI-тексеру", "Grading & AI code review"), ["n", L.T("Статусы", "Мәртебелер", "Statuses"), "y", "y", L.T("Аудит", "Аудит", "Audit"), "y"]),
+        ("layers", L.T("Создание курсов и тестов", "Курстар мен тесттер жасау", "Create courses & tests"), ["n", "n", "y", "y", L.T("Шаблоны", "Үлгілер", "Templates"), "y"]),
+        ("file-down", L.T("Экспорт ведомостей", "Ведомость экспорты", "Export grade sheets"), ["n", L.T("Сводка", "Жиынтық", "Summary"), "y", "y", "y", "y"]),
+        ("users", L.T("Учётные записи, группы, 2FA", "Аккаунттар, топтар, 2FA", "Accounts, groups, 2FA"), ["n", "n", "n", L.T("Поток", "Ағын", "Cohort"), "y", "y"]),
+        ("shield-alert", L.T("Журнал безопасности", "Қауіпсіздік журналы", "Security log"), ["n", "n", L.T("Курс", "Курс", "Course"), L.T("Кафедра", "Кафедра", "Department"), "y", "y"]),
+    };
+    var history = new[]
+    {
+        ("key-round", L.T("Куратору курса открыт экспорт ведомостей", "Курс кураторына ведомость экспорты ашылды", "Curators can now export grade sheets"), "Admin", L.T("сегодня, 10:12", "бүгін, 10:12", "today, 10:12")),
+        ("user-plus", L.T("Создана роль «Староста»", "«Топ басшысы» рөлі жасалды", "Role “Class leader” created"), "Admin", L.T("вчера, 16:40", "кеше, 16:40", "yesterday, 16:40")),
+        ("lock", L.T("Деканату закрыт доступ к сдаче тестов", "Деканатқа тест тапсыру жабылды", "Dean's office can no longer take tests"), "Admin", L.T("3 дня назад", "3 күн бұрын", "3 days ago")),
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Роли и права", "Рөлдер және құқықтар", "Roles & permissions")</h1>
+        <p>@L.T("Кто что может делать на платформе — с точностью до контекста (курс, поток, кафедра).", "Платформада кім не істей алады — контекстке дейін (курс, ағын, кафедра).", "Who can do what — down to the context (course, cohort, department).")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <button class="btn btn-outline" type="button" data-modal-open="#historyModal">@Html.Icon("history") @L.T("История", "Тарих", "History")</button>
+        <button class="btn btn-primary" type="button" data-modal-open="#roleModal">@Html.Icon("plus") @L.T("Создать роль", "Рөл жасау", "New role")</button>
+    </div>
+</div>
+
+<div class="grid cols-4 mb-6 stagger">
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Пользователей", "Пайдаланушылар", "Users")</span><span class="ibox">@Html.Icon("users")</span></div><div class="stat-value">@users.Count</div><div class="text-xs subtle">@L.T("Студ.", "Студ.", "Stud.") @Count("student") · @L.T("Преп.", "Оқыт.", "Teach.") @Count("teacher") · @L.T("Адм.", "Әкім.", "Adm.") @Count("admin")</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Ролей", "Рөлдер", "Roles")</span><span class="ibox ibox-info">@Html.Icon("key-round")</span></div><div class="stat-value">@roles.Length</div><div class="text-xs subtle">3 @L.T("системных", "жүйелік", "system") · 3 @L.T("контекстных", "контекстік", "contextual")</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Защита 2FA", "2FA қорғанысы", "2FA coverage")</span><span class="ibox ibox-success">@Html.Icon("shield-check")</span></div><div class="stat-value">0<small>%</small></div><div class="text-xs subtle">@L.T("2FA появится вместе с бэкендом", "2FA бэкендпен бірге қосылады", "2FA arrives with the backend")</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Инцидентов", "Инциденттер", "Incidents")</span><span class="ibox ibox-warning">@Html.Icon("shield-alert")</span></div><div class="stat-value">0</div><div class="text-xs subtle">@L.T("за последние 30 дней", "соңғы 30 күнде", "in the last 30 days")</div></div>
+</div>
+
+<section class="card card-lg" data-rbac>
+    <div class="flex items-center justify-between gap-3 wrap mb-4">
+        <div>
+            <h2 class="h-section">@L.T("Матрица прав", "Құқықтар матрицасы", "Permission matrix")</h2>
+            <p class="text-sm muted mt-1">@L.T("В режиме редактирования нажимайте на ячейку: полный → ограниченный → запрещено.", "Өңдеу режимінде ұяшықты басыңыз: толық → шектеулі → тыйым.", "In edit mode click a cell: full → limited → denied.")</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="btn btn-outline" type="button" data-rbac-edit>@Html.Icon("pencil") @L.T("Изменить права", "Құқықтарды өзгерту", "Edit permissions")</button>
+            <button class="btn btn-primary" type="button" data-rbac-save hidden data-toast="@L.T("Права сохранены и записаны в журнал", "Құқықтар сақталып, журналға жазылды", "Permissions saved and logged")" data-toast-icon="shield-check">@Html.Icon("check") @L.T("Сохранить", "Сақтау", "Save")</button>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="table rbac-table">
+            <thead>
+                <tr>
+                    <th>@L.T("Право", "Құқық", "Permission")</th>
+                    @foreach (var (key, name, en, cnt) in roles)
+                    {
+                        <th class="text-center @(key == "admin" ? "is-root" : "")"><div>@name</div><small>@en@(cnt > 0 ? $" · {cnt}" : "")</small></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var (icon, name, cells) in perms)
+                {
+                    <tr>
+                        <td class="perm-name">@Html.Icon(icon, "icon-sm c-primary") @name</td>
+                        @for (var i = 0; i < cells.Length; i++)
+                        {
+                            var c = cells[i];
+                            var locked = roles[i].Item1 == "admin";   // the root admin always keeps every right
+                            <td class="text-center @(locked ? "is-root" : "")">
+                                <button class="perm perm-@(c == "y" ? "y" : c == "n" ? "n" : "l")" type="button" data-perm="@c" data-root="@(locked ? "true" : "false")" disabled
+                                        aria-label="@name — @roles[i].Item2">
+                                    @if (c == "y") { @Html.Icon("check", "icon-sm") }
+                                    else if (c == "n") { @Html.Icon("lock", "icon-sm") }
+                                    else { @c }
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="rbac-legend">
+        <span><i class="perm perm-y">@Html.Icon("check", "icon-sm")</i> @L.T("Полный доступ", "Толық қолжетімділік", "Full access")</span>
+        <span><i class="perm perm-l">@L.T("Курс", "Курс", "Course")</i> @L.T("Ограниченный / по контексту", "Шектеулі / контекст бойынша", "Limited / by context")</span>
+        <span><i class="perm perm-n">@Html.Icon("lock", "icon-sm")</i> @L.T("Запрещено", "Тыйым салынған", "Denied")</span>
+    </div>
+</section>
+
+<div class="modal-backdrop" id="roleModal">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-5"><h2>@L.T("Новая роль", "Жаңа рөл", "New role")</h2><button class="icon-btn" type="button" data-modal-close aria-label="@L.T("Закрыть", "Жабу", "Close")">@Html.Icon("x")</button></div>
+        <div class="col gap-4">
+            <div class="field"><label class="label" for="rName">@L.T("Название", "Атауы", "Name")</label><input class="input" id="rName" maxlength="40" placeholder="@L.T("Например: ассистент преподавателя", "Мысалы: оқытушы ассистенті", "e.g. Teaching assistant")" /></div>
+            <div class="field"><label class="label" for="rBase">@L.T("На основе роли", "Рөл негізінде", "Based on")</label><select class="select" id="rBase">@foreach (var r in roles) { <option>@r.Item2</option> }</select></div>
+            <div class="field"><label class="label" for="rScope">@L.T("Контекст", "Контекст", "Scope")</label><select class="select" id="rScope"><option>@L.T("Вся платформа", "Бүкіл платформа", "Whole platform")</option><option>@L.T("Курс", "Курс", "Course")</option><option>@L.T("Поток / группа", "Ағын / топ", "Cohort / group")</option><option>@L.T("Кафедра", "Кафедра", "Department")</option></select></div>
+            <div class="flex gap-3 justify-end mt-2">
+                <button class="btn btn-ghost" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button>
+                <button class="btn btn-primary" type="button" data-modal-close data-toast="@L.T("Роль создана — настройте права в матрице", "Рөл жасалды — құқықтарды матрицада баптаңыз", "Role created — set its rights in the matrix")" data-toast-icon="key-round">@L.T("Создать", "Жасау", "Create")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="historyModal">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-5"><h2>@L.T("История изменений", "Өзгерістер тарихы", "Change history")</h2><button class="icon-btn" type="button" data-modal-close aria-label="@L.T("Закрыть", "Жабу", "Close")">@Html.Icon("x")</button></div>
+        <div class="timeline">
+            @foreach (var (icon, text, who, when) in history)
+            {
+                <div class="timeline-item"><span class="ibox ibox-sm">@Html.Icon(icon)</span><div><b class="text-sm">@text</b><div class="text-xs subtle">@who · @when</div></div></div>
+            }
+        </div>
+        <a class="btn btn-secondary btn-block mt-5" href="/Admin/Audit">@L.T("Весь журнал аудита", "Толық аудит журналы", "Full audit log") @Html.Icon("arrow-right", "icon-sm")</a>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const root = document.querySelector("[data-rbac]");
+    const order = ["y", "l", "n"];
+    const html = { y: '<i data-lucide="check" class="icon icon-sm"></i>', n: '<i data-lucide="lock" class="icon icon-sm"></i>' };
+    const limitedText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Огр.", "Шект.", "Ltd.")));
+    root.querySelector("[data-rbac-edit]").addEventListener("click", (e) => {
+        const on = root.classList.toggle("is-editing");
+        root.querySelectorAll('.perm[data-root="false"]').forEach(b => b.disabled = !on);
+        root.querySelector("[data-rbac-save]").hidden = !on;
+        e.currentTarget.classList.toggle("active", on);
+    });
+    root.querySelector("[data-rbac-save]").addEventListener("click", () => root.querySelector("[data-rbac-edit]").click());
+    root.addEventListener("click", (e) => {
+        const b = e.target.closest(".perm[data-perm]"); if (!b || b.disabled) return;
+        const cur = b.classList.contains("perm-y") ? "y" : b.classList.contains("perm-n") ? "n" : "l";
+        const next = order[(order.indexOf(cur) + 1) % 3];
+        b.className = "perm perm-" + next;
+        b.innerHTML = next === "l" ? (b.dataset.perm.length > 1 ? b.dataset.perm : limitedText) : html[next];
+        window.eduIcons?.();
+    });
+})();
+</script>
+}

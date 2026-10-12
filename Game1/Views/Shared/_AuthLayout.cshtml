@@ -1,0 +1,48 @@
+@* Auth layout: split screen (purple visual on the left, form on the right) *@
+<!DOCTYPE html>
+<html lang="@L.Current">
+<head>
+    <partial name="_Head" />
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="auth">
+        <section class="auth-visual">
+            <div class="blob blob-1"></div><div class="blob blob-2"></div>
+            <a class="logo" href="/"><span class="logo-mark">@Html.Icon("graduation-cap")</span><span>EDU <b>AI</b></span></a>
+            <div class="auth-visual-inner">
+                <h1>@L.T("Учитесь с умом.", "Ақылмен оқыңыз.", "Learn smarter.")</h1>
+                <p class="lead">@L.T("AI подскажет, что изучить дальше, а XP и достижения сделают путь интереснее.", "AI келесі не оқу керегін айтады, ал XP мен жетістіктер жолды қызықтырақ етеді.", "AI suggests what to learn next, while XP and achievements keep you motivated.")</p>
+                <div class="auth-feats">
+                    <div class="auth-feat"><span class="ibox">@Html.Icon("sparkles")</span><div><b>AI</b><small>@L.T("Персональные советы", "Жеке кеңестер", "Personal guidance")</small></div></div>
+                    <div class="auth-feat"><span class="ibox">@Html.Icon("library")</span><div><b>@L.T("Курсы", "Курстар", "Courses")</b><small>@L.T("120+ программ", "120+ бағдарлама", "120+ programs")</small></div></div>
+                    <div class="auth-feat"><span class="ibox">@Html.Icon("trending-up")</span><div><b>@L.T("Прогресс", "Прогресс", "Progress")</b><small>@L.T("Наглядная аналитика", "Көрнекі аналитика", "Clear analytics")</small></div></div>
+                    <div class="auth-feat"><span class="ibox">@Html.Icon("trophy")</span><div><b>@L.T("Достижения", "Жетістіктер", "Achievements")</b><small>@L.T("XP, уровни, награды", "XP, деңгейлер, марапаттар", "XP, levels, badges")</small></div></div>
+                </div>
+            </div>
+            <div class="auth-quote">
+                <span class="avatar av-6">НА</span>
+                <div>
+                    <p>@L.T("«За семестр подняла средний балл с 71% до 89% — AI-разборы ошибок реально помогают.»", "«Семестр ішінде орташа балымды 71%-дан 89%-ға көтердім — AI қате талдауы шынымен көмектеседі.»", "“I raised my average from 71% to 89% in one semester — the AI mistake reviews really help.”")</p>
+                    <small>Нурай А. · @L.T("студентка 3 курса", "3-курс студенті", "3rd-year student")</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="auth-side">
+            <div class="auth-top">
+                <partial name="_Logo" />
+                <div class="flex items-center gap-2">
+                    <button class="icon-btn" type="button" data-theme-toggle aria-label="@L.T("Тёмная тема", "Қараңғы тақырып", "Dark mode")">@Html.Icon("moon")</button>
+                    <partial name="_LangSwitcher" />
+                </div>
+            </div>
+            <div class="auth-center">
+                @RenderBody()
+            </div>
+            <p class="text-center text-xs subtle">© 2026 EDU AI · <a href="/Home/Privacy">@L.T("Конфиденциальность", "Құпиялылық", "Privacy")</a></p>
+        </section>
+    </div>
+    <partial name="_Scripts" />
+</body>
+</html>

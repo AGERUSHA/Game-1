@@ -1,0 +1,7 @@
+@* Language pills: KZ | RU | EN *@
+<div class="lang-pills" role="group" aria-label="@L.T("Язык", "Тіл", "Language")">
+    @foreach (var lang in LangService.Languages)
+    {
+        <button type="button" class="@(L.Current == lang.Value ? "active" : "")" data-lang="@lang.Value" title="@lang.Name">@lang.Code</button>
+    }
+</div>

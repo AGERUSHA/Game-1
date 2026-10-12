@@ -1,0 +1,138 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Лига недели", "Апта лигасы", "Weekly league");
+    ViewData["Nav"] = "league";
+    var rows = Model.GetLeague();
+    var me = rows.First(r => r.IsMe);
+    var podium = rows.Take(3).ToList();
+    const int up = 3, down = 3;
+    var gap = me.Rank > up ? rows[up - 1].WeekXp - me.WeekXp + 1 : 0;
+    var tiers = new[]
+    {
+        ("🥉", L.T("Бронза", "Қола", "Bronze")),
+        ("🥈", L.T("Серебро", "Күміс", "Silver")),
+        ("🥇", L.T("Золото", "Алтын", "Gold")),
+        ("💜", L.T("Аметист", "Аметист", "Amethyst")),
+        ("💎", L.T("Алмаз", "Алмас", "Diamond")),
+    };
+    const int currentTier = 3;
+    string Av(int rank) => "av-" + (rank % 6 + 1);
+    string Move(int c) => c > 0 ? $"▲ {c}" : c < 0 ? $"▼ {-c}" : "—";
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Лига недели", "Апта лигасы", "Weekly league")</h1>
+        <p>@L.T("Соревнуйтесь с одногруппниками: XP за неделю решает, кто поднимется в следующую лигу.", "Топтастарыңызбен жарысыңыз: апталық XP келесі лигаға кім көтерілетінін шешеді.", "Compete with classmates: weekly XP decides who moves up to the next league.")</p>
+    </div>
+</div>
+
+<section class="card card-lg card-soft">
+    <div class="league-hero">
+        <div class="league-gem" aria-hidden="true">@tiers[currentTier].Item1</div>
+        <div class="grow" style="min-width:220px">
+            <div class="text-sm muted">@L.T("Ваша лига", "Сіздің лигаңыз", "Your league")</div>
+            <h2 style="font-size:28px;letter-spacing:-.03em">@L.T("Аметистовая лига", "Аметист лигасы", "Amethyst League")</h2>
+            <div class="flex items-center gap-2 mt-2 text-sm muted">
+                @Html.Icon("clock", "icon-sm") @L.T("До конца недели:", "Апта соңына дейін:", "Week ends in:")
+                <b class="league-timer" style="color:var(--text)" data-league-timer>—</b>
+            </div>
+        </div>
+        <div class="league-tiers">
+            @for (var i = 0; i < tiers.Length; i++)
+            {
+                <span class="league-tier @(i == currentTier ? "current" : i < currentTier ? "passed" : "")">@tiers[i].Item1 @tiers[i].Item2</span>
+            }
+        </div>
+    </div>
+</section>
+
+<div class="grid cols-main-side mt-6">
+    <section class="card card-lg">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Таблица", "Кесте", "Standings")</div><div class="card-sub">@rows.Count @L.T("участников · обновляется в реальном времени", "қатысушы · нақты уақытта жаңарады", "players · updates in real time")</div></div>
+        </div>
+
+        <div class="podium mb-6">
+            @foreach (var (r, cls) in new[] { (podium[1], "second"), (podium[0], "first"), (podium[2], "third") })
+            {
+                <div class="podium-col @cls">
+                    <span class="avatar @Av(r.Rank)">@r.Initials</span>
+                    <b>@r.Name.Split(' ')[0]</b>
+                    <small>@r.WeekXp XP</small>
+                    <div class="podium-step">@r.Rank</div>
+                </div>
+            }
+        </div>
+
+        @foreach (var r in rows)
+        {
+            if (r.Rank == up + 1)
+            {
+                <div class="league-zone up">@Html.Icon("chevrons-up", "icon-sm") @L.T("Зона повышения", "Жоғарылау аймағы", "Promotion zone")</div>
+            }
+            if (r.Rank == rows.Count - down + 1)
+            {
+                <div class="league-zone down">@Html.Icon("chevrons-down", "icon-sm") @L.T("Зона понижения", "Төмендеу аймағы", "Demotion zone")</div>
+            }
+            <div class="league-row @(r.IsMe ? "me" : "")">
+                <span class="rank">@r.Rank</span>
+                <span class="avatar avatar-sm @Av(r.Rank)">@r.Initials</span>
+                <div class="who"><b>@r.Name @if (r.IsMe) { <span class="badge badge-primary">@L.T("Вы", "Сіз", "You")</span> }</b><small>@r.Group</small></div>
+                <span class="wxp">@r.WeekXp XP</span>
+                <span class="move @(r.Change > 0 ? "up" : r.Change < 0 ? "down" : "")">@Move(r.Change)</span>
+            </div>
+        }
+    </section>
+
+    <aside class="col gap-5">
+        <div class="card">
+            <div class="owl-hero" style="gap:16px">
+                <div class="owl-wrap" data-owl style="width:96px;height:88px">
+                    <span class="owl-bubble above"></span>
+                    <partial name="_Owl" model="Model.GetStudent().Level" />
+                </div>
+                <div>
+                    <b>@L.T("Совет от Уха", "Ухтың кеңесі", "Hoot's tip")</b>
+                    <p class="text-sm muted mt-1">
+                        @if (gap > 0)
+                        {
+                            @L.T($"До 3-го места всего {gap} XP — один тест на 80%+ и ты в зоне повышения!", $"3-орынға дейін небәрі {gap} XP — 80%+ бір тест және сен жоғарылау аймағындасың!", $"Only {gap} XP to 3rd place — one quiz at 80%+ and you're in the promotion zone!")
+                        }
+                        else
+                        {
+                            @L.T("Ты в зоне повышения — держи темп до воскресенья!", "Сен жоғарылау аймағындасың — жексенбіге дейін қарқынды сақта!", "You're in the promotion zone — keep the pace until Sunday!")
+                        }
+                    </p>
+                </div>
+            </div>
+            <a class="btn btn-primary btn-block mt-5" href="/Student/Tests">@Html.Icon("zap") @L.T("Заработать XP", "XP табу", "Earn XP")</a>
+        </div>
+
+        <div class="card">
+            <div class="card-title mb-4">@L.T("Как работает лига", "Лига қалай жұмыс істейді", "How the league works")</div>
+            <div class="list">
+                <div class="list-item"><span class="ibox ibox-sm ibox-success">@Html.Icon("chevrons-up")</span><div class="grow list-title">@L.T($"Топ-{up} переходят в лигу выше", $"Үздік {up} жоғары лигаға өтеді", $"Top {up} move up a league")</div></div>
+                <div class="list-item"><span class="ibox ibox-sm ibox-warning">@Html.Icon("chevrons-down")</span><div class="grow list-title">@L.T($"Последние {down} — в лигу ниже", $"Соңғы {down} — төмен лигаға", $"Bottom {down} move down")</div></div>
+                <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("calendar-clock")</span><div class="grow list-title">@L.T("Итоги — в воскресенье в 23:59", "Қорытынды — жексенбі 23:59-да", "Results on Sunday at 23:59")</div></div>
+                <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("gift")</span><div class="grow list-title">@L.T("Победитель недели получает +200 XP", "Апта жеңімпазы +200 XP алады", "The week's winner gets +200 XP")</div></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    // Countdown to Sunday 23:59:59 (local time)
+    const el = document.querySelector("[data-league-timer]");
+    const d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("д", "к", "d"))), h = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("ч", "сағ", "h"))), m = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("мин", "мин", "min")));
+    function end() { const n = new Date(), e = new Date(n); e.setDate(n.getDate() + ((7 - n.getDay()) % 7)); e.setHours(23, 59, 59, 999); return e; }
+    function tick() {
+        const s = Math.max(0, Math.floor((end() - new Date()) / 1000));
+        el.textContent = `${Math.floor(s / 86400)} ${d} ${Math.floor(s % 86400 / 3600)} ${h} ${Math.floor(s % 3600 / 60)} ${m}`;
+    }
+    tick(); setInterval(tick, 30000);
+})();
+</script>
+}

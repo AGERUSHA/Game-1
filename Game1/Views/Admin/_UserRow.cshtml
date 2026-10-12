@@ -1,0 +1,57 @@
+@model AdminUser
+@{
+    var i = ViewData["Index"] as int? ?? 0;
+    var compact = ViewData["Compact"] as bool? ?? false;
+    var isMe = Model.Id > 0 && User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Id.ToString();
+    var (roleCls, roleIcon, roleName) = Model.Role switch
+    {
+        "teacher" => ("badge-info", "presentation", L.T("Преподаватель", "Оқытушы", "Teacher")),
+        "admin" => ("badge-solid", "shield-check", L.T("Админ", "Әкімші", "Admin")),
+        _ => ("badge-primary", "graduation-cap", L.T("Студент", "Студент", "Student"))
+    };
+    var (stCls, stName) = Model.Status switch
+    {
+        "blocked" => ("badge-error", L.T("Заблокирован", "Бұғатталған", "Blocked")),
+        "pending" => ("badge-warning", L.T("Ожидает", "Күтуде", "Pending")),
+        _ => ("badge-success", L.T("Активен", "Белсенді", "Active"))
+    };
+}
+<tr data-tags="all @Model.Role @Model.Status">
+    <td class="cell-main">
+        <div class="cell-user">
+            <span class="avatar avatar-sm av-@(i % 6 + 1)">@string.Concat(Model.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpper(w[0])))</span>
+            <div><b>@Model.Name</b><small>@Model.Email</small></div>
+        </div>
+    </td>
+    <td data-label="@L.T("Роль", "Рөл", "Role")"><span class="badge @roleCls">@Html.Icon(roleIcon) @roleName</span></td>
+    <td data-label="@L.T("Статус", "Мәртебе", "Status")"><span class="badge badge-dot @stCls">@stName</span></td>
+    <td data-label="@L.T("Регистрация", "Тіркелу", "Joined")" class="muted">@Model.Joined</td>
+    @if (!compact)
+    {
+        <td data-label="@L.T("Был в сети", "Желіде болды", "Last seen")" class="muted">@Model.LastSeen</td>
+        <td class="text-right">
+            @if (Model.Id > 0 && !isMe)
+            {
+                <div class="flex gap-1 justify-end items-center">
+                    <form method="post" asp-action="SetRole" asp-route-id="@Model.Id">
+                        <select class="select select-sm" style="width:auto" name="role" onchange="this.form.submit()" aria-label="@L.T("Роль", "Рөл", "Role")">
+                            <option value="student" selected="@(Model.Role == "student")">@L.T("Студент", "Студент", "Student")</option>
+                            <option value="teacher" selected="@(Model.Role == "teacher")">@L.T("Преподаватель", "Оқытушы", "Teacher")</option>
+                            <option value="admin" selected="@(Model.Role == "admin")">@L.T("Админ", "Әкімші", "Admin")</option>
+                        </select>
+                    </form>
+                    <form method="post" asp-action="ToggleBlock" asp-route-id="@Model.Id">
+                        <button class="icon-btn" type="submit" title="@(Model.Status == "blocked" ? L.T("Разблокировать", "Бұғаттан шығару", "Unblock") : L.T("Заблокировать", "Бұғаттау", "Block"))">@Html.Icon(Model.Status == "blocked" ? "unlock" : "ban")</button>
+                    </form>
+                    <form method="post" asp-action="DeleteUser" asp-route-id="@Model.Id" data-confirm="@L.T("Удалить пользователя?", "Пайдаланушыны жою керек пе?", "Delete this user?")" onsubmit="return confirm(this.dataset.confirm)">
+                        <button class="icon-btn" type="submit" title="@L.T("Удалить", "Жою", "Delete")">@Html.Icon("trash-2")</button>
+                    </form>
+                </div>
+            }
+            else if (isMe)
+            {
+                <span class="badge">@L.T("Это вы", "Бұл сіз", "You")</span>
+            }
+        </td>
+    }
+</tr>

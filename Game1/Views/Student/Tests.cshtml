@@ -1,0 +1,75 @@
+@model List<TestItem>
+@{
+    ViewData["Title"] = L.T("Тесты", "Тесттер", "Tests");
+    ViewData["Nav"] = "tests";
+    (string cls, string icon, string label) Status(string st) => st switch
+    {
+        "passed" => ("badge-success", "check-circle-2", L.T("Пройден", "Тапсырылды", "Passed")),
+        "retake" => ("badge-warning", "rotate-ccw", L.T("Нужно пересдать", "Қайта тапсыру керек", "Retake needed")),
+        "locked" => ("", "lock", L.T("Закрыт", "Жабық", "Locked")),
+        _ => ("badge-primary", "circle-dot", L.T("Доступен", "Қолжетімді", "Available"))
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Тесты", "Тесттер", "Tests")</h1>
+        <p>@L.T("Проверяйте знания и получайте XP за каждый успешный тест.", "Біліміңізді тексеріп, әр сәтті тест үшін XP алыңыз.", "Test your knowledge and earn XP for every passed quiz.")</p>
+    </div>
+    <div class="segmented" data-filter-target="#testGrid">
+        <button class="active" data-filter="all">@L.T("Все", "Барлығы", "All")</button>
+        <button data-filter="available">@L.T("Доступные", "Қолжетімді", "Available")</button>
+        <button data-filter="passed">@L.T("Пройденные", "Тапсырылған", "Passed")</button>
+        <button data-filter="retake">@L.T("Пересдача", "Қайта тапсыру", "Retake")</button>
+    </div>
+</div>
+
+<div class="grid cols-4 mb-6 stagger">
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Всего тестов", "Барлық тест", "Total tests")</span><span class="ibox">@Html.Icon("clipboard-list")</span></div><div class="stat-value">@Model.Count</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Пройдено", "Тапсырылды", "Passed")</span><span class="ibox ibox-success">@Html.Icon("check-circle-2")</span></div><div class="stat-value">@Model.Count(t => t.Status == "passed")</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средний балл", "Орташа балл", "Average score")</span><span class="ibox">@Html.Icon("target")</span></div><div class="stat-value">78<small>%</small></div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("XP за тесты", "Тесттерден XP", "XP from tests")</span><span class="ibox">@Html.Icon("zap")</span></div><div class="stat-value">640</div></div>
+</div>
+
+<div class="grid cols-3 stagger" id="testGrid">
+    @foreach (var t in Model)
+    {
+        var st = Status(t.Status);
+        <article class="card card-hover test-card" data-tags="all @t.Status">
+            <div class="flex items-start justify-between gap-3">
+                <span class="ibox ibox-lg @(t.Status == "locked" ? "" : "ibox-solid")" style="@(t.Status == "locked" ? "background:var(--surface-3);color:var(--text-3)" : "")">@Html.Icon("clipboard-check")</span>
+                <span class="badge @st.cls">@Html.Icon(st.icon) @st.label</span>
+            </div>
+            <div>
+                <h3>@t.Title</h3>
+                <div class="text-sm muted mt-1">@t.Course · @t.Difficulty</div>
+            </div>
+            <div class="test-meta">
+                <div><small>@L.T("Вопросов", "Сұрақ", "Questions")</small><b>@t.Questions</b></div>
+                <div><small>@L.T("Время", "Уақыт", "Time")</small><b>@t.Minutes @L.T("мин", "мин", "min")</b></div>
+                <div><small>@L.T("Лучший", "Үздік", "Best")</small><b class="@(t.BestScore >= 70 ? "c-success" : t.BestScore is not null ? "c-warning" : "")">@(t.BestScore is int b ? $"{b}%" : "—")</b></div>
+            </div>
+            @if (t.BestScore is int score)
+            {
+                <div>@Html.Progress(score, score >= 70 ? "progress-sm progress-success" : "progress-sm progress-warning")</div>
+            }
+            <div class="flex gap-2 mt-1">
+                @if (t.Status == "locked")
+                {
+                    <button class="btn btn-secondary btn-block" disabled>@Html.Icon("lock", "icon-sm") @L.T("Откроется после модуля 3", "3-модульден кейін ашылады", "Unlocks after module 3")</button>
+                }
+                else
+                {
+                    <a class="btn @(t.Status == "passed" ? "btn-secondary" : "btn-primary") grow" href="/Student/TakeTest/@t.Id">
+                        @(t.Status == "passed" ? L.T("Пройти снова", "Қайта тапсыру", "Retake") : L.T("Пройти тест", "Тест тапсыру", "Take test")) @Html.Icon("arrow-right", "icon-sm")
+                    </a>
+                    @if (t.BestScore is not null)
+                    {
+                        <a class="btn btn-outline btn-icon" href="/Student/TestResult/@t.Id" title="@L.T("Результат и разбор", "Нәтиже және талдау", "Result & review")" aria-label="@L.T("Результат", "Нәтиже", "Result")">@Html.Icon("bar-chart-3", "icon-sm")</a>
+                    }
+                }
+            </div>
+        </article>
+    }
+</div>
+<partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#testGrid")' />

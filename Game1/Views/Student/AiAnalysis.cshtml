@@ -1,0 +1,110 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("AI-разбор ошибок", "Қателердің AI-талдауы", "AI error analysis");
+    ViewData["Nav"] = "ai";
+    var topics = Model.GetTopicScores();
+    var questions = Model.GetQuestions(1);
+    var wrong = new[] { 3, 4, 8 };
+}
+
+<nav class="breadcrumbs"><a href="/Student/Ai">AI</a> @Html.Icon("chevron-right") <span>@L.T("Разбор теста", "Тест талдауы", "Test review")</span></nav>
+<div class="page-head">
+    <div>
+        <h1>@L.T("AI-разбор ошибок", "Қателердің AI-талдауы", "AI error analysis")</h1>
+        <p>@L.T("Тест «Архитектура MVC» · PHP & Laravel · сегодня, 10:12", "«MVC архитектурасы» тесті · PHP & Laravel · бүгін, 10:12", "Quiz “MVC architecture” · PHP & Laravel · today, 10:12")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <a class="btn btn-outline" href="/Student/TakeTest/1">@Html.Icon("rotate-ccw") @L.T("Пройти снова", "Қайта тапсыру", "Retake")</a>
+        <a class="btn btn-primary" href="/Student/Ai">@Html.Icon("message-circle") @L.T("Обсудить с AI", "AI-мен талқылау", "Discuss with AI")</a>
+    </div>
+</div>
+
+<section class="card card-lg ai-glow">
+    <div class="analysis-hero">
+        @Html.Ring(72, 180, 14, "72%")
+        <div class="col gap-4">
+            <div>
+                <span class="badge badge-success badge-lg">@Html.Icon("check-circle-2") @L.T("Тест сдан", "Тест тапсырылды", "Passed")</span>
+                <h2 class="mt-3" style="font-size:26px">@L.T("Хороший результат! Есть что подтянуть.", "Жақсы нәтиже! Жақсартатын тұстар бар.", "Good result! A few things to polish.")</h2>
+                <p class="muted mt-2">@L.T("Вы ответили правильно на 7 из 10 вопросов. Основные ошибки — в темах, связанных с базами данных.", "Сіз 10 сұрақтың 7-еуіне дұрыс жауап бердіңіз. Негізгі қателер — деректер қорына қатысты тақырыптарда.", "You answered 7 of 10 questions correctly. Most mistakes relate to databases.")</p>
+            </div>
+            <div class="flex gap-6 wrap">
+                <div><div class="stat-value" style="font-size:22px">7 / 10</div><div class="text-xs subtle">@L.T("верных ответов", "дұрыс жауап", "correct")</div></div>
+                <div><div class="stat-value" style="font-size:22px">11:24</div><div class="text-xs subtle">@L.T("затрачено", "жұмсалды", "time spent")</div></div>
+                <div><div class="stat-value c-primary" style="font-size:22px">+120 XP</div><div class="text-xs subtle">@L.T("получено", "алынды", "earned")</div></div>
+                <div><div class="stat-value" style="font-size:22px">@L.T("Топ 25%", "Үздік 25%", "Top 25%")</div><div class="text-xs subtle">@L.T("в группе", "топта", "in group")</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="grid cols-3 mt-6">
+    <div class="card">
+        <div class="card-head"><div class="card-title">@Html.Icon("badge-check", "c-success") @L.T("Сильные стороны", "Күшті жақтар", "Strengths")</div></div>
+        <div class="tag-list">
+            @foreach (var t in topics.Where(t => t.Score >= 80))
+            {
+                <div class="tag-item good">@Html.Icon("check") @t.Topic <span>@t.Score%</span></div>
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@Html.Icon("alert-triangle", "c-warning") @L.T("Нужно повторить", "Қайталау керек", "Needs review")</div></div>
+        <div class="tag-list">
+            @foreach (var t in topics.Where(t => t.Score < 80))
+            {
+                <div class="tag-item bad">@Html.Icon("alert-triangle") @t.Topic <span>@t.Score%</span></div>
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@L.T("Результаты по темам", "Тақырыптар бойынша нәтижелер", "Score by topic")</div></div>
+        @foreach (var t in topics)
+        {
+            <div class="topic-row">
+                <span class="truncate">@t.Topic</span>
+                @Html.Progress(t.Score, t.Score >= 80 ? "progress-sm progress-success" : t.Score >= 60 ? "progress-sm" : "progress-sm progress-warning")
+                <b>@t.Score%</b>
+            </div>
+        }
+    </div>
+</div>
+
+<section class="ai-callout mt-6">
+    <span class="ai-avatar">@Html.Icon("sparkles")</span>
+    <div class="grow">
+        <h3>AI @L.T("рекомендация", "ұсынысы", "recommendation")</h3>
+        <p class="muted mt-2">@L.T("Ваши ошибки связаны не с синтаксисом, а с пониманием того, как таблицы связываются между собой. Рекомендуем:", "Қателеріңіз синтаксиске емес, кестелердің бір-бірімен қалай байланысатынын түсінуге қатысты. Ұсынамыз:", "Your mistakes are not about syntax but about how tables relate to each other. We recommend:")</p>
+        <ol class="muted mt-3" style="padding-left:20px;display:flex;flex-direction:column;gap:6px">
+            <li>@L.T("Повторить", "Қайталау:", "Review") <b>SQL JOIN</b> — @L.T("шпаргалка и видео (15 мин)", "анықтамалық пен бейне (15 мин)", "cheat sheet and video (15 min)")</li>
+            <li>@L.T("Изучить урок", "Сабақты оқу:", "Study") <b>Eloquent Relationships</b> (20 @L.T("мин", "мин", "min"))</li>
+            <li>@L.T("Пройти тест снова через 1–2 дня — ожидаемый результат 85%+", "1–2 күннен кейін тестті қайта тапсыру — күтілетін нәтиже 85%+", "Retake the quiz in 1–2 days — expected score 85%+")</li>
+        </ol>
+        <div class="flex gap-2 mt-5 wrap">
+            <a class="btn btn-primary" href="/Student/Materials">@Html.Icon("book-open") @L.T("Начать повторение", "Қайталауды бастау", "Start review")</a>
+            <a class="btn btn-outline" href="/Student/Ai">@L.T("Объясни подробнее", "Толығырақ түсіндір", "Explain in more detail")</a>
+        </div>
+    </div>
+</section>
+
+<section class="card card-lg mt-6">
+    <div class="card-head"><div class="card-title">@L.T("Разбор ответов", "Жауаптарды талдау", "Answer review")</div><span class="text-sm muted">@L.T("показаны ошибки", "қателер көрсетілген", "showing mistakes")</span></div>
+    @foreach (var idx in wrong)
+    {
+        var q = questions[idx];
+        <div class="module mb-3 @(idx == 3 ? "open" : "")">
+            <div class="module-head">
+                <span class="status-dot" style="background:var(--error-bg);color:var(--error-ink)">@Html.Icon("x")</span>
+                <div class="grow"><h4>@L.T("Вопрос", "Сұрақ", "Question") @(idx + 1). @q.Text</h4><div class="list-meta">@q.Topic</div></div>
+                <span class="chev">@Html.Icon("chevron-down")</span>
+            </div>
+            <div class="module-body"><div>
+                <div style="padding:16px 18px;border-top:1px solid var(--border)" class="col gap-3">
+                    <div class="tag-item" style="background:var(--error-bg);color:var(--error-ink)">@Html.Icon("x") @L.T("Ваш ответ", "Сіздің жауабыңыз", "Your answer"): @q.Options[(q.Correct + 1) % q.Options.Length]</div>
+                    <div class="tag-item good">@Html.Icon("check") @L.T("Правильно", "Дұрыс", "Correct"): @q.Options[q.Correct]</div>
+                    <div class="flex gap-3 text-sm muted"><span class="c-primary">@Html.Icon("sparkles")</span>@L.T("AI: запомните — правильный вариант лучше всего объясняется на примере связи «студент → курсы». Откройте чат, чтобы разобрать подробнее.", "AI: есте сақтаңыз — дұрыс нұсқаны «студент → курстар» байланысы мысалында түсіндірген жөн. Толығырақ талдау үшін чатты ашыңыз.", "AI: tip — the correct option is best understood through a “student → courses” relationship. Open the chat for a detailed walkthrough.")</div>
+                </div>
+            </div></div>
+        </div>
+    }
+</section>

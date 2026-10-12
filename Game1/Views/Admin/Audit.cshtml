@@ -1,0 +1,84 @@
+@model List<AdminUser>
+@{
+    ViewData["Title"] = L.T("Журнал и безопасность", "Журнал және қауіпсіздік", "Audit & security");
+    ViewData["Nav"] = "a-audit";
+    ViewData["Role"] = "admin";
+    // kind: auth | role | grade | export | security
+    var events = new[]
+    {
+        ("security", "shield-alert", "error", L.T("Заблокирована попытка вставить скрипт в задание №8492", "№8492 тапсырмаға скрипт енгізу әрекеті бұғатталды", "Blocked an attempt to inject a script into assignment #8492"), "WAF", "185.117.88.42", L.T("2 ч назад", "2 сағ бұрын", "2 h ago")),
+        ("grade", "star", "success", L.T("Волков А. утвердил оценку 95/100 — Нургали А. (Лаб. №4)", "Волков А. 95/100 бағасын бекітті — Нургали А. (№4 зертх.)", "A. Volkov approved 95/100 for A. Nurgali (Lab 4)"), "a.volkov@edu.kz", "195.148.42.10", L.T("12 мин назад", "12 мин бұрын", "12 min ago")),
+        ("export", "file-down", "info", L.T("Экспорт ведомости IT-2101 в PDF", "IT-2101 ведомосын PDF-ке экспорттау", "Exported the IT-2101 grade sheet to PDF"), "dean@edu.kz", "10.0.4.12", L.T("35 мин назад", "35 мин бұрын", "35 min ago")),
+        ("role", "key-round", "primary", L.T("Роль пользователя изменена: student → teacher", "Пайдаланушы рөлі өзгерді: student → teacher", "User role changed: student → teacher"), "admin@edu.ai", "127.0.0.1", L.T("1 ч назад", "1 сағ бұрын", "1 h ago")),
+        ("auth", "log-in", "success", L.T("Вход через Microsoft", "Microsoft арқылы кіру", "Signed in with Microsoft"), "24011174@abaiuniversity.edu.kz", "92.46.10.5", L.T("3 ч назад", "3 сағ бұрын", "3 h ago")),
+        ("auth", "key", "warning", L.T("Сброс пароля по ссылке из письма", "Хаттағы сілтеме арқылы құпиясөзді қалпына келтіру", "Password reset via email link"), "a.nurzhanov@edu.kz", "92.46.10.77", L.T("3 ч назад", "3 сағ бұрын", "3 h ago")),
+        ("auth", "user-x", "error", L.T("5 неудачных попыток входа подряд", "Қатарынан 5 сәтсіз кіру әрекеті", "5 failed sign-in attempts in a row"), "t.ibraev@edu.kz", "37.150.2.19", L.T("вчера, 23:41", "кеше, 23:41", "yesterday, 23:41")),
+        ("role", "user-cog", "primary", L.T("Пользователь заблокирован", "Пайдаланушы бұғатталды", "User blocked"), "admin@edu.ai", "127.0.0.1", L.T("вчера, 23:45", "кеше, 23:45", "yesterday, 23:45")),
+    };
+    var filters = new[] { ("all", L.T("Все", "Барлығы", "All")), ("auth", L.T("Входы", "Кірулер", "Sign-ins")), ("role", L.T("Роли", "Рөлдер", "Roles")), ("grade", L.T("Оценки", "Бағалар", "Grades")), ("export", L.T("Экспорт", "Экспорт", "Exports")), ("security", L.T("Угрозы", "Қауіптер", "Threats")) };
+    var recent = Model.Where(u => u.LastSeen.Contains('.')).Take(5).ToList();
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Журнал и безопасность", "Журнал және қауіпсіздік", "Audit & security")</h1>
+        <p>@L.T("Кто, что и когда сделал на платформе. Подозрительные действия подсвечены.", "Платформада кім, не және қашан жасады. Күдікті әрекеттер белгіленген.", "Who did what and when. Suspicious actions are highlighted.")</p>
+    </div>
+    <button class="btn btn-outline" type="button" data-toast="@L.T("Журнал выгружается в CSV", "Журнал CSV-ге жүктелуде", "Exporting the log to CSV")" data-toast-icon="download">@Html.Icon("download") CSV</button>
+</div>
+
+<div class="grid cols-4 mb-6 stagger">
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Событий за сутки", "Тәуліктегі оқиғалар", "Events today")</span><span class="ibox">@Html.Icon("activity")</span></div><div class="stat-value">1 284</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Неудачных входов", "Сәтсіз кірулер", "Failed sign-ins")</span><span class="ibox ibox-warning">@Html.Icon("user-x")</span></div><div class="stat-value">7</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Заблокировано атак", "Бұғатталған шабуылдар", "Attacks blocked")</span><span class="ibox ibox-error">@Html.Icon("shield-alert")</span></div><div class="stat-value">14</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Активных сессий", "Белсенді сессиялар", "Active sessions")</span><span class="ibox ibox-success">@Html.Icon("monitor-smartphone")</span></div><div class="stat-value">342</div></div>
+</div>
+
+<div class="grid cols-main-side" style="align-items:start">
+    <section class="card card-flush">
+        <div class="toolbar" style="padding:14px 16px;margin:0;border-bottom:1px solid var(--border)">
+            <div class="input-group search">@Html.Icon("search")<input class="input input-sm" type="search" placeholder="@L.T("Поиск по событию, пользователю, IP…", "Оқиға, пайдаланушы, IP бойынша іздеу…", "Search event, user, IP…")" data-search-target="#auditList" /></div>
+        </div>
+        <div class="tabs" style="padding:0 16px" data-filter-target="#auditList">
+            @foreach (var (k, name) in filters) { <button class="tab @(k == "all" ? "active" : "")" data-filter="@k">@name</button> }
+        </div>
+        <div id="auditList">
+            @foreach (var (kind, icon, tone, text, who, ip, when) in events)
+            {
+                <article class="audit-item @(tone == "error" ? "is-alert" : "")" data-tags="all @kind">
+                    <span class="ibox ibox-sm ibox-@tone">@Html.Icon(icon)</span>
+                    <div class="grow" style="min-width:0">
+                        <b class="text-sm">@text</b>
+                        <div class="audit-meta"><span>@who</span><span class="mono">IP @ip</span><span>@when</span></div>
+                    </div>
+                    @if (tone == "error") { <span class="badge badge-error">@L.T("Внимание", "Назар", "Alert")</span> }
+                </article>
+            }
+        </div>
+        <partial name="_EmptyState" model='new EmptyState("search-x", L.T("Событий не найдено", "Оқиғалар табылмады", "No events found"), L.T("Измените фильтр или запрос.", "Сүзгіні немесе сұрауды өзгертіңіз.", "Change the filter or query."), "#auditList")' />
+    </section>
+
+    <aside class="col gap-6">
+        <section class="card">
+            <div class="card-title mb-3">@Html.Icon("shield-check", "icon-sm") @L.T("Политика безопасности", "Қауіпсіздік саясаты", "Security policy")</div>
+            <div class="setting-row"><div><b>@L.T("2FA для админов", "Әкімшілер үшін 2FA", "2FA for admins")</b><small>@L.T("Обязательна при входе", "Кіргенде міндетті", "Required at sign-in")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+            <div class="setting-row"><div><b>@L.T("Блокировка после 5 попыток", "5 әрекеттен кейін бұғаттау", "Lock after 5 attempts")</b><small>@L.T("на 15 минут", "15 минутқа", "for 15 minutes")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+            <div class="setting-row"><div><b>@L.T("Пароль от 8 символов", "8 таңбадан құпиясөз", "Password ≥ 8 characters")</b><small>@L.T("Хранится только хеш PBKDF2", "Тек PBKDF2 хеші сақталады", "Only a PBKDF2 hash is stored")</small></div><label class="switch"><input type="checkbox" checked disabled /><span></span></label></div>
+            <button class="btn btn-primary btn-sm mt-4" type="button" data-toast="@L.T("Политика сохранена", "Саясат сақталды", "Policy saved")" data-toast-icon="shield-check">@L.T("Сохранить", "Сақтау", "Save")</button>
+        </section>
+        <section class="card">
+            <div class="card-title mb-3">@Html.Icon("history", "icon-sm") @L.T("Последние входы", "Соңғы кірулер", "Recent sign-ins")</div>
+            <div class="list">
+                @foreach (var u in recent)
+                {
+                    <div class="list-item">
+                        <span class="avatar avatar-sm av-@(u.Id % 6 + 1)">@string.Concat(u.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpper(w[0])))</span>
+                        <div class="grow" style="min-width:0"><div class="list-title truncate">@u.Name</div><div class="list-meta">@u.LastSeen</div></div>
+                        <button class="btn btn-ghost btn-sm" type="button" data-toast="@L.T("Сессии пользователя завершены", "Пайдаланушы сессиялары аяқталды", "User sessions ended")" data-toast-icon="log-out">@L.T("Завершить", "Аяқтау", "End")</button>
+                    </div>
+                }
+                @if (recent.Count == 0) { <p class="text-sm muted">@L.T("Пока никто не входил.", "Әзірге ешкім кірмеді.", "No sign-ins yet.")</p> }
+            </div>
+        </section>
+    </aside>
+</div>

@@ -1,0 +1,43 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Курсы", "Курстар", "Courses");
+    ViewData["Nav"] = "courses";
+    var courses = Model.GetCourses();
+    var categories = Model.GetCategories();
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Курсы", "Курстар", "Courses")</h1>
+        <p>@L.T("Выбирайте направления и учитесь в своём темпе.", "Бағыттарды таңдап, өз қарқыныңызбен оқыңыз.", "Pick a direction and learn at your own pace.")</p>
+    </div>
+    <div class="segmented" data-filter-target="#courseGrid">
+        <button class="active" data-filter="all">@L.T("Все", "Барлығы", "All")</button>
+        <button data-filter="active">@L.T("В процессе", "Үдерісте", "In progress")</button>
+        <button data-filter="done">@L.T("Завершённые", "Аяқталған", "Completed")</button>
+        <button data-filter="new">@L.T("Новые", "Жаңа", "New")</button>
+    </div>
+</div>
+
+<div class="toolbar">
+    <div class="input-group search">
+        @Html.Icon("search")
+        <input class="input" type="search" placeholder="@L.T("Поиск по курсам…", "Курстар бойынша іздеу…", "Search courses…")" data-search-target="#courseGrid" />
+    </div>
+    <div class="chips" data-filter-target="#courseGrid">
+        @for (var i = 0; i < categories.Count; i++)
+        {
+            var count = i == 0 ? courses.Count : courses.Count(c => c.Category == categories[i]);
+            <button class="chip @(i == 0 ? "active" : "")" data-filter="@(i == 0 ? "all" : $"cat-{i}")">@categories[i] <span class="count">@count</span></button>
+        }
+    </div>
+</div>
+
+<div class="grid cols-auto stagger" id="courseGrid">
+    @foreach (var c in courses)
+    {
+        var idx = categories.IndexOf(c.Category);
+        <partial name="_CourseCard" model="c" view-data="@(new ViewDataDictionary(ViewData) { ["CatIndex"] = idx })" />
+    }
+</div>
+<partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#courseGrid")' />

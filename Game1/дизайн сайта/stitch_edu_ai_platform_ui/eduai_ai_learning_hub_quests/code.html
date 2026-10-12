@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI - AI Tutor &amp; Quests</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed-dim": "#4cd7f6",
+            "on-tertiary-fixed": "#001f26",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-primary-container": "#faf6ff",
+            "secondary-container": "#dcd5fd",
+            "on-secondary-container": "#605b7d",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "surface-variant": "#dce2f7",
+            "on-secondary-fixed": "#1b1735",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "surface": "#f9f9ff",
+            "on-error": "#ffffff",
+            "inverse-surface": "#293040",
+            "inverse-primary": "#c6bfff",
+            "on-secondary-fixed-variant": "#474363",
+            "surface-container-highest": "#dce2f7",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#141b2b",
+            "error": "#ba1a1a",
+            "surface-bright": "#f9f9ff",
+            "on-primary-fixed": "#160066",
+            "tertiary-container": "#007d92",
+            "surface-container-high": "#e1e8fd",
+            "primary-container": "#6c5ce7",
+            "on-surface-variant": "#474554",
+            "error-container": "#ffdad6",
+            "on-background": "#141b2b",
+            "on-primary-fixed-variant": "#4029ba",
+            "inverse-on-surface": "#edf0ff",
+            "tertiary": "#006274",
+            "primary-fixed": "#e4dfff",
+            "tertiary-fixed": "#acedff",
+            "secondary-fixed": "#e5deff",
+            "outline": "#787586",
+            "surface-tint": "#5847d2",
+            "secondary": "#5f5a7c",
+            "primary-fixed-dim": "#c6bfff",
+            "on-tertiary-container": "#edfaff",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#f1f3ff",
+            "outline-variant": "#c8c4d7",
+            "surface-dim": "#d3daef",
+            "primary": "#5341cd",
+            "surface-container": "#e9edff",
+            "background": "#f9f9ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "2rem",
+            "space-lg": "1.5rem",
+            "margin-mobile": "1rem",
+            "space-md": "1rem",
+            "gutter": "1.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "caption": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+            "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700"}],
+            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+            "body-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "display-hero": ["56px", {"lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+            "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+            "body-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+            "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "display-hero-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+            "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .soft-card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(108, 92, 231, 0.05);
+    }
+    .neon-glow-primary {
+      box-shadow: 0 0 16px 2px rgba(108, 92, 231, 0.35);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-secondary-container selection:text-primary">
+<!-- TopAppBar Shared Component Anchor -->
+<header class="sticky top-0 z-40 flex justify-between items-center w-full px-space-md py-space-sm max-w-7xl mx-auto bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="relative flex items-center justify-center p-0.5 rounded-full bg-gradient-to-tr from-primary to-tertiary-fixed-dim">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center border border-surface-container overflow-hidden">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="account_circle">account_circle</span>
+</div>
+<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary font-label-sm text-[9px] w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-surface">14</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed leading-tight">EduAI</h1>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-1.5 px-2.5 py-1 bg-primary-fixed/60 rounded-full border border-primary-fixed">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">2,450 XP</span>
+</div>
+<button aria-label="Notifications" class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[22px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+</div>
+</header>
+<!-- Main Mobile Content Area -->
+<main class="flex-1 w-full max-w-md mx-auto px-space-md pt-space-sm pb-32 space-y-space-md">
+<!-- AI Tutor Interactive Sub-Header Banner -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md border border-surface-variant/80 soft-card-shadow relative overflow-hidden">
+<div class="absolute -right-6 -bottom-6 w-28 h-28 bg-primary/5 rounded-full pointer-events-none blur-xl"></div>
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center shadow-md shadow-primary/20">
+<span aria-label="Robot" class="text-2xl" role="img">🤖</span>
+<span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full ring-2 ring-surface-container-lowest"></span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">EduAI Tutor</h2>
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant flex items-center gap-1">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              В сети · Персональный ментор
+            </p>
+</div>
+</div>
+<!-- Model Selector Pill -->
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary text-[14px]" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">GPT-4o EdTech</span>
+<span class="material-symbols-outlined text-[14px] text-outline" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Quick Action Chips (Scrollable) -->
+<section class="space-y-1.5">
+<div class="flex items-center justify-between px-0.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Быстрые запросы</span>
+<span class="font-caption text-caption text-primary flex items-center gap-0.5 cursor-pointer">
+          Личный контекст
+          <span class="material-symbols-outlined text-[14px]" data-icon="bolt">bolt</span>
+</span>
+</div>
+<div class="flex gap-2 overflow-x-auto no-scrollbar py-1 -mx-space-md px-space-md">
+<button class="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/40 text-on-surface hover:border-primary active:scale-95 transition-all text-label-sm font-label-sm shadow-xs">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="lightbulb">lightbulb</span>
+          Объясни тему проще
+        </button>
+<button class="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-fixed/50 border border-secondary-fixed text-primary font-label-sm text-label-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px] text-error" data-icon="troubleshoot">troubleshoot</span>
+          Почему я ошибся?
+        </button>
+<button class="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/40 text-on-surface hover:border-primary active:scale-95 transition-all text-label-sm font-label-sm shadow-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container" data-icon="library_books">library_books</span>
+          Рекомендуй материалы
+        </button>
+<button class="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/40 text-on-surface hover:border-primary active:scale-95 transition-all text-label-sm font-label-sm shadow-xs">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="calendar_month">calendar_month</span>
+          Создай план обучения
+        </button>
+<button class="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/40 text-on-surface hover:border-primary active:scale-95 transition-all text-label-sm font-label-sm shadow-xs">
+<span class="material-symbols-outlined text-[16px] text-amber-500" data-icon="sports_esports">sports_esports</span>
+          Пройти AI Challenge
+        </button>
+</div>
+</section>
+<!-- AI Dialogue Section -->
+<section class="space-y-3">
+<!-- User Query -->
+<div class="flex justify-end items-end gap-2 pl-8">
+<div class="bg-primary text-on-primary rounded-2xl rounded-tr-xs px-4 py-3 shadow-sm max-w-[88%]">
+<p class="font-body-sm text-body-sm leading-relaxed">
+            Не могу понять, почему запрос с LEFT JOIN возвращает NULL для некоторых строк?
+          </p>
+<div class="flex items-center justify-end gap-1 mt-1 text-[10px] text-primary-fixed/80">
+<span>14:24</span>
+<span class="material-symbols-outlined text-[12px]" data-icon="done_all">done_all</span>
+</div>
+</div>
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0 text-caption font-bold">
+          ВЫ
+        </div>
+</div>
+<!-- AI Response Bubble (Inline Synthesizer Aesthetic) -->
+<div class="flex items-start gap-2 pr-4">
+<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary to-tertiary-fixed-dim text-on-primary flex items-center justify-center shrink-0 shadow-sm mt-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl rounded-tl-xs p-4 soft-card-shadow space-y-3 flex-1 relative overflow-hidden">
+<div class="flex items-center justify-between border-b border-surface-variant pb-2">
+<span class="font-label-sm text-label-sm text-primary font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="school">school</span>
+              Разбор логики SQL
+            </span>
+<span class="font-caption text-caption text-on-surface-variant">только что</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+            При <code class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-mono text-xs font-semibold">LEFT JOIN</code> сохраняются <strong class="text-on-surface">все записи левой таблицы</strong>, даже если в правой таблице нет подходящих совпадений по условию <code class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-mono text-xs font-semibold">ON</code>.
+          </p>
+<!-- Code Snippet Box -->
+<div class="rounded-xl bg-inverse-surface text-inverse-on-surface p-3 font-mono text-xs overflow-x-auto space-y-1">
+<div class="flex items-center justify-between text-[11px] text-surface-variant/70 border-b border-surface-variant/20 pb-1 mb-1">
+<span>SQL Query Snippet</span>
+<button class="hover:text-primary-fixed flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="content_copy">content_copy</span> Копировать
+              </button>
+</div>
+<p><span class="text-tertiary-fixed-dim">SELECT</span> users.name, orders.id</p>
+<p><span class="text-tertiary-fixed-dim">FROM</span> users</p>
+<p><span class="text-tertiary-fixed-dim">LEFT JOIN</span> orders <span class="text-tertiary-fixed-dim">ON</span> users.id = orders.user_id;</p>
+<p class="text-surface-variant/60 italic pt-1">-- Если у пользователя нет заказов, orders.id станет NULL</p>
+</div>
+<!-- Highlight Box -->
+<div class="p-2.5 rounded-xl bg-secondary-container/40 border border-secondary-container text-on-secondary-fixed flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5" data-icon="tips_and_updates" style="font-variation-settings: 'FILL' 1;">tips_and_updates</span>
+<p class="font-caption text-caption">
+<strong>Совет ментора:</strong> Если вам нужны только строки, у которых строго есть связь, замените оператор на <span class="text-primary font-semibold">INNER JOIN</span>.
+            </p>
+</div>
+<!-- Interactive Action Chips within Bubble -->
+<div class="pt-1 flex flex-wrap gap-2">
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-variant text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]" data-icon="quiz">quiz</span>
+              Проверить на практике
+            </button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-variant text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]" data-icon="thumb_up">thumb_up</span>
+              Понятно
+            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Mistake & Error Analysis Card (Спецаналитика ошибок) -->
+<section class="bg-surface-container-lowest rounded-2xl p-space-md border border-outline-variant/40 soft-card-shadow space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-xl bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Спецаналитика ошибок</h3>
+<p class="font-caption text-caption text-on-surface-variant">Данные за последние 7 интерактивных сессий</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm font-extrabold text-primary">72%</span>
+<span class="block font-caption text-[10px] text-on-surface-variant uppercase tracking-wider">Mastery Score</span>
+</div>
+</div>
+<!-- Mastery Track -->
+<div class="space-y-1">
+<div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden flex">
+<div class="bg-gradient-to-r from-primary to-tertiary-fixed-dim h-full rounded-full transition-all duration-500" style="width: 72%"></div>
+</div>
+<div class="flex justify-between font-caption text-[11px] text-on-surface-variant">
+<span>Базовый порог: 60%</span>
+<span class="text-primary font-medium">Цель: 85% (Junior Ready)</span>
+</div>
+</div>
+<!-- Strengths and Weaknesses -->
+<div class="grid grid-cols-1 gap-2.5 pt-1">
+<!-- Strengths -->
+<div class="p-2.5 rounded-xl bg-surface-container-low/60 border border-surface-variant">
+<span class="font-label-sm text-label-sm text-emerald-700 flex items-center gap-1 font-semibold mb-1">
+<span class="material-symbols-outlined text-[16px] text-emerald-600" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            Сильные стороны:
+          </span>
+<div class="flex flex-wrap gap-1.5 text-on-surface font-body-sm text-xs">
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest border border-outline-variant/30">✓ PHP Basics</span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest border border-outline-variant/30">✓ Functions &amp; Routing</span>
+</div>
+</div>
+<!-- Needs Revision -->
+<div class="p-2.5 rounded-xl bg-error-container/20 border border-error-container/60">
+<span class="font-label-sm text-label-sm text-error flex items-center gap-1 font-semibold mb-1">
+<span class="material-symbols-outlined text-[16px] text-error" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+            ⚠ Требует повторения:
+          </span>
+<div class="space-y-1 text-xs">
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-medium text-error">• SQL JOIN (3 ошибки в тесте)</span>
+<span class="text-[10px] text-on-surface-variant">Синтаксис ON/WHERE</span>
+</div>
+<div class="flex items-center justify-between text-on-surface">
+<span class="font-medium text-on-surface">• Eloquent ORM</span>
+<span class="text-[10px] text-on-surface-variant">Жадная загрузка (N+1)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md flex items-center justify-center gap-2 shadow-md shadow-primary/20 active:scale-98 transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="bolt">bolt</span>
+        Сгенерировать мини-тест на ошибку (+30 XP)
+      </button>
+</section>
+<!-- AI Skill Tree & Quests Preview -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Древо навыков и Квесты</h3>
+<p class="font-caption text-caption text-on-surface-variant">Динамический трек прогресса AI</p>
+</div>
+<span class="material-symbols-outlined text-primary cursor-pointer" data-icon="hub">hub</span>
+</div>
+<!-- Skill Tree Nodes Horizontal Layout -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md border border-outline-variant/40 soft-card-shadow">
+<div class="flex items-center justify-between relative py-2">
+<!-- Background connector line -->
+<div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-0.5 bg-surface-variant z-0"></div>
+<!-- Node 1: Programming (Completed) -->
+<div class="relative z-10 flex flex-col items-center gap-1.5">
+<div class="w-12 h-12 rounded-full bg-emerald-500 text-on-primary flex items-center justify-center ring-4 ring-emerald-100 shadow-sm">
+<span class="material-symbols-outlined text-[22px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Programming</span>
+<span class="font-caption text-[11px] text-emerald-600 font-medium">Completed ✓</span>
+</div>
+<!-- Node 2: SQL (In Progress with Neon Glow) -->
+<div class="relative z-10 flex flex-col items-center gap-1.5">
+<div class="w-13 h-13 p-0.5 rounded-full bg-primary-container neon-glow-primary flex items-center justify-center animate-pulse">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[24px]" data-icon="database" style="font-variation-settings: 'FILL' 1;">database</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-primary">SQL Mastery</span>
+<span class="font-caption text-[11px] text-primary font-semibold">● 75% в процессе</span>
+</div>
+<!-- Node 3: Web Dev (Locked) -->
+<div class="relative z-10 flex flex-col items-center gap-1.5 opacity-60">
+<div class="w-12 h-12 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center border border-outline-variant/40">
+<span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Web Dev</span>
+<span class="font-caption text-[11px] text-outline">Locked 🔒</span>
+</div>
+</div>
+<!-- Active Quest Banner -->
+<div class="mt-4 p-3 rounded-xl bg-surface-container-low border border-primary-fixed flex items-center justify-between gap-3">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]" data-icon="military_tech" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Активный квест</span>
+<span class="px-1.5 py-0.2 rounded bg-primary text-on-primary font-label-sm text-[10px]">+50 XP</span>
+</div>
+<p class="font-body-sm text-xs text-on-surface-variant">Пройди блиц по SQL JOIN — 3/5 вопросов</p>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant text-primary font-label-sm text-label-sm hover:border-primary active:scale-95 transition-all shrink-0">
+            Продолжить
+          </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom Chat Input Bar & Navigation Container -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-lg border-t border-outline-variant/30 shadow-[0_-8px_30px_-5px_rgba(108,92,231,0.12)]">
+<!-- Chat Input Section (Above the bottom nav) -->
+<div class="max-w-md mx-auto px-space-md pt-2.5 pb-1.5">
+<div class="flex items-center gap-1.5 bg-surface-container-low rounded-2xl p-1.5 border border-outline-variant/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<button aria-label="Прикрепить файл" class="p-2 text-on-surface-variant hover:text-primary rounded-xl transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[20px]" data-icon="attach_file">attach_file</span>
+</button>
+<input class="flex-1 bg-transparent border-0 focus:ring-0 text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm py-1 px-1 outline-none" placeholder="Задайте вопрос AI..." type="text"/>
+<button aria-label="Голосовой ввод" class="p-2 text-on-surface-variant hover:text-primary rounded-xl transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[20px]" data-icon="mic">mic</span>
+</button>
+<button aria-label="Отправить" class="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-md shadow-primary/30 hover:bg-primary-container active:scale-95 transition-all shrink-0">
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_upward">arrow_upward</span>
+</button>
+</div>
+</div>
+<!-- BottomNavBar Shared Component -->
+<!-- Destination count: 5, Active: AI Tutor (index 2) -->
+<nav aria-label="Основная навигация" class="max-w-md mx-auto flex justify-around items-center px-space-sm py-space-xs">
+<!-- Tab 1: Learn -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="school">school</span>
+<span class="text-label-sm font-label-sm mt-0.5">Learn</span>
+</a>
+<!-- Tab 2: Quests -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="military_tech">military_tech</span>
+<span class="text-label-sm font-label-sm mt-0.5">Quests</span>
+</a>
+<!-- Tab 3: AI Tutor (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1.5 transition-all shadow-sm active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="text-label-sm font-label-sm mt-0.5 font-bold">AI Tutor</span>
+</a>
+<!-- Tab 4: Analytics -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="insights">insights</span>
+<span class="text-label-sm font-label-sm mt-0.5">Analytics</span>
+</a>
+<!-- Tab 5: Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm mt-0.5">Profile</span>
+</a>
+</nav>
+</div>
+</body></html>

@@ -1,0 +1,56 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("git-compare-arrows", L.T("Пузырёк: сравнивайте подсвеченную пару — «Поменять», если левый больше, иначе «Оставить».", "Көпіршік: жұпты салыстырыңыз — сол жақтағы үлкен болса «Ауыстыру», әйтпесе «Қалдыру».", "Bubble: compare the highlighted pair — Swap if the left one is bigger, otherwise Keep.")),
+        ("mouse-pointer-click", L.T("Выбор: нажимайте на самый маленький кристалл в несортированной части.", "Таңдау: сұрыпталмаған бөліктегі ең кіші кристалды басыңыз.", "Selection: click the smallest crystal in the unsorted part.")),
+        ("heart", L.T("3 жизни — ошибка в шаге алгоритма отнимает одну.", "3 өмір — алгоритм қадамындағы қате біреуін алады.", "3 lives — a wrong algorithm step costs one.")),
+        ("keyboard", L.T("Клавиши: ← поменять, → оставить.", "Пернелер: ← ауыстыру, → қалдыру.", "Keys: ← swap, → keep.")),
+    };
+    ViewData["Options"] = new (string, string, string)[]
+    {
+        ("algo", "bubble", L.T("Пузырёк", "Көпіршік", "Bubble sort")),
+        ("algo", "selection", L.T("Выбором", "Таңдау", "Selection sort")),
+        ("size", "6", L.T("6 кристаллов", "6 кристалл", "6 crystals")),
+        ("size", "8", L.T("8 кристаллов", "8 кристалл", "8 crystals")),
+        ("size", "10", L.T("10 кристаллов", "10 кристалл", "10 crystals")),
+    };
+    ViewData["OptionTitles"] = new Dictionary<string, string> { ["algo"] = L.T("Алгоритм", "Алгоритм", "Algorithm"), ["size"] = L.T("Размер", "Өлшем", "Size") };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="srt" data-game-stage hidden>
+    <div class="srt-head">
+        <span class="g-tag" data-srt-algo></span>
+        <span class="text-sm subtle" data-srt-pass></span>
+    </div>
+    <p class="g-task" data-srt-task></p>
+    <div class="srt-stage" data-srt-stage></div>
+    <div class="srt-actions" data-srt-bubble>
+        <button class="btn btn-lg srt-btn swap" type="button" data-srt="swap">⇄ @L.T("Поменять", "Ауыстыру", "Swap") <kbd>←</kbd></button>
+        <button class="btn btn-lg srt-btn keep" type="button" data-srt="keep">✓ @L.T("Оставить", "Қалдыру", "Keep") <kbd>→</kbd></button>
+    </div>
+    <div class="g-explain mt-4" data-srt-info>
+        <b>@L.T("Сравнений", "Салыстыру", "Comparisons"):</b> <span data-srt-cmp>0</span> · <b>@L.T("Обменов", "Алмасу", "Swaps"):</b> <span data-srt-swp>0</span>
+        <span class="subtle" data-srt-note></span>
+    </div>
+</section>
+
+<script>
+    window.SRT_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        bubble = L.T("Сортировка пузырьком", "Көпіршікті сұрыптау", "Bubble sort"),
+        selection = L.T("Сортировка выбором", "Таңдау арқылы сұрыптау", "Selection sort"),
+        bubbleTask = L.T("Левый кристалл больше правого? Тогда поменяйте их.", "Сол жақтағы кристалл оң жақтағыдан үлкен бе? Онда ауыстырыңыз.", "Is the left crystal bigger than the right? Then swap them."),
+        selectionTask = L.T("Выберите самый маленький кристалл среди несортированных.", "Сұрыпталмағандар арасынан ең кіші кристалды таңдаңыз.", "Pick the smallest crystal among the unsorted ones."),
+        pass = L.T("Проход {p}", "{p}-өту", "Pass {p}"),
+        wrongSwap = L.T("{a} ≤ {b} — менять не нужно", "{a} ≤ {b} — ауыстыру керек емес", "{a} ≤ {b} — no swap needed"),
+        wrongKeep = L.T("{a} > {b} — нужно было поменять", "{a} > {b} — ауыстыру керек еді", "{a} > {b} — that needed a swap"),
+        wrongMin = L.T("Минимум здесь — {m}", "Мұндағы минимум — {m}", "The minimum here is {m}"),
+        sorted = L.T("Отсортировано!", "Сұрыпталды!", "Sorted!"),
+        fail = L.T("Алгоритм сбился", "Алгоритм адасты", "The algorithm went off track"),
+        steps = L.T("Верных шагов", "Дұрыс қадам", "Correct steps"),
+        time = L.T("Время", "Уақыт", "Time"),
+        score = L.T("Очки", "Ұпай", "Score"),
+        note = L.T("Пузырёк делает O(n²) сравнений — поэтому на больших массивах используют быструю сортировку.", "Көпіршік O(n²) салыстыру жасайды — сондықтан үлкен массивтерге жылдам сұрыптау қолданылады.", "Bubble sort makes O(n²) comparisons — that's why big arrays use quicksort."),
+    }));
+</script>

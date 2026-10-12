@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI — Премиальная образовательная платформа с AI</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration verbatim -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed-dim": "#4cd7f6",
+            "on-tertiary-fixed": "#001f26",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-primary-container": "#faf6ff",
+            "secondary-container": "#dcd5fd",
+            "on-secondary-container": "#605b7d",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "surface-variant": "#dce2f7",
+            "on-secondary-fixed": "#1b1735",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "surface": "#f9f9ff",
+            "on-error": "#ffffff",
+            "inverse-surface": "#293040",
+            "inverse-primary": "#c6bfff",
+            "on-secondary-fixed-variant": "#474363",
+            "surface-container-highest": "#dce2f7",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#141b2b",
+            "error": "#ba1a1a",
+            "surface-bright": "#f9f9ff",
+            "on-primary-fixed": "#160066",
+            "tertiary-container": "#007d92",
+            "surface-container-high": "#e1e8fd",
+            "primary-container": "#6c5ce7",
+            "on-surface-variant": "#474554",
+            "error-container": "#ffdad6",
+            "on-background": "#141b2b",
+            "on-primary-fixed-variant": "#4029ba",
+            "inverse-on-surface": "#edf0ff",
+            "tertiary": "#006274",
+            "primary-fixed": "#e4dfff",
+            "tertiary-fixed": "#acedff",
+            "secondary-fixed": "#e5deff",
+            "outline": "#787586",
+            "surface-tint": "#5847d2",
+            "secondary": "#5f5a7c",
+            "primary-fixed-dim": "#c6bfff",
+            "on-tertiary-container": "#edfaff",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#f1f3ff",
+            "outline-variant": "#c8c4d7",
+            "surface-dim": "#d3daef",
+            "primary": "#5341cd",
+            "surface-container": "#e9edff",
+            "background": "#f9f9ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "2rem",
+            "space-lg": "1.5rem",
+            "margin-mobile": "1rem",
+            "space-md": "1rem",
+            "gutter": "1.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "caption": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700"}],
+            "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700"}],
+            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+            "body-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "headline-xl-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "display-hero": ["56px", {"lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+            "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+            "body-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+            "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "display-hero-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+            "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .custom-gradient-border {
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.4), rgba(76, 215, 246, 0.3));
+      padding: 1px;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased overflow-x-hidden pb-12 selection:bg-secondary-container selection:text-primary">
+<!-- TOP APP BAR -->
+<header class="sticky top-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md shadow-sm border-b border-outline-variant/30">
+<div class="max-w-md mx-auto px-gutter-mobile py-space-sm flex items-center justify-between">
+<!-- Brand & Gradient Logo -->
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-container to-tertiary-fixed-dim flex items-center justify-center shadow-sm">
+<span class="text-surface-container-lowest font-headline-sm font-bold text-[18px]">E</span>
+</div>
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight">EduAI</span>
+</div>
+<!-- Language Selector -->
+<div class="flex items-center bg-surface-container-low p-0.5 rounded-full border border-outline-variant/40">
+<button class="px-2 py-0.5 text-caption font-caption text-on-surface-variant hover:text-primary transition-colors">KZ</button>
+<button class="px-2.5 py-0.5 text-caption font-caption font-semibold bg-surface-container-lowest text-primary rounded-full shadow-sm">RU</button>
+<button class="px-2 py-0.5 text-caption font-caption text-on-surface-variant hover:text-primary transition-colors">EN</button>
+</div>
+<!-- Auth Actions -->
+<div class="flex items-center gap-space-xs">
+<a class="text-label-sm font-label-sm text-on-surface hover:text-primary transition-colors px-2 py-1" href="#login">Войти</a>
+<a class="text-label-sm font-label-sm bg-primary hover:bg-primary-container text-on-primary font-semibold px-3 py-1.5 rounded-xl shadow-sm transition-all active:scale-95" href="#register">Регистрация</a>
+</div>
+</div>
+</header>
+<!-- MAIN CANVAS -->
+<main class="max-w-md mx-auto px-gutter-mobile space-y-space-xl pt-space-lg">
+<!-- HERO SECTION -->
+<section class="space-y-space-lg">
+<div class="space-y-space-sm">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 border border-secondary-container">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-caption font-caption font-semibold text-primary">Интеллектуальная платформа 2025</span>
+</div>
+<h1 class="text-display-hero-mobile font-display-hero-mobile text-on-surface tracking-tight leading-tight">
+          Учись умнее с <span class="bg-gradient-to-r from-primary-container to-tertiary bg-clip-text text-transparent">AI</span>
+</h1>
+<p class="text-body-md font-body-md text-on-surface-variant">
+          Курсы, тесты, AI-помощник и игровая система обучения — всё в одной платформе.
+        </p>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-space-sm">
+<a class="flex items-center justify-center gap-2 bg-primary-container hover:bg-primary text-on-primary-container px-6 py-3.5 rounded-xl font-label-md text-label-md shadow-sm active:scale-95 transition-all text-center" href="#start">
+<span>Начать обучение</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<a class="flex items-center justify-center gap-2 bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/60 text-on-surface px-6 py-3.5 rounded-xl font-label-md text-label-md active:scale-95 transition-all text-center" href="#courses">
+<span>Смотреть курсы</span>
+</a>
+</div>
+<!-- Hero Mockup Card Preview -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md border border-outline-variant/40 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.07)] space-y-space-md">
+<!-- Top Status Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center border border-primary-fixed-dim">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="text-label-md font-label-md text-on-surface">Level 8</span>
+<span class="text-caption font-caption text-primary bg-secondary-container/50 px-1.5 py-0.5 rounded-md">Junior Dev</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">1 250 XP набрано</p>
+</div>
+</div>
+<!-- Streak Badge -->
+<div class="flex items-center gap-1 bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded-full">
+<span class="text-amber-500 font-bold text-caption font-caption">7 дней</span>
+<span class="text-[16px]">🔥</span>
+</div>
+</div>
+<!-- Progress Bar (72%) -->
+<div class="space-y-1.5">
+<div class="flex justify-between text-caption font-caption">
+<span class="text-on-surface-variant">Прогресс модуля: Python &amp; SQL</span>
+<span class="font-semibold text-primary">72%</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container rounded-full" style="width: 72%;"></div>
+</div>
+</div>
+<!-- AI Recommendation Snippet -->
+<div class="custom-gradient-border rounded-xl">
+<div class="bg-surface-bright rounded-xl p-3 flex items-start gap-2.5">
+<div class="p-1 rounded-lg bg-primary-fixed text-primary shrink-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="text-caption font-caption font-semibold text-primary">AI Рекомендация</span>
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface">Рекомендуем: <strong>Повторить SQL JOIN</strong> перед финальным тестированием модуля.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FEATURES BENTO GRID -->
+<section class="space-y-space-md">
+<div class="space-y-1">
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Возможности платформы</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Все инструменты для быстрого и глубокого освоения навыков</p>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- Feature 1: Courses -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-2">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="text-2xl">📚</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Курсы</h3>
+<p class="text-caption font-caption text-on-surface-variant">Интерактивные программы от экспертов индустрии.</p>
+</div>
+</div>
+<!-- Feature 2: AI Recommendations -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-2">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="text-2xl">🤖</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">AI рекомендации</h3>
+<p class="text-caption font-caption text-on-surface-variant">Индивидуальный трек с учетом ваших пробелов.</p>
+</div>
+</div>
+<!-- Feature 3: Tests -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-2">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="text-2xl">📝</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Тесты</h3>
+<p class="text-caption font-caption text-on-surface-variant">Адаптивная проверка знаний в реальном времени.</p>
+</div>
+</div>
+<!-- Feature 4: Achievements -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-2">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="text-2xl">🏆</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Достижения</h3>
+<p class="text-caption font-caption text-on-surface-variant">Бейджи, кубки и подтвержденные сертификаты.</p>
+</div>
+</div>
+<!-- Feature 5: Analytics -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-2">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="text-2xl">📊</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Аналитика</h3>
+<p class="text-caption font-caption text-on-surface-variant">Детальные метрики темпа и усвоения тем.</p>
+</div>
+</div>
+<!-- Feature 6: XP & Levels -->
+<div class="bg-surface-container-lowest p-space-md rounded-2xl border border-outline-variant/30 shadow-sm flex flex-col justify-between space-y-2">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary">
+<span class="text-2xl">⚡</span>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">XP и уровни</h3>
+<p class="text-caption font-caption text-on-surface-variant">Геймификация, которая держит мотивацию на пике.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- AI LEARNING ASSISTANT SHOWCASE -->
+<section class="space-y-space-md">
+<div class="space-y-1">
+<div class="inline-flex items-center gap-1 text-primary text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px]">smart_toy</span>
+<span>Персональный наставник 24/7</span>
+</div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">AI Learning Assistant</h2>
+</div>
+<!-- Dialogue Simulation Card -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-space-md shadow-sm space-y-space-md">
+<div class="flex items-center justify-between pb-space-sm border-b border-outline-variant/20">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+</div>
+<div>
+<p class="text-label-md font-label-md text-on-surface">EduAI Mentor</p>
+<p class="text-caption font-caption text-tertiary-fixed-dim">В сети • Анализирует ошибки</p>
+</div>
+</div>
+<span class="text-caption font-caption px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant">GPT-4o Vision</span>
+</div>
+<!-- Chat History Bubble -->
+<div class="space-y-3">
+<!-- User Query -->
+<div class="flex justify-end">
+<div class="bg-primary text-on-primary rounded-2xl rounded-tr-xs px-3.5 py-2 max-w-[85%] text-body-sm font-body-sm shadow-sm">
+              Почему в моем запросе объединение таблиц выдает дубликаты строк?
+            </div>
+</div>
+<!-- AI Response Bubble -->
+<div class="flex items-start gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center text-primary shrink-0 mt-1">
+<span class="material-symbols-outlined text-[14px]">neurology</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl rounded-tl-xs p-3.5 max-w-[90%] space-y-2">
+<p class="text-body-sm font-body-sm text-on-surface">
+                Мы проанализировали ваши результаты и рекомендуем <strong>повторить SQL JOIN</strong>. В вашей связи используется <code class="bg-surface-variant px-1 rounded text-primary">LEFT JOIN</code> без уникального ключа, что привело к декартову произведению.
+              </p>
+<div class="bg-surface-container-lowest p-2 rounded-xl border border-outline-variant/30 flex items-center justify-between">
+<span class="text-caption font-caption font-semibold text-primary">Мини-квиз: Проверить JOIN</span>
+<span class="material-symbols-outlined text-primary text-[18px]">play_circle</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat Input Mockup -->
+<div class="flex items-center gap-2 bg-surface rounded-xl p-1.5 border border-outline-variant/40">
+<input class="w-full bg-transparent px-2 text-body-sm font-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none" disabled="" placeholder="Задайте вопрос по уроку..." type="text"/>
+<button class="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</section>
+<!-- GAMIFICATION HIGHLIGHT -->
+<section class="space-y-space-md">
+<div class="space-y-1">
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Игровая мотивация</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Учеба без выгорания благодаря системе наград и квестов</p>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-space-md space-y-space-md shadow-sm">
+<!-- Gamification Card Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-12 h-12 rounded-2xl bg-secondary-container/60 border border-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="text-headline-sm font-headline-sm text-on-surface">Level 8</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-primary text-caption font-caption font-bold">1250 XP</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">До 9 уровня: 250 XP</p>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-600 font-label-sm text-label-sm">
+<span class="text-[14px]">🔥</span> 7 дней
+            </div>
+</div>
+</div>
+<!-- Level XP Progress -->
+<div class="space-y-1">
+<div class="w-full h-3 bg-surface-container-low rounded-full overflow-hidden p-0.5">
+<div class="h-full bg-primary-container rounded-full" style="width: 83%;"></div>
+</div>
+<div class="flex justify-between text-caption font-caption text-on-surface-variant">
+<span>1 250 XP</span>
+<span>Цель: 1 500 XP</span>
+</div>
+</div>
+<!-- Daily Quests -->
+<div class="space-y-2 pt-2 border-t border-outline-variant/20">
+<span class="text-label-md font-label-md text-on-surface">Ежедневные задания</span>
+<div class="space-y-2">
+<!-- Quest 1 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/30">
+<div class="flex items-center gap-2.5">
+<div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div>
+<p class="text-body-sm font-body-sm font-medium text-on-surface">Завершить 2 урока</p>
+<p class="text-caption font-caption text-on-surface-variant">Выполнено 2/2</p>
+</div>
+</div>
+<span class="text-label-sm font-label-sm text-primary font-bold">+50 XP</span>
+</div>
+<!-- Quest 2 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/30">
+<div class="flex items-center gap-2.5">
+<div class="w-6 h-6 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center text-caption font-caption">
+                  1/3
+                </div>
+<div>
+<p class="text-body-sm font-body-sm font-medium text-on-surface">Решить 3 теста без ошибок</p>
+<p class="text-caption font-caption text-on-surface-variant">В процессе 1/3</p>
+</div>
+</div>
+<span class="text-label-sm font-label-sm text-primary font-bold">+100 XP</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- HOW IT WORKS (4 STEPS) -->
+<section class="space-y-space-md">
+<div class="space-y-1">
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Как это работает</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Четыре простых шага к получению востребованной профессии</p>
+</div>
+<div class="space-y-3">
+<!-- Step 1 -->
+<div class="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-headline-sm font-headline-sm font-bold shrink-0">
+            01
+          </div>
+<div class="space-y-0.5">
+<h3 class="text-label-md font-label-md text-on-surface">Выберите курс</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Определите цель: Data Science, Frontend, Backend или Product Management.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-headline-sm font-headline-sm font-bold shrink-0">
+            02
+          </div>
+<div class="space-y-0.5">
+<h3 class="text-label-md font-label-md text-on-surface">Изучайте материалы</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Смотрите короткие лекции и разбирайте практические кейсы в интерактивном редакторе.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-headline-sm font-headline-sm font-bold shrink-0">
+            03
+          </div>
+<div class="space-y-0.5">
+<h3 class="text-label-md font-label-md text-on-surface">Проходите тесты</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Закрепляйте знания тестами, а AI мгновенно подсветит и исправит неточности.</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="p-space-md rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-headline-sm font-headline-sm font-bold shrink-0">
+            04
+          </div>
+<div class="space-y-0.5">
+<h3 class="text-label-md font-label-md text-on-surface">Получайте XP</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Повышайте уровень, соревнуйтесь в лигах и открывайте сертификаты для резюме.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- FINAL CTA SECTION -->
+<section class="bg-gradient-to-br from-primary-container to-primary text-on-primary rounded-3xl p-6 text-center space-y-space-md shadow-lg shadow-primary/20">
+<div class="w-12 h-12 mx-auto rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
+<span class="material-symbols-outlined text-[28px] text-on-primary">rocket_launch</span>
+</div>
+<div class="space-y-2">
+<h2 class="text-headline-md font-headline-md text-on-primary">Готовы начать обучение?</h2>
+<p class="text-body-sm font-body-sm text-on-primary-container opacity-90 max-w-xs mx-auto">
+          Присоединяйтесь к 45 000+ студентов, прокачивающих навыки с персональным AI.
+        </p>
+</div>
+<div class="space-y-2">
+<a class="w-full block bg-surface-container-lowest text-primary hover:bg-surface-container-low font-label-md text-label-md py-4 rounded-xl shadow-md active:scale-95 transition-all" href="#register">
+          Начать бесплатно
+        </a>
+<p class="text-caption font-caption text-on-primary-container/80">Без привязки карты • 7 дней пробного периода</p>
+</div>
+</section>
+</main>
+<!-- FOOTER -->
+<footer class="mt-space-xl border-t border-outline-variant/30 bg-surface-container-low py-space-xl">
+<div class="max-w-md mx-auto px-gutter-mobile space-y-space-md text-center">
+<!-- Brand & Description -->
+<div class="space-y-1">
+<div class="flex items-center justify-center gap-1.5">
+<div class="w-6 h-6 rounded-lg bg-primary flex items-center justify-center text-white text-xs font-bold">E</div>
+<span class="text-headline-sm font-headline-sm font-bold text-primary">EduAI</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">
+          Премиальная экосистема современного образования с искусственным интеллектом.
+        </p>
+</div>
+<!-- Links Grid -->
+<div class="flex justify-center gap-4 text-caption font-caption text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#courses">Курсы</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#pricing">Тарифы</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#privacy">Конфиденциальность</a>
+<span>•</span>
+<a class="hover:text-primary transition-colors" href="#terms">Условия</a>
+</div>
+<!-- Copyright -->
+<div class="pt-space-sm border-t border-outline-variant/20">
+<p class="text-caption font-caption text-outline">
+          © 2025 EduAI Inc. Все права защищены.
+        </p>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,108 @@
+@model List<ReportItem>
+@{
+    ViewData["Title"] = L.T("Отчёты", "Есептер", "Reports");
+    ViewData["Nav"] = "t-reports";
+    ViewData["Role"] = "teacher";
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Отчёты", "Есептер", "Reports")</h1>
+        <p>@L.T("Готовые отчёты по курсам и студентам. Экспорт в PDF, Excel и CSV.", "Курстар мен студенттер бойынша дайын есептер. PDF, Excel және CSV форматына экспорт.", "Ready-made reports on courses and students. Export to PDF, Excel and CSV.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <select class="select select-sm" style="width:auto" aria-label="@L.T("Период", "Кезең", "Period")">
+            <option>@L.T("Октябрь 2026", "Қазан 2026", "October 2026")</option>
+            <option>@L.T("Сентябрь 2026", "Қыркүйек 2026", "September 2026")</option>
+            <option>@L.T("Осенний семестр", "Күзгі семестр", "Fall semester")</option>
+        </select>
+        <button class="btn btn-primary btn-sm" data-modal-open="#exportModal">@Html.Icon("download", "icon-sm") @L.T("Экспорт всех", "Барлығын экспорттау", "Export all")</button>
+    </div>
+</div>
+
+<div class="grid cols-3 stagger">
+    @for (var i = 0; i < Model.Count; i++)
+    {
+        var r = Model[i];
+        var featured = r.Key == "summary";
+        <article class="card card-hover report-card @(featured ? "level-card" : "")">
+            <div class="flex items-start justify-between">
+                <span class="ibox ibox-lg @(featured ? "" : "ibox-solid")" style="@(featured ? "background:rgba(255,255,255,.18);color:#fff" : "")">@Html.Icon(r.Icon)</span>
+                <span class="badge" style="@(featured ? "background:rgba(255,255,255,.18);color:#fff" : "")">@(i + 1) / @Model.Count</span>
+            </div>
+            <div>
+                <h3>@r.Title</h3>
+                <p class="text-sm mt-2" style="@(featured ? "opacity:.85" : "color:var(--text-2)")">@r.Description</p>
+            </div>
+            <div class="flex items-center justify-between wrap gap-2">
+                <span class="text-xs" style="@(featured ? "opacity:.8" : "color:var(--text-3)")">@Html.Icon("clock", "icon-xs") @L.T("Обновлён", "Жаңартылды", "Updated"): @r.Updated</span>
+                <div class="formats">
+                    @foreach (var f in r.Formats)
+                    {
+                        <span class="badge" style="@(featured ? "background:rgba(255,255,255,.15);color:#fff" : "")">@f</span>
+                    }
+                </div>
+            </div>
+            <div class="flex gap-2 mt-auto">
+                <button class="btn @(featured ? "btn-white" : "btn-secondary") grow" data-modal-open="#reportModal">@Html.Icon("eye", "icon-sm") @L.T("Открыть", "Ашу", "Open")</button>
+                <button class="btn @(featured ? "btn-glass" : "btn-outline") grow" data-toast="@L.T("Отчёт экспортирован", "Есеп экспортталды", "Report exported"): @r.Title (@r.Formats[0])" data-toast-icon="download">@Html.Icon("download", "icon-sm") @L.T("Экспорт", "Экспорт", "Export")</button>
+            </div>
+        </article>
+    }
+    <article class="card col items-center justify-center text-center gap-3" style="border:2px dashed var(--border-strong);box-shadow:none;background:var(--surface-2)">
+        <span class="ibox ibox-lg">@Html.Icon("file-plus-2")</span>
+        <h3>@L.T("Свой отчёт", "Жеке есеп", "Custom report")</h3>
+        <p class="text-sm muted" style="max-width:240px">@L.T("Выберите метрики, курсы и период — отчёт соберётся автоматически.", "Метрикаларды, курстарды және кезеңді таңдаңыз — есеп автоматты түрде жиналады.", "Pick metrics, courses and a period — the report builds itself.")</p>
+        <button class="btn btn-secondary btn-sm" data-toast="@L.T("Конструктор отчётов появится позже", "Есеп құрастырушы кейін пайда болады", "Report builder coming soon")" data-toast-icon="info">@Html.Icon("plus", "icon-sm") @L.T("Создать", "Жасау", "Create")</button>
+    </article>
+</div>
+
+<section class="card card-flush mt-6">
+    <div class="card-head" style="padding:18px 20px 0"><div class="card-title">@L.T("История экспорта", "Экспорт тарихы", "Export history")</div></div>
+    <div class="table-wrap">
+        <table class="table table-stack">
+            <thead><tr><th>@L.T("Отчёт", "Есеп", "Report")</th><th>@L.T("Формат", "Формат", "Format")</th><th>@L.T("Дата", "Күні", "Date")</th><th>@L.T("Размер", "Көлемі", "Size")</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var (name, fmt, date, size) in new[] {
+                    (Model[0].Title, "PDF", L.T("Сегодня, 09:02", "Бүгін, 09:02", "Today, 09:02"), "1.2 MB"),
+                    (Model[1].Title, "XLSX", L.T("Вчера, 17:40", "Кеше, 17:40", "Yesterday, 17:40"), "340 KB"),
+                    (Model[4].Title, "PDF", "30.09.2026", "2.8 MB") })
+                {
+                    <tr>
+                        <td class="cell-main"><div class="cell-user"><span class="ibox ibox-sm @(fmt == "PDF" ? "ibox-error" : "ibox-success")">@Html.Icon(fmt == "PDF" ? "file-text" : "file-spreadsheet")</span><b>@name</b></div></td>
+                        <td data-label="@L.T("Формат", "Формат", "Format")"><span class="badge">@fmt</span></td>
+                        <td data-label="@L.T("Дата", "Күні", "Date")" class="muted">@date</td>
+                        <td data-label="@L.T("Размер", "Көлемі", "Size")" class="muted">@size</td>
+                        <td class="text-right"><button class="btn btn-ghost btn-sm" data-toast="@L.T("Файл скачивается", "Файл жүктелуде", "Downloading the file")" data-toast-icon="download">@Html.Icon("download", "icon-sm")</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="modal-backdrop" id="reportModal">
+    <div class="modal" style="max-width:640px">
+        <div class="flex items-center justify-between mb-4">
+            <div><h2>@Model[0].Title</h2><div class="list-meta">PHP &amp; Laravel · @L.T("Октябрь 2026", "Қазан 2026", "October 2026")</div></div>
+            <button class="icon-btn" data-modal-close aria-label="Close">@Html.Icon("x")</button>
+        </div>
+        <div class="grid cols-3" style="gap:12px">
+            <div class="card" style="padding:14px;box-shadow:none"><div class="text-xs subtle">@L.T("Студентов", "Студенттер", "Students")</div><b class="text-lg">124</b></div>
+            <div class="card" style="padding:14px;box-shadow:none"><div class="text-xs subtle">@L.T("Ср. прогресс", "Орт. прогресс", "Avg progress")</div><b class="text-lg">68%</b></div>
+            <div class="card" style="padding:14px;box-shadow:none"><div class="text-xs subtle">@L.T("Завершили", "Аяқтады", "Completed")</div><b class="text-lg">41</b></div>
+        </div>
+        <div class="mt-5 col gap-3">
+            @foreach (var (m, v) in new[] { (L.T("Модуль 1", "1-модуль", "Module 1"), 96), (L.T("Модуль 2", "2-модуль", "Module 2"), 84), (L.T("Модуль 3", "3-модуль", "Module 3"), 57), (L.T("Модуль 4", "4-модуль", "Module 4"), 22) })
+            {
+                <div class="topic-row" style="grid-template-columns:90px 1fr 44px"><span>@m</span>@Html.Progress(v, "progress-sm")<b>@v%</b></div>
+            }
+        </div>
+        <div class="flex gap-3 justify-end mt-6">
+            <button class="btn btn-ghost" data-modal-close>@L.T("Закрыть", "Жабу", "Close")</button>
+            <button class="btn btn-primary" data-modal-open="#exportModal">@Html.Icon("download", "icon-sm") PDF</button>
+        </div>
+    </div>
+</div>
+
+<partial name="_ExportModal" />

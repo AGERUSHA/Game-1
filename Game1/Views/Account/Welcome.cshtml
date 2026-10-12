@@ -1,0 +1,127 @@
+@{
+    Layout = "_FocusLayout";
+    ViewData["Title"] = L.T("Добро пожаловать", "Қош келдіңіз", "Welcome");
+    var name = User.Identity?.Name?.Split(' ').FirstOrDefault() ?? "";
+    var goals = new[]
+    {
+        ("briefcase", L.T("Сменить профессию", "Мамандықты ауыстыру", "Switch careers"), L.T("Освоить backend с нуля до первого оффера", "Backend-ті нөлден бірінші офферге дейін меңгеру", "Learn backend from zero to a first offer")),
+        ("graduation-cap", L.T("Подтянуть оценки", "Бағаларды көтеру", "Improve my grades"), L.T("Уверенно сдать лабораторные и экзамены", "Зертханалық пен емтихандарды сенімді тапсыру", "Pass labs and exams with confidence")),
+        ("sparkles", L.T("Освоить AI", "AI-ды меңгеру", "Master AI"), L.T("Встроить LLM-агентов в реальные сервисы", "LLM-агенттерді нақты сервистерге енгізу", "Build LLM agents into real services")),
+        ("compass", L.T("Просто изучаю", "Жай үйреніп жүрмін", "Just exploring"), L.T("Посмотреть курсы и выбрать направление", "Курстарды қарап, бағыт таңдау", "Browse courses and pick a direction")),
+    };
+    var paces = new[]
+    {
+        ("15", L.T("15 мин / день", "15 мин / күн", "15 min / day"), L.T("Лёгкий темп", "Жеңіл қарқын", "Light pace"), false),
+        ("30", L.T("30 мин / день", "30 мин / күн", "30 min / day"), L.T("Оптимально — советует Ух", "Оңтайлы — Ух ұсынады", "Optimal — Hoot recommends"), true),
+        ("60", L.T("1 час+ / день", "1 сағат+ / күн", "1 hour+ / day"), L.T("Интенсив", "Қарқынды", "Intensive"), false),
+    };
+}
+<main class="onb" data-onb>
+    <header class="onb-top">
+        <partial name="_Logo" />
+        <div class="onb-progress" aria-hidden="true"><i data-onb-bar></i></div>
+        <span class="text-sm subtle tabular"><span data-onb-num>1</span> / 4</span>
+        <a class="btn btn-ghost btn-sm" href="/Student/Dashboard">@L.T("Пропустить", "Өткізіп жіберу", "Skip")</a>
+    </header>
+
+    <div class="onb-body">
+        <div class="onb-owl" data-owl aria-hidden="true">
+            <span class="owl-bubble above" data-onb-say></span>
+            <partial name="_Owl" model="1" />
+        </div>
+
+        @* Step 1 — goal *@
+        <section class="onb-step active" data-step="1" data-say="@L.T($"Привет{(name.Length > 0 ? ", " + name : "")}! Я Ух. Давай настроим обучение под тебя.", $"Сәлем{(name.Length > 0 ? ", " + name : "")}! Мен Ух. Оқуды саған бейімдейік.", $"Hi{(name.Length > 0 ? ", " + name : "")}! I'm Hoot. Let's tailor your learning.")">
+            <h1>@L.T("Какая у вас главная цель?", "Басты мақсатыңыз қандай?", "What's your main goal?")</h1>
+            <p class="muted">@L.T("Ух подберёт курсы и план под ваши приоритеты.", "Ух курстар мен жоспарды басымдықтарыңызға қарай таңдайды.", "Hoot will pick courses and a plan for your priorities.")</p>
+            <div class="onb-options" role="radiogroup">
+                @foreach (var (icon, title, text) in goals)
+                {
+                    <button class="onb-option" type="button" role="radio" aria-checked="false" data-pick="goal">
+                        <span class="ibox">@Html.Icon(icon)</span>
+                        <span><b>@title</b><small>@text</small></span>
+                        <span class="tick">@Html.Icon("check")</span>
+                    </button>
+                }
+            </div>
+        </section>
+
+        @* Step 2 — pace *@
+        <section class="onb-step" data-step="2" data-say="@L.T("Регулярность важнее интенсивности!", "Жүйелілік қарқыннан маңызды!", "Consistency beats intensity!")">
+            <h1>@L.T("Сколько времени готовы уделять?", "Қанша уақыт бөле аласыз?", "How much time can you give?")</h1>
+            <p class="muted">@L.T("Выберите комфортный темп — его можно поменять в настройках.", "Ыңғайлы қарқынды таңдаңыз — оны баптауларда өзгертуге болады.", "Pick a comfortable pace — you can change it later in settings.")</p>
+            <div class="onb-options cols-3" role="radiogroup">
+                @foreach (var (min, title, text, rec) in paces)
+                {
+                    <button class="onb-option onb-pace @(rec ? "is-rec" : "")" type="button" role="radio" aria-checked="@(rec ? "true" : "false")" data-pick="pace">
+                        <span class="onb-pace-num">@min<small>@L.T("мин", "мин", "min")</small></span>
+                        <span><b>@title</b><small>@text</small></span>
+                        <span class="tick">@Html.Icon("check")</span>
+                    </button>
+                }
+            </div>
+        </section>
+
+        @* Step 3 — XP & streak *@
+        <section class="onb-step" data-step="3" data-say="@L.T("За каждое дело — XP. А заморозка спасёт серию!", "Әр іске — XP. Ал мұздату серияны сақтайды!", "Every task earns XP. And a freeze saves your streak!")">
+            <h1>@L.T("XP, уровни и серия", "XP, деңгейлер және серия", "XP, levels and streaks")</h1>
+            <p class="muted">@L.T("Каждое действие делает вас сильнее в рейтинге группы.", "Әр әрекет сізді топ рейтингінде күштірек етеді.", "Every action moves you up your group's ranking.")</p>
+            <div class="onb-cards">
+                <div class="card"><span class="ibox ibox-primary">@Html.Icon("zap")</span><b>@L.T("XP и уровни", "XP және деңгейлер", "XP & levels")</b><p class="text-sm muted">@L.T("Тесты, задания и карточки приносят XP. С уровнем Ух получает новые аксессуары.", "Тесттер, тапсырмалар мен карточкалар XP береді. Деңгеймен бірге Ух жаңа аксессуарлар алады.", "Tests, assignments and flashcards earn XP. Hoot unlocks accessories as you level up.")</p></div>
+                <div class="card"><span class="ibox ibox-warning">@Html.Icon("flame")</span><b>@L.T("Серия дней", "Күндер сериясы", "Daily streak")</b><p class="text-sm muted">@L.T("Занимайтесь каждый день — серия даёт множитель XP до ×1.5.", "Күн сайын оқыңыз — серия XP-ны ×1.5-ке дейін көбейтеді.", "Study every day — your streak multiplies XP up to ×1.5.")</p></div>
+                <div class="card"><span class="ibox ibox-info">@Html.Icon("snowflake")</span><b>@L.T("Заморозка серии", "Серияны мұздату", "Streak freeze")</b><p class="text-sm muted">@L.T("Пропустили день из-за дедлайнов? Заморозка сохранит серию автоматически.", "Мерзімдерге байланысты күн өткізіп алдыңыз ба? Мұздату серияны автоматты сақтайды.", "Missed a day because of deadlines? A freeze keeps your streak automatically.")</p></div>
+            </div>
+            <div class="onb-gift">🎁 <span>@L.T("Подарок новичка: 1 бесплатная заморозка серии и бустер ×2 XP на 48 часов.", "Жаңадан келгенге сыйлық: 1 тегін мұздату және 48 сағатқа ×2 XP бустер.", "Welcome gift: 1 free streak freeze and a ×2 XP booster for 48 hours.")</span></div>
+        </section>
+
+        @* Step 4 — done *@
+        <section class="onb-step onb-done" data-step="4" data-say="@L.T("Отличный план! Я буду подсказывать в сложных темах.", "Тамаша жоспар! Қиын тақырыптарда көмектесемін.", "Great plan! I'll help with the tricky topics.")">
+            <h1>@L.T("Всё готово к учёбе!", "Оқуға бәрі дайын!", "You're all set!")</h1>
+            <p class="muted">@L.T("Мы собрали стартовый план. Первый урок займёт около 10 минут.", "Бастапқы жоспар дайын. Алғашқы сабақ шамамен 10 минут.", "Your starter plan is ready. The first lesson takes about 10 minutes.")</p>
+            <span class="xp-chip onb-xp">@Html.Icon("zap", "icon-sm") +50 XP · @L.T("за знакомство", "танысу үшін", "for getting started")</span>
+        </section>
+    </div>
+
+    <footer class="onb-foot">
+        <button class="btn btn-ghost" type="button" data-onb-back hidden>@Html.Icon("arrow-left") @L.T("Назад", "Артқа", "Back")</button>
+        <span class="grow"></span>
+        <button class="btn btn-primary btn-lg" type="button" data-onb-next>@L.T("Продолжить", "Жалғастыру", "Continue") @Html.Icon("arrow-right")</button>
+        <a class="btn btn-primary btn-lg" href="/Student/Dashboard" data-onb-finish data-xp="50" data-xp-big hidden>@L.T("Начать обучение", "Оқуды бастау", "Start learning") @Html.Icon("rocket")</a>
+    </footer>
+</main>
+
+@section Scripts {
+<script>
+(function () {
+    const root = document.querySelector("[data-onb]");
+    const steps = [...root.querySelectorAll(".onb-step")];
+    const owl = root.querySelector(".onb-owl");
+    const q = s => root.querySelector(s);
+    let i = 0;
+    function show() {
+        steps.forEach((s, k) => s.classList.toggle("active", k === i));
+        q("[data-onb-num]").textContent = i + 1;
+        q("[data-onb-bar]").style.width = ((i + 1) / steps.length * 100) + "%";
+        q("[data-onb-back]").hidden = i === 0;
+        q("[data-onb-next]").hidden = i === steps.length - 1;
+        q("[data-onb-finish]").hidden = i !== steps.length - 1;
+        owl.classList.toggle("is-cheer", i === steps.length - 1);
+        window.eduOwl?.say(owl, steps[i].dataset.say, 4200);
+        validate();
+    }
+    // Step 1 needs a choice before continuing
+    function validate() { q("[data-onb-next]").disabled = i === 0 && !steps[0].querySelector('[aria-checked="true"]'); }
+    root.addEventListener("click", (e) => {
+        const opt = e.target.closest("[data-pick]");
+        if (opt) {
+            opt.parentElement.querySelectorAll("[data-pick]").forEach(o => o.setAttribute("aria-checked", o === opt));
+            window.eduOwl?.mood(owl, "is-happy", 900);
+            validate();
+        }
+    });
+    q("[data-onb-next]").addEventListener("click", () => { if (i < steps.length - 1) { i++; show(); } });
+    q("[data-onb-back]").addEventListener("click", () => { if (i > 0) { i--; show(); } });
+    window.addEventListener("load", show);
+})();
+</script>
+}

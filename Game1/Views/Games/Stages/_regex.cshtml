@@ -1,0 +1,49 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("check", L.T("Регулярка должна находить ВСЕ строки слева…", "Регекс сол жақтағы БАРЛЫҚ жолды табуы керек…", "Your regex must match EVERY string on the left…")),
+        ("x", L.T("…и НИ ОДНОЙ строки справа.", "…және оң жақтағы БІРДЕ-БІР жолды таппауы керек.", "…and NONE on the right.")),
+        ("ruler", L.T("Чем короче выражение, тем больше звёзд.", "Өрнек неғұрлым қысқа болса, соғұрлым көп жұлдыз.", "Shorter expressions earn more stars.")),
+        ("unlock", L.T("10 уровней: от якорей ^$ до времени и hex-цветов.", "10 деңгей: ^$ зәкірлерінен уақыт пен hex-түстерге дейін.", "10 levels: from ^$ anchors to times and hex colors.")),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="rx" data-game-stage hidden>
+    <div class="rx-levels" data-rx-levels></div>
+    <div class="rx-card">
+        <div class="flex items-center justify-between gap-2 wrap">
+            <h2 class="h-section" data-rx-title></h2>
+            <span class="g-tag" data-rx-par></span>
+        </div>
+        <p class="muted text-sm mt-1" data-rx-desc></p>
+        <label class="rx-input">
+            <span>/</span><input type="text" spellcheck="false" autocomplete="off" autocapitalize="off" data-rx-input aria-label="RegExp" /><span>/</span>
+            <small class="tabular" data-rx-len>0</small>
+        </label>
+        <p class="rx-error" data-rx-error hidden></p>
+        <div class="rx-cols">
+            <div><span class="label-caps c-success">✓ @L.T("Должны совпасть", "Сәйкес келуі керек", "Should match")</span><ul data-rx-left></ul></div>
+            <div><span class="label-caps c-error">✗ @L.T("Не должны совпасть", "Сәйкес келмеуі керек", "Should not match")</span><ul data-rx-right></ul></div>
+        </div>
+        <div class="g-explain" data-rx-done hidden></div>
+        <div class="flex gap-2 wrap mt-4">
+            <button class="btn btn-ghost" type="button" data-rx-give>@Html.Icon("eye") @L.T("Показать решение", "Шешімін көрсету", "Show a solution")</button>
+            <span class="grow"></span>
+            <button class="btn btn-primary" type="button" data-rx-next hidden>@L.T("Следующий уровень", "Келесі деңгей", "Next level") @Html.Icon("arrow-right")</button>
+        </div>
+    </div>
+</section>
+
+<script>
+    window.RX_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        par = L.T("Эталон: {n} симв.", "Эталон: {n} таңба", "Par: {n} chars"),
+        solved = L.T("Решено! Длина {n} — {s}", "Шешілді! Ұзындығы {n} — {s}", "Solved! Length {n} — {s}"),
+        given = L.T("Одно из решений: {r}", "Шешімдердің бірі: {r}", "One solution: {r}"),
+        level = L.T("Уровень", "Деңгей", "Level"),
+        solvedCount = L.T("Уровней", "Деңгейлер", "Levels"),
+        stars = L.T("Звёзд", "Жұлдыз", "Stars"),
+        allDone = L.T("Все уровни пройдены — вы ниндзя регулярок!", "Барлық деңгей өтілді — сіз регекс ниндзясыз!", "All levels cleared — you're a regex ninja!"),
+    }));
+</script>

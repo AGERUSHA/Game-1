@@ -1,0 +1,30 @@
+@* Main application layout: Sidebar + Topbar + Content *@
+<!DOCTYPE html>
+<html lang="@L.Current">
+<head>
+    <partial name="_Head" />
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <div class="app">
+        <partial name="_Sidebar" />
+        <div class="sidebar-backdrop" data-sidebar-toggle></div>
+
+        <div class="main">
+            <partial name="_Topbar" />
+            <main class="content" id="main">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <partial name="_BottomNav" />
+
+    @if ((ViewData["Role"] as string ?? "student") == "student")
+    {
+        <partial name="_OwlBuddy" />
+    }
+
+    <partial name="_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

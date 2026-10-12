@@ -1,0 +1,184 @@
+@inject IEduDataService Data
+@model List<Question>
+@{
+    Layout = "_FocusLayout";
+    var test = (TestItem)ViewData["Test"]!;
+    ViewData["Title"] = test.Title;
+    var payload = System.Text.Json.JsonSerializer.Serialize(Model.Select(q => new { q.Text, q.Options, q.Code, q.Topic, q.Correct }), new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+}
+
+<header class="focus-bar">
+    <div class="flex items-center gap-3" style="min-width:0">
+        <a class="btn btn-ghost btn-sm" href="/Student/Tests">@Html.Icon("x", "icon-sm") <span class="hide-sm">@L.T("Выйти", "Шығу", "Exit")</span></a>
+        <div style="min-width:0">
+            <b class="truncate" style="display:block">@test.Title</b>
+            <div class="list-meta truncate">@test.Course</div>
+        </div>
+    </div>
+    <div class="flex items-center gap-2">
+        <span class="quiz-timer">@Html.Icon("timer") <span id="timer">12:48</span></span>
+        <partial name="_LangSwitcher" />
+    </div>
+</header>
+
+<main class="content">
+    <div class="quiz-shell">
+        <div class="quiz-top">
+            <div class="quiz-counter">@L.T("Вопрос", "Сұрақ", "Question") <b id="qNum">4</b> / @Model.Count</div>
+            <span class="badge badge-primary" id="qTopic">Eloquent</span>
+        </div>
+        <div class="progress progress-lg is-ready"><span id="qBar" style="--value:40%"></span></div>
+        <div class="quiz-dots" id="qDots" aria-label="@L.T("Навигация по вопросам", "Сұрақтар бойынша навигация", "Question navigation")"></div>
+
+        <section class="card question-card">
+            <div class="quiz-owl" data-owl data-owl-click="custom" id="quizOwl">
+                <span class="owl-bubble left" role="status" aria-live="polite"></span>
+                <partial name="_Owl" model="Data.GetStudent().Level" />
+            </div>
+            <h2 id="qText"></h2>
+            <pre class="question-code" id="qCode" hidden></pre>
+            <div class="options" id="qOptions" role="radiogroup"></div>
+        </section>
+
+        <div class="quiz-nav">
+            <button class="btn btn-outline btn-lg" id="prevBtn">@Html.Icon("arrow-left") @L.T("Назад", "Артқа", "Back")</button>
+            <span class="text-sm muted hide-sm" id="answeredInfo"></span>
+            <button class="btn btn-primary btn-lg" id="nextBtn"></button>
+        </div>
+
+        <div class="card card-soft mt-6 flex items-center gap-4">
+            <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+            <p class="text-sm muted grow">@L.T("После завершения AI разберёт ваши ответы и подскажет, какие темы стоит повторить.", "Аяқтағаннан кейін AI жауаптарыңызды талдап, қай тақырыптарды қайталау керегін айтады.", "When you finish, the AI will review your answers and suggest topics to revisit.")</p>
+        </div>
+    </div>
+</main>
+
+<div class="modal-backdrop" id="finishModal">
+    <div class="modal text-center">
+        <span class="ibox ibox-lg ibox-solid">@Html.Icon("flag")</span>
+        <h2 class="mt-4">@L.T("Завершить тест?", "Тестті аяқтау керек пе?", "Finish the test?")</h2>
+        <p class="muted mt-2" id="finishInfo"></p>
+        <div class="flex gap-3 justify-center mt-6 wrap">
+            <button class="btn btn-outline" data-modal-close>@L.T("Вернуться", "Оралу", "Go back")</button>
+            <a class="btn btn-primary" id="finishLink" href="/Student/TestResult/@test.Id">@L.T("Завершить и получить разбор", "Аяқтап, талдау алу", "Finish & get review") @Html.Icon("sparkles", "icon-sm")</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const questions = @Html.Raw(payload);
+    const t = {
+        next: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Далее", "Келесі", "Next"))),
+        finish: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Завершить", "Аяқтау", "Finish"))),
+        answered: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Отвечено", "Жауап берілді", "Answered"))),
+        unanswered: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Без ответа", "Жауапсыз", "Unanswered")))
+    };
+    // Demo state: first three questions already answered, user is on question 4
+    const answers = [1, 1, 1, null, null, null, null, null, null, null];
+    let i = 3;
+    const keys = ["A", "B", "C", "D"];
+    const el = id => document.getElementById(id);
+
+    function render() {
+        const q = questions[i];
+        el("qNum").textContent = i + 1;
+        el("qTopic").textContent = q.topic;
+        el("qText").textContent = q.text;
+        el("qCode").hidden = !q.code;
+        el("qCode").textContent = q.code || "";
+        el("qBar").style.setProperty("--value", ((i + 1) / questions.length * 100) + "%");
+
+        el("qOptions").innerHTML = "";
+        q.options.forEach((o, k) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            const answered = answers[i] !== null;
+            b.className = "option" + (answered && k === q.correct ? " correct" : answered && answers[i] === k ? " wrong" : "");
+            b.setAttribute("role", "radio");
+            b.setAttribute("aria-checked", answers[i] === k);
+            b.innerHTML = `<span class="key">${keys[k]}</span><span class="grow"></span><i data-lucide="check-circle-2" class="icon check-icon"></i>`;
+            b.querySelector(".grow").textContent = o;
+            b.onclick = () => choose(k);
+            el("qOptions").appendChild(b);
+        });
+        el("qOptions").classList.toggle("locked", answers[i] !== null);
+
+        el("qDots").innerHTML = "";
+        questions.forEach((_, k) => {
+            const d = document.createElement("button");
+            d.className = "quiz-dot" + (k === i ? " current" : answers[k] !== null ? " answered " + (answers[k] === questions[k].correct ? "ok" : "bad") : "");
+            d.textContent = k + 1;
+            d.onclick = () => { i = k; render(); };
+            el("qDots").appendChild(d);
+        });
+
+        const done = answers.filter(a => a !== null).length;
+        el("answeredInfo").textContent = `${t.answered}: ${done} / ${questions.length}`;
+        el("prevBtn").disabled = i === 0;
+        const last = i === questions.length - 1;
+        el("nextBtn").innerHTML = last ? `${t.finish} <i data-lucide="flag" class="icon"></i>` : `${t.next} <i data-lucide="arrow-right" class="icon"></i>`;
+        el("finishInfo").textContent = `${t.answered}: ${done} · ${t.unanswered}: ${questions.length - done}`;
+        window.eduIcons();
+    }
+
+    // Ух reacts to each answer; an answer is final once chosen (instant feedback mode)
+    const owl = el("quizOwl");
+    function choose(k) {
+        if (answers[i] !== null) return;
+        answers[i] = k;
+        const ok = k === questions[i].correct;
+        render();
+        owl.classList.remove("is-cheer", "is-sad");
+        if (ok) {
+            window.eduOwl.mood(owl, "is-cheer", 1200);
+            const r = el("qOptions").children[k].getBoundingClientRect();
+            window.eduCelebrate({ xp: 12, x: r.right - 60, y: r.top, quiet: true });
+        } else {
+            window.eduOwl.mood(owl, "is-sad", 2600);
+        }
+        window.eduOwl.say(owl, window.eduOwl.pick(ok ? EDU_T.testCorrect : EDU_T.testWrong), 2600);
+    }
+    owl.addEventListener("click", () => {
+        if (answers[i] === null) window.eduOwl.say(owl, window.eduOwl.pick(EDU_T.click));
+    });
+
+    // Finishing sends the chosen answers and time spent to the result page
+    const startedLeft = 12 * 60 + 48, alreadySpent = (@test.Minutes * 60) - startedLeft;
+    el("finishLink").addEventListener("click", () => {
+        el("finishLink").href = `/Student/TestResult/@test.Id?a=${answers.map(x => x ?? -1).join(",")}&t=${alreadySpent + (startedLeft - left)}`;
+    });
+
+    el("prevBtn").onclick = () => { if (i > 0) { i--; render(); } };
+    el("nextBtn").onclick = () => {
+        if (i < questions.length - 1) { i++; render(); }
+        else document.getElementById("finishModal").classList.add("open");
+    };
+    document.addEventListener("keydown", e => {
+        if (e.target.tagName === "INPUT") return;
+        const k = "abcd1234".indexOf(e.key.toLowerCase());
+        if (k >= 0) choose(k % 4);
+        if (e.key === "ArrowRight") el("nextBtn").click();
+        if (e.key === "ArrowLeft") el("prevBtn").click();
+    });
+
+    // Mock countdown
+    let left = 12 * 60 + 48;
+    // Under 2 minutes the timer turns red and Ух starts chewing a pencil
+    let nervous = false;
+    setInterval(() => {
+        if (left > 0) left--;
+        el("timer").textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
+        if (left <= 120 && !nervous) {
+            nervous = true;
+            el("timer").parentElement.classList.add("danger");
+            owl.classList.add("is-nervous");
+            window.eduOwl.say(owl, EDU_T.testNervous, 3200);
+        }
+    }, 1000);
+
+    render();
+})();
+</script>
+}

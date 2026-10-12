@@ -1,0 +1,206 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Главная", "Басты бет", "Home");
+    ViewData["Nav"] = "dashboard";
+    var s = Model.GetStudent();
+    var course = Model.GetCourses()[0];
+    var weekly = Model.GetWeeklyActivity();
+    var deadlines = Model.GetAssignments().Where(a => a.DaysLeft >= 0).Take(3).ToList();
+    var quests = Model.GetDailyQuests();
+    var dueDecks = Model.GetDecks().Where(d => d.Due > 0).ToList();
+}
+
+<section class="welcome mb-6">
+    <div>
+        <h1>@L.T("Добро пожаловать", "Қош келдіңіз", "Welcome back"), @s.FirstName 👋</h1>
+        <p>@L.T("Продолжайте обучение и достигайте новых целей.", "Оқуды жалғастырып, жаңа мақсаттарға жетіңіз.", "Keep learning and reach new goals.")</p>
+    </div>
+    <div class="flex items-center gap-3 wrap">
+        <div class="streak-pill" data-streak-pill>
+            <span class="ibox">@Html.Icon("flame")</span>
+            <div><b><span data-streak-count>@s.Streak</span> @L.T("дней", "күн", "days")</b><small>@L.T("серия обучения", "оқу сериясы", "learning streak")</small></div>
+        </div>
+        <a class="btn btn-primary" href="/Student/CourseDetails/1">@Html.Icon("play") @L.T("Продолжить", "Жалғастыру", "Continue")</a>
+    </div>
+</section>
+
+<!-- Stats -->
+<div class="grid cols-4 stagger">
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">XP</span><span class="ibox">@Html.Icon("zap")</span></div>
+        <div class="stat-value" data-count="@s.Xp">@UiHelpers.Num(s.Xp)</div>
+        <div class="flex items-center gap-2"><span class="trend trend-up">@Html.Icon("trending-up") +310</span><span class="text-xs subtle">@L.T("за неделю", "аптада", "this week")</span></div>
+    </div>
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">@L.T("Уровень", "Деңгей", "Level")</span><span class="ibox">@Html.Icon("award")</span></div>
+        <div class="stat-value">@s.Level <small>/ 20</small></div>
+        <div>@Html.Progress(s.LevelPercent, "progress-sm")<div class="text-xs subtle mt-2">@UiHelpers.Num(s.NextLevelXp - s.Xp) XP @L.T("до уровня", "деңгейге дейін", "to level") @(s.Level + 1)</div></div>
+    </div>
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">@L.T("Курсы", "Курстар", "Courses")</span><span class="ibox">@Html.Icon("library")</span></div>
+        <div class="stat-value">@s.Courses</div>
+        <div class="flex items-center gap-2"><span class="badge badge-success">@Html.Icon("check") @s.CompletedCourses @L.T("завершено", "аяқталды", "completed")</span></div>
+    </div>
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">@L.T("Средний балл", "Орташа балл", "Average score")</span><span class="ibox">@Html.Icon("target")</span></div>
+        <div class="stat-value">@s.AverageScore<small>%</small></div>
+        <div class="flex items-center gap-2"><span class="trend trend-up">@Html.Icon("trending-up") +4%</span><span class="text-xs subtle">@L.T("за месяц", "айда", "this month")</span></div>
+    </div>
+</div>
+
+<!-- Continue learning + deadlines -->
+<div class="grid cols-main-side mt-6">
+    <div class="card card-lg">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Продолжить обучение", "Оқуды жалғастыру", "Continue learning")</div><div class="card-sub">@L.T("Вы остановились на уроке «Eloquent Relationships»", "Сіз «Eloquent Relationships» сабағында тоқтадыңыз", "You stopped at “Eloquent Relationships”")</div></div>
+            <a class="card-link" href="/Student/Courses">@L.T("Все курсы", "Барлық курстар", "All courses") @Html.Icon("arrow-right", "icon-sm")</a>
+        </div>
+        <div class="continue-card">
+            <div class="cover cover-@course.Cover"><span class="cover-icon">@Html.Icon(course.Icon)</span></div>
+            <div class="col gap-4">
+                <div>
+                    <span class="badge badge-primary">@course.Category</span>
+                    <h2 class="mt-3" style="font-size:24px">@course.Title</h2>
+                    <p class="muted mt-1">@course.Subtitle · @course.Teacher</p>
+                </div>
+                <div class="continue-meta">
+                    <span>@Html.Icon("book-open") @course.Lessons @L.T("уроков", "сабақ", "lessons")</span>
+                    <span>@Html.Icon("clock") @course.Duration</span>
+                    <span>@Html.Icon("star") @course.Rating</span>
+                </div>
+                <div>
+                    <div class="flex items-end justify-between mb-2">
+                        <span class="text-sm muted">@course.CompletedLessons / @course.Lessons @L.T("уроков пройдено", "сабақ өтілді", "lessons done")</span>
+                        <span class="big-percent">@course.Progress%</span>
+                    </div>
+                    @Html.Progress(course.Progress, "progress-lg")
+                </div>
+                <div class="flex gap-3 wrap">
+                    <a class="btn btn-primary" href="/Student/CourseDetails/1">@Html.Icon("play") @L.T("Продолжить", "Жалғастыру", "Continue")</a>
+                    <a class="btn btn-secondary" href="/Student/Materials">@Html.Icon("book-open-text") @L.T("Материалы", "Материалдар", "Materials")</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head">
+            <div class="card-title">@Html.Icon("calendar-clock", "c-primary") @L.T("Ближайшие дедлайны", "Жақын мерзімдер", "Upcoming deadlines")</div>
+        </div>
+        <div class="list">
+            @foreach (var a in deadlines)
+            {
+                <div class="list-item">
+                    <span class="ibox ibox-sm @(a.DaysLeft <= 2 ? "ibox-warning" : "")">@Html.Icon("file-text")</span>
+                    <div class="grow">
+                        <div class="list-title">@a.Title</div>
+                        <div class="list-meta">@a.Course · @a.Deadline</div>
+                    </div>
+                    <span class="badge @(a.DaysLeft <= 2 ? "badge-warning" : "badge-primary")">@a.DaysLeft @L.T("дн.", "күн", "d")</span>
+                </div>
+            }
+        </div>
+        <a class="btn btn-secondary btn-block mt-5" href="/Student/Assignments">@L.T("Все задания", "Барлық тапсырмалар", "All assignments")</a>
+    </div>
+</div>
+
+<!-- AI Recommendations -->
+<section class="card card-lg mt-6 ai-glow">
+    <div class="card-head">
+        <div class="flex items-center gap-3">
+            <span class="ai-avatar">@Html.Icon("sparkles")</span>
+            <div><div class="card-title">AI @L.T("рекомендации", "ұсыныстары", "recommendations")</div><div class="card-sub">@L.T("На основе ваших последних тестов и активности", "Соңғы тесттеріңіз бен белсенділігіңіз негізінде", "Based on your recent tests and activity")</div></div>
+        </div>
+        <a class="card-link" href="/Student/Ai">@L.T("Открыть AI", "AI ашу", "Open AI") @Html.Icon("arrow-right", "icon-sm")</a>
+    </div>
+    <div class="grid cols-3">
+        @foreach (var r in Model.GetRecommendations())
+        {
+            <a class="card card-hover col gap-3" href="@r.Href" style="box-shadow:none;color:inherit">
+                <div class="flex items-center justify-between">
+                    <span class="ibox">@Html.Icon(r.Icon)</span>
+                    <span class="badge badge-primary">@r.Tag</span>
+                </div>
+                <div>
+                    <h4>@r.Title</h4>
+                    <p class="text-sm muted mt-1">@r.Text</p>
+                </div>
+                <span class="card-link mt-1">@r.Action @Html.Icon("arrow-right", "icon-sm")</span>
+            </a>
+        }
+    </div>
+</section>
+
+<div class="grid cols-2 mt-6">
+    <section class="card">
+        <div class="card-head">
+            <div><div class="card-title">@Html.Icon("gift", "icon-sm") @L.T("Квесты дня", "Күн квесттері", "Daily quests")</div><div class="card-sub">@L.T("Все три — бонус +100 XP", "Үшеуі де — +100 XP бонус", "All three — +100 XP bonus")</div></div>
+            <a class="btn btn-ghost btn-sm" href="/Student/Quests">@L.T("Все", "Барлығы", "All") @Html.Icon("arrow-right", "icon-sm")</a>
+        </div>
+        <div class="col gap-3">
+            @foreach (var q in quests)
+            {
+                var done = q.Done >= q.Goal;
+                <div class="quest @(done ? "is-done" : "")">
+                    <span class="ibox ibox-sm @(done ? "ibox-success" : "ibox-primary")">@Html.Icon(done ? "check" : q.Icon)</span>
+                    <div class="grow"><div class="flex justify-between gap-2"><b class="text-sm">@q.Title</b><span class="text-xs tabular subtle">@q.Done/@q.Goal</span></div>@Html.Progress(Math.Min(100, q.Done * 100 / q.Goal), "progress-sm mt-2 " + (done ? "progress-success" : ""))</div>
+                    <span class="xp-chip">+@q.Xp</span>
+                </div>
+            }
+        </div>
+    </section>
+    <section class="card">
+        <div class="card-head">
+            <div><div class="card-title">@Html.Icon("layers", "icon-sm") @L.T("Повторить сегодня", "Бүгін қайталау", "Review today")</div><div class="card-sub">@L.T("Карточки по расписанию повторений", "Қайталау кестесі бойынша карточкалар", "Cards due by your review schedule")</div></div>
+            <a class="btn btn-ghost btn-sm" href="/Student/Calendar">@Html.Icon("calendar-days", "icon-sm") @L.T("Календарь", "Күнтізбе", "Calendar")</a>
+        </div>
+        @if (dueDecks.Count == 0)
+        {
+            <partial name="_EmptyState" model='new EmptyState("check", L.T("Всё повторено", "Бәрі қайталанды", "All caught up"), L.T("Новые карточки появятся завтра.", "Жаңа карточкалар ертең шығады.", "New cards arrive tomorrow."), Mood: "is-happy")' />
+        }
+        <div class="list">
+            @foreach (var d in dueDecks)
+            {
+                <a class="list-item" href="/Student/Flashcards?deck=@d.Id">
+                    <span class="ibox ibox-sm">@Html.Icon(d.Icon)</span>
+                    <div class="grow"><div class="list-title">@d.Title</div><div class="list-meta">@d.Course</div></div>
+                    <span class="badge badge-warning">@d.Due</span>
+                </a>
+            }
+        </div>
+        <a class="btn btn-primary btn-block mt-4" href="/Student/Flashcards">@Html.Icon("play", "icon-sm") @L.T("Начать повторение", "Қайталауды бастау", "Start review") · ~@(dueDecks.Sum(d => d.Due) / 2) @L.T("мин", "мин", "min")</a>
+    </section>
+</div>
+
+<!-- Weekly activity + recent -->
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Активность за неделю", "Апталық белсенділік", "Weekly activity")</div><div class="card-sub">@L.T("Минуты обучения по дням", "Күндер бойынша оқу минуттары", "Study minutes per day")</div></div>
+            <div class="segmented">
+                <button class="active">@L.T("Неделя", "Апта", "Week")</button><button>@L.T("Месяц", "Ай", "Month")</button>
+            </div>
+        </div>
+        <div class="flex gap-6 mb-4 wrap">
+            <div><div class="stat-value" style="font-size:24px">527 <small>@L.T("мин", "мин", "min")</small></div><div class="text-xs subtle">@L.T("всего за неделю", "аптадағы барлығы", "total this week")</div></div>
+            <div><div class="stat-value" style="font-size:24px">75 <small>@L.T("мин", "мин", "min")</small></div><div class="text-xs subtle">@L.T("в среднем в день", "күніне орташа", "daily average")</div></div>
+        </div>
+        <div class="chart-box sm"><canvas data-chart="@UiHelpers.ChartJson(weekly)" aria-label="@weekly.Series[0].Label"></canvas></div>
+    </div>
+
+    <div class="card">
+        <div class="card-head"><div class="card-title">@L.T("Последние действия", "Соңғы әрекеттер", "Recent activity")</div></div>
+        <div class="timeline">
+            @foreach (var a in Model.GetRecentActivity())
+            {
+                <div class="timeline-item">
+                    <span class="ibox ibox-sm ibox-@a.Kind" style="width:36px;height:36px">@Html.Icon(a.Icon)</span>
+                    <div class="grow">
+                        <div class="list-title">@a.Text</div>
+                        <div class="list-meta flex items-center gap-2">@a.Time @if (a.Xp is int xp) { <span class="xp-chip">+@xp XP</span> }</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

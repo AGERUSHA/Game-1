@@ -1,0 +1,105 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Аналитика", "Аналитика", "Analytics");
+    ViewData["Nav"] = "t-analytics";
+    ViewData["Role"] = "teacher";
+    var activity = Model.GetStudentActivity();
+    var perf = Model.GetTeacherTestPerformance();
+    var dist = Model.GetScoreDistribution();
+    var xp = Model.GetXpEarned();
+    var completion = Model.GetCourseCompletion();
+    var courses = Model.GetTeacherCourses().Where(c => c.Status == "published").ToList();
+    var progressChart = new ChartSpec("bar", courses.Select(c => c.Title.Length > 18 ? c.Title[..18] + "…" : c.Title).ToArray(),
+        [new ChartSeries(L.T("Средний прогресс", "Орташа прогресс", "Average progress"), courses.Select(c => c.Completion).ToArray())], Horizontal: true, Suffix: "%");
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Аналитика", "Аналитика", "Analytics")</h1>
+        <p>@L.T("Глубокий анализ активности, прогресса и результатов студентов.", "Студенттердің белсенділігін, прогресін және нәтижелерін терең талдау.", "In-depth analysis of student activity, progress and results.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <select class="select select-sm" style="width:auto" aria-label="@L.T("Курс", "Курс", "Course")">
+            <option>@L.T("Все курсы", "Барлық курстар", "All courses")</option>
+            @foreach (var c in courses) { <option>@c.Title</option> }
+        </select>
+        <div class="segmented">
+            <button>7 @L.T("дн", "күн", "d")</button><button class="active">30 @L.T("дн", "күн", "d")</button><button>90 @L.T("дн", "күн", "d")</button>
+        </div>
+        <button class="btn btn-outline btn-sm" data-modal-open="#exportModal">@Html.Icon("download", "icon-sm") @L.T("Экспорт", "Экспорт", "Export")</button>
+    </div>
+</div>
+
+<div class="grid cols-4 stagger">
+    @foreach (var (label, value, trend, up, icon) in new[] {
+        (L.T("Активные студенты", "Белсенді студенттер", "Active students"), "321", "+8.4%", true, "users"),
+        (L.T("Завершаемость", "Аяқталу деңгейі", "Completion rate"), "63%", "+5.1%", true, "check-circle-2"),
+        (L.T("Средний балл тестов", "Тесттердің орташа балы", "Avg test score"), "78%", "+2.3%", true, "target"),
+        (L.T("Начислено XP", "Есептелген XP", "XP awarded"), "51.7K", "−1.2%", false, "zap") })
+    {
+        <div class="card stat">
+            <div class="stat-top"><span class="stat-label">@label</span><span class="ibox">@Html.Icon(icon)</span></div>
+            <div class="stat-value">@value</div>
+            <div class="flex items-center gap-2"><span class="trend @(up ? "trend-up" : "trend-down")">@Html.Icon(up ? "trending-up" : "trending-down") @trend</span><span class="text-xs subtle">@L.T("к прошлому периоду", "өткен кезеңге", "vs previous period")</span></div>
+        </div>
+    }
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Активность студентов", "Студенттер белсенділігі", "Student activity")</div><div class="card-sub">@L.T("Уникальные студенты по дням недели", "Апта күндері бойынша бірегей студенттер", "Unique students by weekday")</div></div>
+            <div class="chart-legend"><span><i class="lg-1"></i>@activity.Series[0].Label</span><span><i class="lg-2"></i>@activity.Series[1].Label</span></div>
+        </div>
+        <div class="chart-box lg"><canvas data-chart="@UiHelpers.ChartJson(activity)" aria-label="@L.T("Активность студентов", "Студенттер белсенділігі", "Student activity")"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">@L.T("Завершаемость", "Аяқталу деңгейі", "Completion rate")</div><div class="card-sub">@L.T("Все курсы", "Барлық курстар", "All courses")</div></div></div>
+        <div class="donut-wrap">
+            <canvas data-chart="@UiHelpers.ChartJson(completion)" aria-label="@L.T("Завершаемость", "Аяқталу деңгейі", "Completion rate")"></canvas>
+            <div class="donut-center"><div><b>58%</b><small>@L.T("завершили", "аяқтады", "completed")</small></div></div>
+        </div>
+        <div class="col gap-2 mt-5">
+            @{ var sw = new[] { "var(--chart-1)", "var(--primary-300)", "var(--primary-100)" }; }
+            @for (var i = 0; i < completion.Labels.Length; i++)
+            {
+                <div class="flex items-center justify-between text-sm"><span class="flex items-center gap-2"><i style="width:10px;height:10px;border-radius:3px;display:inline-block;background:@sw[i]"></i>@completion.Labels[i]</span><b>@completion.Series[0].Data[i]%</b></div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="grid cols-2 mt-6">
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">@L.T("Прогресс по курсам", "Курстар бойынша прогресс", "Course progress")</div><div class="card-sub">@L.T("Средний процент прохождения", "Орташа өту пайызы", "Average completion percentage")</div></div></div>
+        <div class="chart-box sm"><canvas data-chart="@UiHelpers.ChartJson(progressChart)" aria-label="@L.T("Прогресс по курсам", "Курстар бойынша прогресс", "Course progress")"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">@L.T("Результаты тестов", "Тест нәтижелері", "Test results")</div><div class="card-sub">@L.T("Распределение баллов, кол-во студентов", "Балдардың таралуы, студенттер саны", "Score distribution, number of students")</div></div></div>
+        <div class="chart-box sm"><canvas data-chart="@UiHelpers.ChartJson(dist)" aria-label="@L.T("Распределение баллов", "Балдардың таралуы", "Score distribution")"></canvas></div>
+    </div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">@L.T("Начисление XP", "XP есептеу", "XP earned")</div><div class="card-sub">@L.T("Сумма XP всех студентов по неделям", "Апталар бойынша барлық студенттердің XP сомасы", "Total XP across all students per week")</div></div></div>
+        <div class="chart-box"><canvas data-chart="@UiHelpers.ChartJson(xp)" aria-label="XP"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">@L.T("Сложные темы", "Күрделі тақырыптар", "Hardest topics")</div><div class="card-sub">@L.T("Самый низкий средний балл", "Ең төмен орташа балл", "Lowest average score")</div></div></div>
+        @foreach (var (topic, score) in perf.Labels.Zip(perf.Series[0].Data).OrderBy(x => x.Second).Take(4))
+        {
+            <div class="topic-row" style="grid-template-columns:100px 1fr 44px">
+                <span class="truncate fw-500">@topic</span>
+                @Html.Progress(score, score < 70 ? "progress-sm progress-warning" : "progress-sm")
+                <b>@score%</b>
+            </div>
+        }
+        <div class="ai-callout mt-6" style="padding:16px">
+            <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+            <p class="text-sm muted">@L.T("AI: темы «SQL JOIN» и «Eloquent» связаны — 72% студентов, ошибшихся в одной, ошибаются и в другой. Рекомендуем объединить практику.", "AI: «SQL JOIN» және «Eloquent» тақырыптары байланысты — біреуінде қателескен студенттердің 72%-ы екіншісінде де қателеседі. Практиканы біріктіруді ұсынамыз.", "AI: “SQL JOIN” and “Eloquent” are linked — 72% of students who miss one also miss the other. Consider combining the practice.")</p>
+        </div>
+    </div>
+</div>
+
+<partial name="_ExportModal" />

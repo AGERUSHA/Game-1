@@ -1,0 +1,79 @@
+@inject IEduDataService Data
+@{
+    var nav = ViewData["Nav"] as string ?? "";
+    var leagueRank = Data.GetLeague().FirstOrDefault(r => r.IsMe)?.Rank;
+    string A(string key) => nav == key ? "nav-link active" : "nav-link";
+    string? Cur(string key) => nav == key ? "page" : null;
+    // Each role sees only its own section; the administrator sees everything.
+    var me = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "student";
+    bool Sees(string section) => me == "admin" || me == section;
+}
+<aside class="sidebar" aria-label="@L.T("Главное меню", "Негізгі мәзір", "Main menu")">
+    <div class="sidebar-brand">
+        <partial name="_Logo" />
+        <button class="icon-btn sidebar-close" type="button" data-sidebar-toggle aria-label="@L.T("Закрыть меню", "Мәзірді жабу", "Close menu")">@Html.Icon("x")</button>
+    </div>
+
+    <nav class="sidebar-nav">
+        @if (Sees("student"))
+        {
+        <div class="nav-section">@(me == "admin" ? L.T("Студент · обучение", "Студент · оқу", "Student · learning") : L.T("Обучение", "Оқу", "Learning"))</div>
+        <a class="@A("dashboard")" aria-current="@Cur("dashboard")" href="/Student/Dashboard">@Html.Icon("layout-dashboard") @L.T("Главная", "Басты бет", "Home")</a>
+        <a class="@A("courses")" aria-current="@Cur("courses")" href="/Student/Courses">@Html.Icon("library") @L.T("Курсы", "Курстар", "Courses")</a>
+        <a class="@A("materials")" aria-current="@Cur("materials")" href="/Student/Materials">@Html.Icon("book-open-text") @L.T("Материалы", "Материалдар", "Materials")</a>
+        <a class="@A("tests")" aria-current="@Cur("tests")" href="/Student/Tests">@Html.Icon("clipboard-check") @L.T("Тесты", "Тесттер", "Tests") <span class="nav-badge soft">2</span></a>
+        <a class="@A("assignments")" aria-current="@Cur("assignments")" href="/Student/Assignments">@Html.Icon("clipboard-list") @L.T("Задания", "Тапсырмалар", "Assignments")</a>
+        <a class="@A("flashcards")" aria-current="@Cur("flashcards")" href="/Student/Flashcards">@Html.Icon("layers") @L.T("Карточки", "Карточкалар", "Flashcards") <span class="nav-badge soft">5</span></a>
+        <a class="@A("calendar")" aria-current="@Cur("calendar")" href="/Student/Calendar">@Html.Icon("calendar-days") @L.T("Календарь", "Күнтізбе", "Calendar")</a>
+
+        <div class="nav-section">@L.T("Помощники", "Көмекшілер", "Helpers")</div>
+        <a class="@A("ai")" aria-current="@Cur("ai")" href="/Student/Ai">@Html.Icon("sparkles") AI <span class="nav-badge">New</span></a>
+        <a class="@A("focus")" aria-current="@Cur("focus")" href="/Student/Focus">@Html.Icon("timer") @L.T("Фокус-режим", "Фокус-режим", "Focus mode")</a>
+
+        <div class="nav-section">@L.T("Мотивация", "Мотивация", "Motivation")</div>
+        <a class="@A("games") nav-games" aria-current="@Cur("games")" href="/Games">@Html.Icon("gamepad-2") @L.T("Игровая зона", "Ойын аймағы", "Game zone") <span class="nav-badge">New</span></a>
+        <a class="@A("progress")" aria-current="@Cur("progress")" href="/Student/Progress">@Html.Icon("trending-up") @L.T("Прогресс", "Прогресс", "Progress")</a>
+        <a class="@A("xp")" aria-current="@Cur("xp")" href="/Student/Xp">@Html.Icon("zap") @L.T("XP и уровни", "XP және деңгейлер", "XP & Levels")</a>
+        <a class="@A("quests")" aria-current="@Cur("quests")" href="/Student/Quests">@Html.Icon("gift") @L.T("Квесты и магазин", "Квесттер және дүкен", "Quests & shop") <span class="nav-badge soft">1/3</span></a>
+        <a class="@A("league")" aria-current="@Cur("league")" href="/Student/League">@Html.Icon("swords") @L.T("Лига недели", "Апта лигасы", "Weekly league") @if (leagueRank is int lr) { <span class="nav-badge soft">#@lr</span> }</a>
+        <a class="@A("achievements")" aria-current="@Cur("achievements")" href="/Student/Achievements">@Html.Icon("trophy") @L.T("Достижения", "Жетістіктер", "Achievements")</a>
+        }
+
+        @if (Sees("teacher"))
+        {
+        <div class="nav-section">@L.T("Преподаватель", "Оқытушы", "Teacher")</div>
+        <a class="@A("t-dashboard")" aria-current="@Cur("t-dashboard")" href="/Teacher/Dashboard">@Html.Icon("presentation") Dashboard</a>
+        <a class="@A("t-review")" aria-current="@Cur("t-review")" href="/Teacher/Review">@Html.Icon("clipboard-check") @L.T("Проверка работ", "Жұмыстарды тексеру", "Grading") <span class="nav-badge">@Data.GetSubmissions().Count(x => x.Status is "new" or "review")</span></a>
+        <a class="@A("t-students")" aria-current="@Cur("t-students")" href="/Teacher/Students">@Html.Icon("users") @L.T("Студенты", "Студенттер", "Students")</a>
+        <a class="@A("t-courses")" aria-current="@Cur("t-courses")" href="/Teacher/Courses">@Html.Icon("book-marked") @L.T("Мои курсы", "Менің курстарым", "My courses")</a>
+        <a class="@A("t-analytics")" aria-current="@Cur("t-analytics")" href="/Teacher/Analytics">@Html.Icon("bar-chart-3") @L.T("Аналитика", "Аналитика", "Analytics")</a>
+        <a class="@A("t-reports")" aria-current="@Cur("t-reports")" href="/Teacher/Reports">@Html.Icon("file-text") @L.T("Отчёты", "Есептер", "Reports")</a>
+        }
+
+        @if (Sees("admin"))
+        {
+        <div class="nav-section">@L.T("Администратор", "Әкімші", "Admin")</div>
+        <a class="@A("a-dashboard")" aria-current="@Cur("a-dashboard")" href="/Admin/Dashboard">@Html.Icon("shield-check") @L.T("Панель", "Панель", "Overview")</a>
+        <a class="@A("a-users")" aria-current="@Cur("a-users")" href="/Admin/Users">@Html.Icon("user-cog") @L.T("Пользователи", "Пайдаланушылар", "Users")</a>
+        <a class="@A("a-roles")" aria-current="@Cur("a-roles")" href="/Admin/Roles">@Html.Icon("key-round") @L.T("Роли", "Рөлдер", "Roles")</a>
+        <a class="@A("a-courses")" aria-current="@Cur("a-courses")" href="/Admin/Courses">@Html.Icon("layers") @L.T("Курсы", "Курстар", "Courses")</a>
+        <a class="@A("a-audit")" aria-current="@Cur("a-audit")" href="/Admin/Audit">@Html.Icon("scroll-text") @L.T("Журнал и безопасность", "Журнал және қауіпсіздік", "Audit & security")</a>
+        <a class="@A("a-center")" aria-current="@Cur("a-center")" href="/Admin/Center">@Html.Icon("server-cog") @L.T("Центр управления", "Басқару орталығы", "Control center")</a>
+        <a class="@A("a-settings")" aria-current="@Cur("a-settings")" href="/Admin/Settings">@Html.Icon("sliders-horizontal") @L.T("Система", "Жүйе", "System")</a>
+        }
+    </nav>
+
+    @if (me == "student")
+    {
+    <a class="sidebar-promo" href="/Student/Xp" style="color:#fff">
+        <b>@L.T("Уровень 8", "8-деңгей", "Level 8") · 1 250 XP</b>
+        <p>@L.T("Ещё 250 XP до уровня 9 — вы почти у цели!", "9-деңгейге дейін тағы 250 XP — мақсатқа жақынсыз!", "250 XP to level 9 — almost there!")</p>
+        @Html.Progress(50, "progress-sm progress-white")
+    </a>
+    }
+
+    <div class="sidebar-foot">
+        <a class="@A("settings")" aria-current="@Cur("settings")" href="/Settings">@Html.Icon("settings") @L.T("Настройки", "Баптаулар", "Settings")</a>
+        <a class="nav-link logout" href="/Account/Logout">@Html.Icon("log-out") @L.T("Выйти", "Шығу", "Log out")</a>
+    </div>
+</aside>

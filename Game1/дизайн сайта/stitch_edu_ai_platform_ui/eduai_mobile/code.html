@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI — Мобильный кабинет преподавателя</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary": "#ffffff",
+            "inverse-surface": "#293040",
+            "on-primary-fixed-variant": "#4029ba",
+            "primary-fixed": "#e4dfff",
+            "tertiary-container": "#007d92",
+            "surface-tint": "#5847d2",
+            "secondary": "#5f5a7c",
+            "tertiary": "#006274",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "on-secondary-fixed": "#1b1735",
+            "surface-container-highest": "#dce2f7",
+            "inverse-primary": "#c6bfff",
+            "outline-variant": "#c8c4d7",
+            "on-tertiary": "#ffffff",
+            "surface-container-low": "#f1f3ff",
+            "tertiary-fixed-dim": "#4cd7f6",
+            "on-secondary-fixed-variant": "#474363",
+            "on-error-container": "#93000a",
+            "surface-container-high": "#e1e8fd",
+            "surface-container": "#e9edff",
+            "on-primary": "#ffffff",
+            "secondary-container": "#dcd5fd",
+            "on-primary-fixed": "#160066",
+            "inverse-on-surface": "#edf0ff",
+            "surface-bright": "#f9f9ff",
+            "primary": "#5341cd",
+            "surface": "#f9f9ff",
+            "on-surface-variant": "#474554",
+            "secondary-fixed": "#e5deff",
+            "surface-container-lowest": "#ffffff",
+            "outline": "#787586",
+            "tertiary-fixed": "#acedff",
+            "error": "#ba1a1a",
+            "on-background": "#141b2b",
+            "primary-fixed-dim": "#c6bfff",
+            "error-container": "#ffdad6",
+            "surface-dim": "#d3daef",
+            "background": "#f9f9ff",
+            "on-error": "#ffffff",
+            "on-primary-container": "#faf6ff",
+            "primary-container": "#6c5ce7",
+            "surface-variant": "#dce2f7",
+            "on-tertiary-container": "#edfaff",
+            "on-secondary-container": "#605b7d",
+            "on-tertiary-fixed": "#001f26",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-surface": "#141b2b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin-mobile": "1rem",
+            "gutter": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "margin": "2rem",
+            "space-md": "1rem",
+            "gutter-mobile": "1rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "display-hero": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "caption": ["Inter"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "code": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "body-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md min-h-screen flex justify-center pb-24 selection:bg-secondary-container selection:text-primary">
+<!-- Mobile Hub Canvas Wrapper (390px / Responsive Mobile Frame) -->
+<div class="w-full max-w-md bg-background min-h-screen relative flex flex-col shadow-2xl">
+<!-- 1. TOP APP BAR (Shared Component Anchor) -->
+<header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md px-space-md py-space-sm flex justify-between items-center w-full shadow-sm">
+<div class="flex items-center gap-space-sm">
+<!-- Mascot Avatar Badge with Level Ring -->
+<div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-secondary-fixed ring-2 ring-primary-container/40 p-0.5 shadow-sm">
+<div class="w-full h-full rounded-full bg-primary flex items-center justify-center text-on-primary font-headline-sm font-bold text-xs relative overflow-hidden">
+<span class="text-base select-none">🦉</span>
+</div>
+<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary text-[9px] font-bold px-1.5 py-0.2 rounded-full border border-surface-container-lowest leading-tight">
+            Lv.8
+          </span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-sm font-bold text-primary tracking-tight">EduAI</span>
+<span class="bg-primary/10 text-primary font-label-sm text-[10px] px-1.5 py-0.5 rounded-full font-semibold">Hub</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant flex items-center gap-1">
+<span>Кафедра IT • Преподаватель</span>
+</span>
+</div>
+</div>
+<!-- Lang Switcher + Notification Bell -->
+<div class="flex items-center gap-2">
+<!-- Language Switcher Pill -->
+<div class="inline-flex p-0.5 bg-surface-container rounded-lg border border-outline-variant/30 text-[11px] font-label-sm font-bold">
+<button class="px-1.5 py-0.5 rounded bg-primary text-on-primary shadow-xs" type="button">RU</button>
+<button class="px-1.5 py-0.5 rounded text-on-surface-variant hover:text-primary transition-colors" type="button">KZ</button>
+<button class="px-1.5 py-0.5 rounded text-on-surface-variant hover:text-primary transition-colors" type="button">EN</button>
+</div>
+<!-- Notification Trigger -->
+<button aria-label="Уведомления" class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary text-[22px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-error text-[10px] font-bold text-on-error ring-2 ring-surface">
+            3
+          </span>
+</button>
+</div>
+</header>
+<!-- MAIN SCROLLABLE CONTENT -->
+<main class="flex-1 px-space-md py-space-sm space-y-space-md">
+<!-- 2. EXPRESS METRICS / KPI HORIZONTAL SCROLL -->
+<section class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface flex items-center gap-1.5">
+<span>Обзор потока</span>
+<span class="text-xs bg-secondary-fixed text-on-secondary-fixed font-label-sm px-2 py-0.5 rounded-full">IT-2101</span>
+</h2>
+<span class="text-caption font-caption text-outline">Синхронизировано</span>
+</div>
+<div class="flex gap-space-sm overflow-x-auto pb-1 custom-scrollbar -mx-space-md px-space-md snap-x">
+<!-- KPI 1: На проверке -->
+<div class="snap-start min-w-[155px] flex-1 bg-surface-container-lowest p-3.5 rounded-2xl border border-secondary-fixed/50 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.06)] flex flex-col justify-between relative overflow-hidden">
+<div class="absolute -right-2 -top-2 w-12 h-12 bg-error-container/40 rounded-full blur-lg pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-caption text-caption text-on-surface-variant">На проверке</span>
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+</div>
+<div class="my-1.5 flex items-baseline gap-1">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">7</span>
+<span class="font-caption text-[11px] text-outline">работ</span>
+</div>
+<div class="flex items-center gap-1 text-[11px] font-label-sm text-error bg-error-container/60 px-2 py-0.5 rounded-md w-fit">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+<span>2 горящих</span>
+</div>
+</div>
+<!-- KPI 2: Средний балл потока -->
+<div class="snap-start min-w-[155px] flex-1 bg-surface-container-lowest p-3.5 rounded-2xl border border-secondary-fixed/50 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.06)] flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-caption text-caption text-on-surface-variant">Ср. балл группы</span>
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="trending_up">trending_up</span>
+</div>
+<div class="my-1.5 flex items-baseline gap-1">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">84.6</span>
+<span class="font-caption text-[11px] text-primary">%</span>
+</div>
+<div class="flex items-center gap-1 text-[11px] font-label-sm text-on-secondary-container bg-surface-container px-2 py-0.5 rounded-md w-fit">
+<span>+3.2% к прошлой лаб.</span>
+</div>
+</div>
+<!-- KPI 3: Точность AI -->
+<div class="snap-start min-w-[155px] flex-1 bg-surface-container-lowest p-3.5 rounded-2xl border border-secondary-fixed/50 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.06)] flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-caption text-caption text-on-surface-variant">AI-ассистент</span>
+<span class="material-symbols-outlined text-tertiary text-[18px]" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="my-1.5 flex items-baseline gap-1">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-tertiary">96%</span>
+<span class="font-caption text-[11px] text-outline">acc</span>
+</div>
+<div class="flex items-center gap-1 text-[11px] font-label-sm text-tertiary bg-tertiary-fixed/30 px-2 py-0.5 rounded-md w-fit">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary inline-block"></span>
+<span>Авторевью ON</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. ACTIVE GRADING CARD (Quick Mobile Review Anchor) -->
+<section class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Быстрая проверка</h2>
+</div>
+<span class="text-caption font-label-sm text-primary font-bold bg-secondary-fixed px-2 py-0.5 rounded-full">
+            1 из 7
+          </span>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl p-4 border border-secondary-container shadow-[0_10px_25px_-5px_rgba(108,92,231,0.08)] relative">
+<!-- Student Bio Header -->
+<div class="flex items-start justify-between pb-3 border-b border-surface-container">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-2xl bg-secondary-fixed flex items-center justify-center font-headline-sm font-bold text-primary ring-2 ring-primary-container/20">
+                АН
+              </div>
+<div>
+<h3 class="font-label-md font-bold text-on-surface tracking-tight">Акерке Нургали</h3>
+<p class="font-caption text-caption text-on-surface-variant">Группа IT-2101 • 3 ECTS</p>
+</div>
+</div>
+<span class="font-label-sm text-[11px] px-2.5 py-1 rounded-full bg-secondary-container/60 text-primary font-bold">
+              Дедлайн: 2 ч
+            </span>
+</div>
+<!-- Assignment meta -->
+<div class="py-2.5">
+<div class="flex items-center justify-between text-caption font-caption text-outline mb-1">
+<span>Задание</span>
+<span>PHP 8.3 &amp; Laravel 11</span>
+</div>
+<h4 class="font-label-md font-bold text-on-surface">
+              Лаб №4: Оптимизация Eloquent &amp; устранение проблемы N+1
+            </h4>
+</div>
+<!-- AI Pre-Verdict Banner (Synthesizer Style) -->
+<div class="bg-surface-container-low/70 rounded-2xl p-3 border border-secondary-container/60 mb-3 space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="psychology">psychology</span>
+<span class="font-label-sm font-bold text-primary">AI-Вердикт модели Lumina</span>
+</div>
+<span class="font-label-sm text-[11px] font-bold text-primary bg-surface-container-lowest px-2 py-0.5 rounded-full shadow-xs">
+                96.4% совпадение
+              </span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-[12px] font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[16px]" data-icon="check_circle">check_circle</span>
+<span>0 синтакс. ошибок</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-tertiary text-[16px]" data-icon="bolt">bolt</span>
+<span>Ускорение на 92%</span>
+</div>
+</div>
+<!-- AI Insight Note -->
+<p class="text-[12px] font-caption text-on-surface-variant border-t border-surface-container pt-1.5">
+              Использован <code class="font-code text-primary bg-secondary-fixed/50 px-1 py-0.5 rounded">with(['author', 'tags'])</code>. Число SQL-запросов снизилось со 102 до 3.
+            </p>
+</div>
+<!-- Compact Code Snippet (Foldable preview) -->
+<div class="mb-3.5">
+<div class="flex items-center justify-between pb-1.5 px-1 text-caption text-on-surface-variant">
+<span class="font-code text-[11px] flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[14px]" data-icon="code">code</span>
+                PostRepository.php
+              </span>
+<button class="text-[11px] text-primary font-label-sm hover:underline flex items-center gap-0.5" type="button">
+<span>Развернуть diff</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="unfold_more">unfold_more</span>
+</button>
+</div>
+<div class="bg-[#1e1b4b] rounded-xl p-2.5 text-[11px] font-code text-surface-container-low overflow-x-auto leading-relaxed border border-primary-container/20">
+<div class="text-[#c6bfff]">// Решение студента: Eager loading</div>
+<div><span class="text-[#f43f5e]">- $posts</span> = Post::all(); <span class="text-outline text-[10px]">// N+1 issue</span></div>
+<div><span class="text-[#4cd7f6]">+ $posts</span> = Post::query()</div>
+<div class="pl-4 text-[#acedff]">-&gt;with([<span class="text-[#fde047]">'author'</span>, <span class="text-[#fde047]">'comments'</span>])</div>
+<div class="pl-4 text-[#acedff]">-&gt;select([<span class="text-[#fde047]">'id'</span>, <span class="text-[#fde047]">'title'</span>, <span class="text-[#fde047]">'author_id'</span>])</div>
+<div class="pl-4 text-[#acedff]">-&gt;paginate(15);</div>
+</div>
+</div>
+<!-- Interactive Mobile Grade Controller -->
+<div class="bg-surface-container rounded-2xl p-3 mb-3 border border-outline-variant/30">
+<div class="flex items-center justify-between mb-1.5">
+<span class="font-label-sm text-on-surface">Итоговая оценка</span>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm font-bold text-primary" id="grade-val">95</span>
+<span class="text-caption font-bold text-outline">/ 100</span>
+<span class="ml-1 text-xs px-2 py-0.5 rounded-md bg-primary-container text-on-primary font-bold" id="grade-letter">
+                  A (Отлично)
+                </span>
+</div>
+</div>
+<!-- Grade Slider Input -->
+<input class="w-full h-2 bg-secondary-fixed rounded-lg appearance-none cursor-pointer accent-primary focus:outline-none" max="100" min="0" oninput="document.getElementById('grade-val').innerText = this.value; document.getElementById('grade-letter').innerText = this.value &gt;= 90 ? 'A (Отлично)' : (this.value &gt;= 75 ? 'B (Хорошо)' : 'C (Удовл.)');" type="range" value="95"/>
+<div class="flex justify-between text-[10px] font-caption text-outline mt-1">
+<span>0 (F)</span>
+<span>50 (FX)</span>
+<span>75 (B)</span>
+<span>90+ (A)</span>
+</div>
+</div>
+<!-- Quick Feedback Tap Tags -->
+<div class="space-y-1.5 mb-4">
+<span class="font-caption text-caption text-on-surface-variant block">Быстрые тезисы для рецензии:</span>
+<div class="flex flex-wrap gap-1.5">
+<button class="text-caption font-label-sm px-2.5 py-1 rounded-full bg-secondary-fixed text-primary border border-secondary-container hover:bg-primary hover:text-on-primary transition-all active:scale-95" type="button">
+                + Чистый код
+              </button>
+<button class="text-caption font-label-sm px-2.5 py-1 rounded-full bg-secondary-fixed text-primary border border-secondary-container hover:bg-primary hover:text-on-primary transition-all active:scale-95" type="button">
+                + Отличный EXPLAIN
+              </button>
+<button class="text-caption font-label-sm px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95" type="button">
+                + Оформить README
+              </button>
+<button class="text-caption font-label-sm px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95" type="button">
+                + Покрыть Unit-тестами
+              </button>
+</div>
+</div>
+<!-- Action Buttons (Mobile Friendly) -->
+<div class="grid grid-cols-2 gap-2.5 pt-1">
+<button class="w-full py-2.5 px-3 rounded-xl border border-outline-variant/50 text-on-surface-variant font-label-md text-center hover:bg-surface-container transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="replay">replay</span>
+<span>На доработку</span>
+</button>
+<button class="w-full py-2.5 px-3 rounded-xl bg-primary-container text-on-primary font-label-md font-bold text-center shadow-md hover:bg-primary transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="verified">verified</span>
+<span>Утвердить (+120 XP)</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 4. UP NEXT IN QUEUE (Remaining Students) -->
+<section class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Далее в очереди</h3>
+<span class="font-label-sm text-caption text-primary hover:underline cursor-pointer">Смотреть все (6)</span>
+</div>
+<div class="space-y-2">
+<!-- Student 2 -->
+<div class="bg-surface-container-lowest p-3 rounded-2xl border border-secondary-fixed/50 flex items-center justify-between hover:shadow-sm transition-all active:scale-[0.99]">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center font-label-md font-bold text-secondary">
+                ДС
+              </div>
+<div>
+<h4 class="font-label-md font-bold text-on-surface">Данияр Сериков</h4>
+<p class="font-caption text-caption text-on-surface-variant">Курсовая: Аутентификация JWT &amp; Redis</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[10px] font-label-sm font-bold bg-tertiary-fixed/40 text-tertiary px-2 py-0.5 rounded-full">
+                AI: 89%
+              </span>
+<span class="text-[10px] font-caption text-outline">сегодня, 18:00</span>
+</div>
+</div>
+<!-- Student 3 -->
+<div class="bg-surface-container-lowest p-3 rounded-2xl border border-secondary-fixed/50 flex items-center justify-between hover:shadow-sm transition-all active:scale-[0.99]">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center font-label-md font-bold text-secondary">
+                АК
+              </div>
+<div>
+<h4 class="font-label-md font-bold text-on-surface">Алина Ким</h4>
+<p class="font-caption text-caption text-on-surface-variant">Лабораторная: Reverse Proxy &amp; Nginx</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[10px] font-label-sm font-bold bg-tertiary-fixed/40 text-tertiary px-2 py-0.5 rounded-full">
+                AI: 94%
+              </span>
+<span class="text-[10px] font-caption text-outline">завтра</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. CURATOR RAPID ACTION TOOLBAR -->
+<section class="grid grid-cols-2 gap-space-sm pt-1">
+<button class="flex items-center justify-center gap-2 p-3 rounded-2xl bg-surface-container-lowest border border-secondary-fixed/60 shadow-xs hover:bg-surface-container transition-all active:scale-95 duration-150" type="button">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="description">description</span>
+<div class="text-left">
+<span class="block font-label-sm text-on-surface font-bold leading-tight">Ведомость PDF</span>
+<span class="block text-[10px] font-caption text-outline leading-tight">В Деканат</span>
+</div>
+</button>
+<button class="flex items-center justify-center gap-2 p-3 rounded-2xl bg-surface-container-lowest border border-secondary-fixed/60 shadow-xs hover:bg-surface-container transition-all active:scale-95 duration-150" type="button">
+<span class="material-symbols-outlined text-tertiary text-[20px]" data-icon="forum">forum</span>
+<div class="text-left">
+<span class="block font-label-sm text-on-surface font-bold leading-tight">Чат старосты</span>
+<span class="block text-[10px] font-caption text-outline leading-tight">IT-2101 (online)</span>
+</div>
+</button>
+</section>
+<!-- 6. MASCOT ENCOURAGEMENT BANNER (Ух подсказка) -->
+<div class="bg-gradient-to-r from-secondary-fixed via-surface-container to-surface-container-low p-3.5 rounded-2xl border border-secondary-container/80 flex items-center gap-3 shadow-xs">
+<div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-xl shrink-0 shadow-sm">
+          🦉
+        </div>
+<div class="text-left space-y-0.5">
+<p class="font-label-sm text-xs font-bold text-on-secondary-fixed">
+            Александр, осталось проверить 4 работы до дедлайна!
+          </p>
+<p class="font-caption text-[11px] text-on-secondary-fixed-variant">
+            Вы опережаете график потока на 3 дня. Студенты ждут фидбек 🚀
+          </p>
+</div>
+</div>
+</main>
+<!-- 7. BOTTOM NAVIGATION BAR (Shared Component Anchor) -->
+<!-- Destination Rule: Top-level hub destination. Active: "Learn" (mapped to Проверка / Grading) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-sm py-space-xs bg-surface-container-lowest/90 backdrop-blur-lg shadow-[0_-4px_20px_-2px_rgba(108,92,231,0.08)] max-w-md mx-auto right-0">
+<!-- Tab 1: Learn / Проверка (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1.5 transition-all active:scale-95 duration-150" href="#grading">
+<span class="material-symbols-outlined text-[20px]" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="text-label-sm font-label-sm mt-0.5">Проверка</span>
+</a>
+<!-- Tab 2: Quests / Потоки (INACTIVE) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 active:scale-95 duration-150" href="#quests">
+<span class="material-symbols-outlined text-[20px]" data-icon="military_tech">military_tech</span>
+<span class="text-label-sm font-label-sm mt-0.5">Потоки</span>
+</a>
+<!-- Tab 3: AI Tutor / AI-Ассистент (INACTIVE) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 active:scale-95 duration-150" href="#tutor">
+<span class="material-symbols-outlined text-[20px]" data-icon="psychology">psychology</span>
+<span class="text-label-sm font-label-sm mt-0.5">AI-Ассистент</span>
+</a>
+<!-- Tab 4: Analytics / Аналитика (INACTIVE) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 active:scale-95 duration-150" href="#analytics">
+<span class="material-symbols-outlined text-[20px]" data-icon="insights">insights</span>
+<span class="text-label-sm font-label-sm mt-0.5">Аналитика</span>
+</a>
+<!-- Tab 5: Profile / Профиль (INACTIVE) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 active:scale-95 duration-150" href="#profile">
+<span class="material-symbols-outlined text-[20px]" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm mt-0.5">Профиль</span>
+</a>
+</nav>
+</div>
+</body></html>

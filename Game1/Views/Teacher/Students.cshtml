@@ -1,0 +1,119 @@
+@model List<StudentRow>
+@{
+    ViewData["Title"] = L.T("Студенты", "Студенттер", "Students");
+    ViewData["Nav"] = "t-students";
+    ViewData["Role"] = "teacher";
+    (string cls, string label) Status(string s) => s switch
+    {
+        "active" => ("badge-success", L.T("Активен", "Белсенді", "Active")),
+        "risk" => ("badge-warning", L.T("В зоне риска", "Қауіп аймағында", "At risk")),
+        _ => ("", L.T("Неактивен", "Белсенді емес", "Inactive"))
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Студенты", "Студенттер", "Students")</h1>
+        <p>@L.T("Отслеживайте прогресс, оценки и активность каждого студента.", "Әр студенттің прогресін, бағасын және белсенділігін қадағалаңыз.", "Track every student's progress, grades and activity.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <button class="btn btn-outline" data-modal-open="#exportModal">@Html.Icon("download") @L.T("Экспорт", "Экспорт", "Export")</button>
+        <button class="btn btn-primary" data-modal-open="#inviteModal">@Html.Icon("user-plus") @L.T("Пригласить", "Шақыру", "Invite")</button>
+    </div>
+</div>
+
+<div class="grid cols-4 mb-6 stagger">
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Всего", "Барлығы", "Total")</span><span class="ibox">@Html.Icon("users")</span></div><div class="stat-value">422</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Активные", "Белсенді", "Active")</span><span class="ibox ibox-success">@Html.Icon("user-check")</span></div><div class="stat-value">321</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("В зоне риска", "Қауіп аймағында", "At risk")</span><span class="ibox ibox-warning">@Html.Icon("alert-triangle")</span></div><div class="stat-value">27</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средний прогресс", "Орташа прогресс", "Avg progress")</span><span class="ibox">@Html.Icon("trending-up")</span></div><div class="stat-value">65<small>%</small></div></div>
+</div>
+
+<section class="card card-flush">
+    <div class="toolbar" style="padding:16px;margin:0;border-bottom:1px solid var(--border)">
+        <div class="input-group search">
+            @Html.Icon("search")
+            <input class="input input-sm" type="search" placeholder="@L.T("Поиск по имени или email…", "Аты немесе email бойынша іздеу…", "Search by name or email…")" data-search-target="#studentsTable" />
+        </div>
+        <select class="select select-sm" style="width:auto" data-select-filter="#studentsTable" aria-label="@L.T("Группа", "Топ", "Group")">
+            <option value="all">@L.T("Все группы", "Барлық топтар", "All groups")</option>
+            <option value="IT-2101">IT-2101</option><option value="IT-2102">IT-2102</option><option value="IT-2103">IT-2103</option>
+        </select>
+        <div class="segmented ml-auto" data-filter-target="#studentsTable">
+            <button class="active" data-filter="all">@L.T("Все", "Барлығы", "All")</button>
+            <button data-filter="active">@L.T("Активные", "Белсенді", "Active")</button>
+            <button data-filter="risk">@L.T("Риск", "Қауіп", "At risk")</button>
+            <button data-filter="inactive">@L.T("Неактивные", "Белсенді емес", "Inactive")</button>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="table table-stack" id="studentsTable">
+            <thead>
+                <tr>
+                    <th class="sortable">@L.T("Студент", "Студент", "Student") @Html.Icon("chevrons-up-down")</th>
+                    <th class="sortable">@L.T("Группа", "Топ", "Group") @Html.Icon("chevrons-up-down")</th>
+                    <th class="sortable">@L.T("Курсы", "Курстар", "Courses") @Html.Icon("chevrons-up-down")</th>
+                    <th class="sortable">@L.T("Прогресс", "Прогресс", "Progress") @Html.Icon("chevrons-up-down")</th>
+                    <th class="sortable">@L.T("Ср. балл", "Орт. балл", "Avg score") @Html.Icon("chevrons-up-down")</th>
+                    <th class="sortable">XP @Html.Icon("chevrons-up-down")</th>
+                    <th>@L.T("Статус", "Мәртебе", "Status")</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    var st = Status(s.Status);
+                    <tr data-tags="all @s.Status @s.Group">
+                        <td class="cell-main" data-value="@s.Name">
+                            <div class="cell-user">
+                                <span class="avatar avatar-sm av-@(s.Id % 6 + 1)">@string.Concat(s.Name.Split(' ').Select(w => w[0]))</span>
+                                <div><b>@s.Name</b><small>@s.Email</small></div>
+                            </div>
+                        </td>
+                        <td data-label="@L.T("Группа", "Топ", "Group")"><span class="badge badge-outline">@s.Group</span></td>
+                        <td data-label="@L.T("Курсы", "Курстар", "Courses")" data-value="@s.Courses">@s.Courses</td>
+                        <td data-label="@L.T("Прогресс", "Прогресс", "Progress")" data-value="@s.Progress">
+                            <div class="cell-progress">@Html.Progress(s.Progress, s.Progress < 40 ? "progress-sm progress-warning" : "progress-sm")<b class="text-sm tabular">@s.Progress%</b></div>
+                        </td>
+                        <td data-label="@L.T("Ср. балл", "Орт. балл", "Avg score")" data-value="@s.AvgScore"><b class="@(s.AvgScore >= 85 ? "c-success" : s.AvgScore < 65 ? "c-warning" : "")">@s.AvgScore%</b></td>
+                        <td data-label="XP" data-value="@s.Xp"><span class="xp-chip">@Html.Icon("zap") @UiHelpers.Num(s.Xp)</span></td>
+                        <td data-label="@L.T("Статус", "Мәртебе", "Status")"><span class="badge badge-dot @st.cls">@st.label</span></td>
+                        <td class="text-right">
+                            <div class="flex gap-1 justify-end">
+                                <button class="icon-btn" title="@L.T("Написать", "Жазу", "Message")" data-toast="@L.T("Сообщение отправлено", "Хабарлама жіберілді", "Message sent")" data-toast-icon="send">@Html.Icon("message-square")</button>
+                                <a class="icon-btn" title="@L.T("Профиль", "Профиль", "Profile")" href="/Profile">@Html.Icon("chevron-right")</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+        <partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#studentsTable")' />
+    <div class="flex items-center justify-between wrap gap-3" style="padding:14px 16px;border-top:1px solid var(--border)">
+        <span class="text-sm muted">@L.T("Показано", "Көрсетілді", "Showing") 1–10 @L.T("из", "/", "of") 422</span>
+        <div class="flex gap-1">
+            <button class="btn btn-outline btn-sm btn-icon" disabled aria-label="Prev">@Html.Icon("chevron-left", "icon-sm")</button>
+            <button class="btn btn-primary btn-sm btn-icon">1</button>
+            <button class="btn btn-ghost btn-sm btn-icon">2</button>
+            <button class="btn btn-ghost btn-sm btn-icon">3</button>
+            <button class="btn btn-ghost btn-sm btn-icon">…</button>
+            <button class="btn btn-ghost btn-sm btn-icon">43</button>
+            <button class="btn btn-outline btn-sm btn-icon" aria-label="Next">@Html.Icon("chevron-right", "icon-sm")</button>
+        </div>
+    </div>
+</section>
+
+<div class="modal-backdrop" id="inviteModal">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-4"><h2>@L.T("Пригласить студентов", "Студенттерді шақыру", "Invite students")</h2><button class="icon-btn" data-modal-close aria-label="Close">@Html.Icon("x")</button></div>
+        <div class="col gap-4">
+            <div class="field"><label class="label">Email</label><textarea class="textarea" placeholder="student1@edu.ai, student2@edu.ai"></textarea><span class="hint">@L.T("Несколько адресов через запятую", "Бірнеше мекенжай үтір арқылы", "Separate multiple addresses with commas")</span></div>
+            <div class="field"><label class="label">@L.T("Курс", "Курс", "Course")</label><select class="select"><option>PHP &amp; Laravel</option><option>@L.T("Laravel: продвинутый уровень", "Laravel: жоғары деңгей", "Advanced Laravel")</option></select></div>
+            <div class="flex gap-3 justify-end mt-2"><button class="btn btn-ghost" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button><button class="btn btn-primary" data-modal-close data-toast="@L.T("Приглашения отправлены", "Шақырулар жіберілді", "Invitations sent")" data-toast-icon="send">@L.T("Отправить", "Жіберу", "Send")</button></div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ExportModal" />

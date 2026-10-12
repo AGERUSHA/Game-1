@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI - Студенческий дашборд</title>
+<!-- Fonts & Google Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms/Container-Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed-dim": "#4cd7f6",
+            "on-tertiary-fixed": "#001f26",
+            "surface-container-lowest": "#ffffff",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-primary-container": "#faf6ff",
+            "secondary-container": "#dcd5fd",
+            "on-secondary-container": "#605b7d",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "surface-variant": "#dce2f7",
+            "on-secondary-fixed": "#1b1735",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "surface": "#f9f9ff",
+            "on-error": "#ffffff",
+            "inverse-surface": "#293040",
+            "inverse-primary": "#c6bfff",
+            "on-secondary-fixed-variant": "#474363",
+            "surface-container-highest": "#dce2f7",
+            "on-tertiary": "#ffffff",
+            "on-surface": "#141b2b",
+            "error": "#ba1a1a",
+            "surface-bright": "#f9f9ff",
+            "on-primary-fixed": "#160066",
+            "tertiary-container": "#007d92",
+            "surface-container-high": "#e1e8fd",
+            "primary-container": "#6c5ce7",
+            "on-surface-variant": "#474554",
+            "error-container": "#ffdad6",
+            "on-background": "#141b2b",
+            "on-primary-fixed-variant": "#4029ba",
+            "inverse-on-surface": "#edf0ff",
+            "tertiary": "#006274",
+            "primary-fixed": "#e4dfff",
+            "tertiary-fixed": "#acedff",
+            "secondary-fixed": "#e5deff",
+            "outline": "#787586",
+            "surface-tint": "#5847d2",
+            "secondary": "#5f5a7c",
+            "primary-fixed-dim": "#c6bfff",
+            "on-tertiary-container": "#edfaff",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#f1f3ff",
+            "outline-variant": "#c8c4d7",
+            "surface-dim": "#d3daef",
+            "primary": "#5341cd",
+            "surface-container": "#e9edff",
+            "background": "#f9f9ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "2rem",
+            "space-lg": "1.5rem",
+            "margin-mobile": "1rem",
+            "space-md": "1rem",
+            "gutter": "1.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "caption": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Ambient Glow for AI Module */
+    .ai-glow-card {
+      position: relative;
+      background: #faf5ff;
+      border: 1.5px solid transparent;
+      background-clip: padding-box;
+      box-shadow: 0 10px 30px -5px rgba(108, 92, 231, 0.16);
+    }
+    .ai-glow-card::before {
+      content: '';
+      position: absolute;
+      inset: -1.5px;
+      border-radius: 1.25rem;
+      background: linear-gradient(135deg, #6c5ce7 0%, #4cd7f6 100%);
+      z-index: -1;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen pb-24 selection:bg-secondary-container selection:text-on-secondary-fixed">
+<!-- TOP APP BAR -->
+<header class="sticky top-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md shadow-sm w-full">
+<div class="flex justify-between items-center w-full px-space-md py-space-sm max-w-7xl mx-auto">
+<!-- Leading: Brand and Avatar with Level ring -->
+<div class="flex items-center gap-3">
+<!-- Avatar Badge with Level 8 Ring -->
+<div class="relative cursor-pointer active:scale-95 transition-transform duration-150">
+<div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-primary-container via-tertiary-fixed-dim to-primary">
+<div class="w-full h-full rounded-full overflow-hidden bg-surface-container-lowest border border-surface-container-lowest">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a young Central Asian female student with a smart focused expression, wearing sleek modern headphones in a bright airy tech-focused study lounge with soft lavender ambient lighting and modern educational tech devices in the blurred background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6FIYnVkzG31R9m5NRXd3-4WFV6JnveUAYwD0ZWksJXBdAEofUUdpfBa4skFHZaT92o2RDb8Co_o53YDl43CT4H3SCsbhANo1nVtIgMaEfQfHt9sBa5JHBb6Kgzi_tOAaBgLEFij2ca-NkNoSxEUYtdNqjPX2CG9rRm1WsxrR6PXzOUyaQu-8Mql1ULRDn15hbkFbG1MsvB4QcqTYJQ7grwmaz6OVUYAtbq82Bf6OtH9ZkLEajKd7uYg"/>
+</div>
+</div>
+<!-- Level 8 Pill Badge -->
+<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary font-label-sm text-caption px-1.5 py-0.2 rounded-full border-2 border-surface shadow-xs">
+            L8
+          </span>
+</div>
+<!-- Headline / Brand Anchor -->
+<div class="flex flex-col">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed tracking-tight">EduAI</span>
+</div>
+</div>
+<!-- Trailing Controls: Language Switcher & Notifications -->
+<div class="flex items-center gap-2">
+<!-- Language Switcher Dropdown Button -->
+<div class="relative">
+<button class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors active:scale-95 text-on-surface-variant font-label-sm text-label-sm" id="lang-btn">
+<span class="material-symbols-outlined text-[16px]" data-icon="language">language</span>
+<span>RU</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<!-- Notification Bell with Unread Dot -->
+<button aria-label="Уведомления" class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN CANVAS CONTAINER -->
+<main class="max-w-md mx-auto px-space-md pt-4 space-y-5">
+<!-- GREETING & ENCOURAGEMENT -->
+<section class="space-y-1">
+<div class="flex items-center justify-between">
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile text-on-surface tracking-tight">
+          Добрый день, Акерке 👋
+        </h1>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+        Продолжайте обучение и достигайте новых целей.
+      </p>
+</section>
+<!-- GAMIFICATION STATS TICKER / BENTO -->
+<section class="grid grid-cols-2 gap-2.5">
+<!-- Streak Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-3 border border-outline-variant/30 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/60 flex items-center justify-center text-primary-container shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="local_fire_department" data-weight="fill" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<div class="min-w-0">
+<p class="text-label-md font-label-md text-on-surface truncate">7 дней подряд</p>
+<p class="text-caption font-caption text-on-surface-variant">🔥 Серия учебы</p>
+</div>
+</div>
+<!-- Average Grade -->
+<div class="bg-surface-container-lowest rounded-2xl p-3 border border-outline-variant/30 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed/40 flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="verified" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="min-w-0">
+<p class="text-label-md font-label-md text-on-surface truncate">87% балл</p>
+<p class="text-caption font-caption text-on-surface-variant">12 курсов сдано</p>
+</div>
+</div>
+<!-- Level & XP Full Width Micro-Pill -->
+<div class="col-span-2 bg-surface-container-lowest rounded-2xl p-3.5 border border-outline-variant/30 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] space-y-2">
+<div class="flex items-center justify-between text-label-sm font-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-base" data-icon="military_tech">military_tech</span>
+<span class="text-on-surface font-semibold">Уровень 8 Мастер</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed text-caption font-semibold">1,250 XP</span>
+</div>
+<span class="text-on-surface-variant text-caption font-caption font-medium">+250 XP до Ур. 9</span>
+</div>
+<!-- Mastery Track -->
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500 ease-out" style="width: 83.3%;"></div>
+</div>
+</div>
+</section>
+<!-- AI RECOMMENDATION CARD (HIGH FOCUS) -->
+<section class="ai-glow-card rounded-2xl p-4 transition-all">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-2xl" data-icon="psychology">psychology</span>
+</div>
+<div class="space-y-1.5 flex-1">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1 text-primary text-label-sm font-label-sm uppercase tracking-wide">
+<span class="inline-block w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-ping"></span>
+              AI Рекомендация
+            </span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-caption font-label-sm">
+              Слабая тема
+            </span>
+</div>
+<h2 class="text-body-md font-label-md text-on-surface leading-snug">
+            Повторите SQL JOIN перед завтрашним тестом.
+          </h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+            Нейросеть выявила пробелы в сложных вложенных запросах на основе прошлых квизов.
+          </p>
+</div>
+</div>
+<div class="mt-3.5 pt-3 border-t border-secondary-container/40 flex items-center justify-between">
+<span class="inline-flex items-center gap-1 text-primary font-label-sm text-label-sm bg-primary-fixed/50 px-2.5 py-1 rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="bolt">bolt</span>
+          +50 XP бонус
+        </span>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint text-on-primary font-label-md text-label-md shadow-sm active:scale-95 transition-all">
+<span>Открыть в AI</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- CONTINUE LEARNING HERO CARD -->
+<section class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] space-y-3.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-caption">
+            Текущий курс
+          </span>
+<span class="text-caption font-caption text-on-surface-variant">Урок 18 из 24</span>
+</div>
+<span class="text-label-md font-label-md text-primary font-bold">72%</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">
+          PHP & Laravel Backend Development
+        </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+          Модуль: Eloquent ORM & Связи «Многие ко многим»
+        </p>
+</div>
+<!-- Course Progress Bar -->
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="h-full rounded-full bg-gradient-to-r from-primary via-primary-container to-tertiary-fixed-dim" style="width: 72%;"></div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center -space-x-1.5 overflow-hidden">
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-surface-variant text-caption font-caption text-on-surface-variant ring-2 ring-surface">32</span>
+<span class="text-caption font-caption text-on-surface-variant pl-3">однокурсника онлайн</span>
+</div>
+<button class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md hover:bg-primary transition-all active:scale-95 shadow-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="play_circle">play_circle</span>
+<span>Продолжить урок</span>
+</button>
+</div>
+</section>
+<!-- TODAY'S QUESTS & TASKS -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Квесты и задачи</h3>
+<a class="text-label-sm font-label-sm text-primary hover:underline flex items-center" href="#quests">
+          Все (4)
+          <span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+</a>
+</div>
+<div class="space-y-2.5">
+<!-- Quest Item 1: Daily AI Challenge -->
+<div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-outline-variant/30 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-xl bg-secondary-container text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl" data-icon="quiz">quiz</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface truncate">Ответь на 5 вопросов по SQL</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">Прогресс: 3/5 • Награда: +50 XP</p>
+</div>
+</div>
+<button class="shrink-0 px-3 py-1.5 rounded-xl bg-secondary-fixed hover:bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm active:scale-95 transition-transform">
+            Тест
+          </button>
+</div>
+<!-- Quest Item 2: MVC Test -->
+<div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-outline-variant/30 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-xl bg-error-container/60 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl" data-icon="assignment">assignment</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate">Тест по MVC Архитектуре</span>
+<p class="text-caption font-caption text-error font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]" data-icon="alarm">alarm</span>
+                Дедлайн: сегодня, 20:00
+              </p>
+</div>
+</div>
+<button class="shrink-0 px-3 py-1.5 rounded-xl bg-primary text-on-primary font-label-sm text-label-sm active:scale-95 transition-transform">
+            Сдать
+          </button>
+</div>
+</div>
+</section>
+<!-- WEEKLY ACTIVITY MINI-CHART -->
+<section class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] space-y-3">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Учебная активность</h3>
+<p class="text-caption font-caption text-on-surface-variant">14.5 часов за текущую неделю</p>
+</div>
+<span class="text-label-sm font-label-sm text-tertiary-container bg-tertiary-fixed/30 px-2 py-0.5 rounded-full font-semibold">
+          +18% к прошлой
+        </span>
+</div>
+<!-- Minimal Bar Chart -->
+<div class="pt-3 pb-1 flex items-end justify-between gap-2 h-28">
+<!-- Mon -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full max-w-[24px] bg-secondary-container/70 rounded-lg transition-all" style="height: 45%;"></div>
+<span class="text-caption font-caption text-on-surface-variant">Пн</span>
+</div>
+<!-- Tue -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full max-w-[24px] bg-secondary-container/70 rounded-lg transition-all" style="height: 60%;"></div>
+<span class="text-caption font-caption text-on-surface-variant">Вт</span>
+</div>
+<!-- Wed -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full max-w-[24px] bg-secondary-container/70 rounded-lg transition-all" style="height: 35%;"></div>
+<span class="text-caption font-caption text-on-surface-variant">Ср</span>
+</div>
+<!-- Thu -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full max-w-[24px] bg-primary-container rounded-lg transition-all" style="height: 85%;"></div>
+<span class="text-caption font-caption text-on-surface-variant">Чт</span>
+</div>
+<!-- Fri (Today - Active) -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full max-w-[24px] bg-primary rounded-lg shadow-sm transition-all relative group" style="height: 95%;">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-1 py-0.5 rounded opacity-90 whitespace-nowrap">3.2ч</span>
+</div>
+<span class="text-caption font-caption font-bold text-primary">Пт</span>
+</div>
+<!-- Sat -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full max-w-[24px] bg-surface-container rounded-lg transition-all" style="height: 20%;"></div>
+<span class="text-caption font-caption text-on-surface-variant">Сб</span>
+</div>
+<!-- Sun -->
+<div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+<div class="w-full max-w-[24px] bg-surface-container rounded-lg transition-all" style="height: 15%;"></div>
+<span class="text-caption font-caption text-on-surface-variant">Вс</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BOTTOM NAVIGATION BAR (Shared Component Exact Implementation) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-sm py-space-xs bg-surface-container-lowest/90 dark:bg-inverse-surface/90 backdrop-blur-lg shadow-[0_-4px_20px_-2px_rgba(108,92,231,0.08)]">
+<!-- Tab 1: Learn (Active for primary student dashboard) -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1.5 transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="school" data-weight="fill" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="text-label-sm font-label-sm">Learn</span>
+</button>
+<!-- Tab 2: Quests -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="military_tech">military_tech</span>
+<span class="text-label-sm font-label-sm">Quests</span>
+</button>
+<!-- Tab 3: AI Tutor -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="psychology">psychology</span>
+<span class="text-label-sm font-label-sm">AI Tutor</span>
+</button>
+<!-- Tab 4: Analytics -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="insights">insights</span>
+<span class="text-label-sm font-label-sm">Analytics</span>
+</button>
+<!-- Tab 5: Profile -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</button>
+</nav>
+<!-- Interactive Language Selector Script -->
+<script>
+    const langBtn = document.getElementById('lang-btn');
+    const languages = ['RU', 'KZ', 'EN'];
+    let currentIndex = 0;
+
+    if (langBtn) {
+      langBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % languages.length;
+        const textSpan = langBtn.querySelector('span:nth-child(2)');
+        if (textSpan) {
+          textSpan.textContent = languages[currentIndex];
+        }
+      });
+    }
+  </script>
+</body></html>

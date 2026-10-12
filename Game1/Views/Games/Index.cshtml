@@ -1,0 +1,217 @@
+@model List<GameInfo>
+@inject GameCatalog Catalog
+@{
+    ViewData["Title"] = L.T("Игровая зона", "Ойын аймағы", "Game zone");
+    ViewData["Nav"] = "games";
+    var god = Catalog.GameOfDay();
+    var playable = Model.Where(g => g.Playable).ToList();
+    var concepts = Model.Where(g => !g.Playable).ToList();
+    var cats = new[]
+    {
+        ("all", L.T("Все", "Барлығы", "All"), "layout-grid"),
+        ("code", L.T("Код", "Код", "Code"), "code-2"),
+        ("data", "SQL", "database"),
+        ("algo", L.T("Алгоритмы", "Алгоритмдер", "Algorithms"), "git-fork"),
+        ("web", L.T("Веб", "Веб", "Web"), "globe"),
+        ("quiz", L.T("Знания", "Білім", "Knowledge"), "brain"),
+        ("sec", L.T("Безопасность", "Қауіпсіздік", "Security"), "shield"),
+    };
+    string CatName(string c) => cats.FirstOrDefault(x => x.Item1 == c).Item2 ?? c;
+    var leaders = new[] { ("Алина Ким", "IT-2101", 2340), ("Данияр Сериков", "IT-2102", 2105), ("Нурай Абенова", "IT-2102", 1890), ("Тимур Ибраев", "IT-2101", 1420), ("Сабина Ким", "IT-2103", 1210) };
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/games.css" asp-append-version="true" />
+}
+
+@* ---------- Hero scene ---------- *@
+<section class="gz-hero mb-6">
+    <div class="gz-stars" aria-hidden="true"></div>
+    <div class="gz-hero-text">
+        <span class="badge gz-badge">@Html.Icon("gamepad-2", "icon-sm") @L.T("Учись играя", "Ойнап үйрен", "Learn by playing")</span>
+        <h1>@L.T("Игровая зона", "Ойын аймағы", "Game zone")</h1>
+        <p>@L.T("Короткие игры по программированию, SQL и алгоритмам. Каждый раунд — новые задания, а XP идут в уровень и лигу.", "Бағдарламалау, SQL және алгоритмдер бойынша қысқа ойындар. Әр раунд — жаңа тапсырмалар.", "Short games on programming, SQL and algorithms. Every round brings new tasks, and XP counts toward your level and league.")</p>
+        <div class="flex gap-2 wrap mt-5">
+            <a class="btn btn-white btn-lg" href="/Games/Play/@god.Id">@Html.Icon("play") @L.T("Играть в игру дня", "Күн ойынын ойнау", "Play the game of the day")</a>
+            <button class="btn gz-ghost btn-lg" type="button" data-random-game>@Html.Icon("shuffle") @L.T("Случайная", "Кездейсоқ", "Random")</button>
+        </div>
+    </div>
+    <div class="gz-hero-side">
+        <div class="gz-owl" data-owl aria-hidden="true"><partial name="_Owl" model="8" /><span class="gz-pad">🎮</span></div>
+        <div class="gz-today">
+            <div class="gz-ring" data-xp-ring style="--v:0%"><div><b data-xp-today>0</b><small>/ 300 XP</small></div></div>
+            <div class="gz-today-text"><b>@L.T("XP из игр сегодня", "Бүгін ойындардан XP", "Game XP today")</b><small data-games-played>0 @L.T("игр сыграно", "ойын ойналды", "games played")</small></div>
+        </div>
+    </div>
+</section>
+
+<div class="grid cols-2 mb-6">
+    @* ---------- Game of the day ---------- *@
+    <a class="card card-flush gz-god cat-@god.Category" href="/Games/Play/@god.Id">
+        <div class="gz-god-cover"><partial name="_GameCover" model="god" /><span class="gz-x2">×2 XP</span></div>
+        <div class="gz-god-body">
+            <span class="label-caps">@L.T("Игра дня", "Күн ойыны", "Game of the day")</span>
+            <h2>@god.Title</h2>
+            <p class="text-sm muted">@god.Tagline</p>
+            <div class="flex items-center justify-between gap-2 mt-3 wrap">
+                <span class="text-xs subtle">@Html.Icon("clock", "icon-sm") @L.T("Сменится через", "Ауысады", "Changes in") <b class="tabular" data-midnight>--:--:--</b></span>
+                <span class="btn btn-primary btn-sm">@L.T("Играть", "Ойнау", "Play") @Html.Icon("arrow-right", "icon-sm")</span>
+            </div>
+        </div>
+    </a>
+
+    @* ---------- Daily Codle ---------- *@
+    <a class="card gz-kodl" href="/Games/Play/kodl">
+        <div class="flex items-center justify-between">
+            <span class="label-caps">@L.T("Кодл дня", "Күн кодлы", "Daily Codle")</span>
+            <span class="badge" data-kodl-badge>@L.T("Не сыграно", "Ойналмаған", "Not played")</span>
+        </div>
+        <div class="gz-kodl-tiles" aria-hidden="true">
+            @foreach (var ch in "?????") { <span>@ch</span> }
+        </div>
+        <p class="text-sm muted">@L.T("Одно слово в день для всех. Угадайте термин за 6 попыток и сохраните серию.", "Барлығына күніне бір сөз. Терминді 6 әрекетте табыңыз.", "One word a day for everyone. Guess the term in 6 tries and keep your streak.")</p>
+        <div class="flex items-center justify-between mt-3">
+            <span class="text-sm">🔥 @L.T("Серия", "Серия", "Streak"): <b data-kodl-streak>0</b></span>
+            <span class="btn btn-secondary btn-sm">@L.T("Отгадать", "Табу", "Solve") @Html.Icon("arrow-right", "icon-sm")</span>
+        </div>
+    </a>
+</div>
+
+@* ---------- Catalog ---------- *@
+<div class="flex items-center justify-between gap-3 wrap mb-4">
+    <h2 class="h-section">@L.T("Все игры", "Барлық ойындар", "All games") <span class="badge">@playable.Count</span></h2>
+    <div class="input-group search" style="max-width:280px">@Html.Icon("search")<input class="input input-sm" type="search" placeholder="@L.T("Найти игру…", "Ойын іздеу…", "Find a game…")" data-search-target="#gameGrid" /></div>
+</div>
+<div class="chips mb-5" data-filter-target="#gameGrid">
+    @foreach (var (key, name, icon) in cats)
+    {
+        <button class="chip @(key == "all" ? "active" : "")" type="button" data-filter="@key">@Html.Icon(icon, "icon-sm") @name</button>
+    }
+</div>
+
+<div class="gz-grid" id="gameGrid">
+    @foreach (var g in playable.Concat(concepts))
+    {
+        <article class="gz-card cat-@g.Category @(g.Playable ? "" : "is-soon")" data-tags="all @g.Category" data-game-id="@g.Id">
+            <a class="gz-card-cover" href="@(g.Playable ? $"/Games/Play/{g.Id}" : "#")" tabindex="@(g.Playable ? null : "-1")" aria-label="@g.Title">
+                <partial name="_GameCover" model="g" />
+                @if (!g.Playable) { <span class="gz-soon">@L.T("Скоро", "Жақында", "Soon")</span> }
+                else if (g.Id == god.Id) { <span class="gz-x2">×2 XP</span> }
+                <span class="gz-stars-earned" data-card-stars hidden></span>
+            </a>
+            <div class="gz-card-body">
+                <div class="flex items-center gap-2 wrap"><span class="gz-cat">@CatName(g.Category)</span><span class="text-xs subtle">@g.Topic</span></div>
+                <h3>@g.Title</h3>
+                <p class="text-sm muted">@g.Tagline</p>
+                <div class="gz-meta">
+                    <span>@Html.Icon("clock", "icon-sm") ~@g.Minutes @L.T("мин", "мин", "min")</span>
+                    <span class="gz-diff" title="@L.T("Сложность", "Күрделілік", "Difficulty")">@for (var i = 1; i <= 3; i++) { <i class="@(i <= g.Difficulty ? "on" : "")"></i> }</span>
+                    <span>@Html.Icon("zap", "icon-sm") @L.T("до", "дейін", "up to") @g.MaxXp</span>
+                </div>
+                <div class="gz-card-foot">
+                    <small class="subtle" data-card-best>@L.T("Ещё не играли", "Әлі ойналмаған", "Not played yet")</small>
+                    @if (g.Playable)
+                    {
+                        <a class="btn btn-primary btn-sm" href="/Games/Play/@g.Id">@Html.Icon("play", "icon-sm") @L.T("Играть", "Ойнау", "Play")</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline btn-sm" type="button" data-toast="@L.T("Сообщим, когда игра выйдет!", "Ойын шыққанда хабарлаймыз!", "We'll let you know when it's out!")" data-toast-icon="bell">@Html.Icon("bell", "icon-sm") @L.T("Жду", "Күтемін", "Notify me")</button>
+                    }
+                </div>
+            </div>
+        </article>
+    }
+</div>
+<partial name="_EmptyState" model='new EmptyState("search-x", L.T("Игр не найдено", "Ойын табылмады", "No games found"), L.T("Попробуйте другую категорию.", "Басқа санатты көріңіз.", "Try another category."), "#gameGrid")' />
+
+<div class="grid cols-main-side mt-6" style="align-items:start">
+    @* ---------- Badges ---------- *@
+    <section class="card">
+        <div class="card-head"><div class="card-title">@Html.Icon("medal", "icon-sm") @L.T("Игровые бейджи", "Ойын белгілері", "Game badges")</div></div>
+        <div class="gz-badges">
+            @foreach (var (key, icon, name, hint) in new[]
+            {
+                ("first", "🎮", L.T("Первая игра", "Алғашқы ойын", "First game"), L.T("Сыграйте любую игру", "Кез келген ойынды ойнаңыз", "Play any game")),
+                ("ten", "🕹️", L.T("Геймер", "Геймер", "Gamer"), L.T("10 игр", "10 ойын", "10 games")),
+                ("kodl", "🔤", L.T("Кодл-мастер", "Кодл-шебер", "Codle master"), L.T("Отгадать Кодл", "Кодлды табу", "Solve a Codle")),
+                ("bug", "🐞", L.T("Баг-хантер", "Баг-хантер", "Bug hunter"), L.T("500 очков в Баг-хантере", "Баг-хантерде 500 ұпай", "500 points in Bug hunter")),
+                ("sql", "🕵️", L.T("SQL-Шерлок", "SQL-Шерлок", "SQL Sherlock"), L.T("Раскрыть дело", "Істі ашу", "Solve a case")),
+                ("cap", "⚡", L.T("Максимум дня", "Күн максимумы", "Daily max"), L.T("300 XP за день", "Күніне 300 XP", "300 XP in a day")),
+            })
+            {
+                <div class="gz-badge-item" data-badge="@key" title="@hint"><span>@icon</span><b>@name</b><small>@hint</small></div>
+            }
+        </div>
+    </section>
+
+    @* ---------- Weekly leaderboard ---------- *@
+    <aside class="card">
+        <div class="card-head"><div class="card-title">@Html.Icon("trophy", "icon-sm") @L.T("Рейтинг недели", "Апта рейтингі", "Weekly ranking")</div><span class="text-xs subtle">XP @L.T("из игр", "ойындардан", "from games")</span></div>
+        <ol class="gz-lead" data-leaders>
+            @{ var rank = 0; }
+            @foreach (var (name, group, xp) in leaders)
+            {
+                rank++;
+                <li data-xp="@xp"><span class="gz-rank">@rank</span><span class="avatar avatar-sm av-@(rank % 6 + 1)">@string.Concat(name.Split(' ').Select(w => w[0]))</span><div class="grow"><b>@name</b><small>@group</small></div><b class="tabular">@xp</b></li>
+            }
+        </ol>
+    </aside>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    // Progress lives in this browser for now (edu_games_v1, written by games.js)
+    let s = {}; try { s = JSON.parse(localStorage.getItem("edu_games_v1")) || {}; } catch { }
+    const d = new Date(), today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const xp = s.day === today ? (s.xpToday || 0) : 0;
+    const total = Object.values(s.totals || {}).reduce((a, b) => a + b, 0);
+    document.querySelector("[data-xp-today]").textContent = xp;
+    document.querySelector("[data-xp-ring]").style.setProperty("--v", Math.min(100, xp / 3) + "%");
+    document.querySelector("[data-games-played]").textContent = `${s.games || 0} ${@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("игр сыграно", "ойын ойналды", "games played")))}`;
+
+    // Per-card best score and stars
+    const bestLabel = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Рекорд", "Рекорд", "Best")));
+    document.querySelectorAll("[data-game-id]").forEach(card => {
+        const id = card.dataset.gameId, best = s.best?.[id], stars = Object.values(s.stars?.[id] || {}).reduce((a, b) => a + b, 0);
+        if (best) card.querySelector("[data-card-best]").innerHTML = `🏆 ${bestLabel}: <b>${best}</b>`;
+        if (stars) { const el = card.querySelector("[data-card-stars]"); el.hidden = false; el.textContent = `★ ${stars}`; }
+    });
+
+    // Daily Codle status
+    const k = s.kodl || {};
+    if (k.date === today) {
+        const b = document.querySelector("[data-kodl-badge]");
+        b.textContent = k.solved ? "✓ " + @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Отгадано", "Табылды", "Solved"))) : @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Не отгадано", "Табылмады", "Missed")));
+        b.className = "badge " + (k.solved ? "badge-success" : "badge-error");
+        if (k.word) document.querySelectorAll(".gz-kodl-tiles span").forEach((t, i) => { t.textContent = k.solved ? k.word[i] : "·"; t.classList.toggle("on", !!k.solved); });
+    }
+    document.querySelector("[data-kodl-streak]").textContent = k.streak || 0;
+
+    // Badges
+    const has = { first: (s.games || 0) >= 1, ten: (s.games || 0) >= 10, kodl: !!k.everSolved, bug: (s.best?.bughunt || 0) >= 500, sql: !!s.best?.sqldet, cap: xp >= 300 };
+    document.querySelectorAll("[data-badge]").forEach(b => b.classList.toggle("on", !!has[b.dataset.badge]));
+
+    // "You" in the weekly ranking
+    const me = document.createElement("li");
+    me.className = "is-me"; me.dataset.xp = total;
+    me.innerHTML = `<span class="gz-rank">–</span><span class="avatar avatar-sm av-1">@(L.T("Вы", "Сіз", "You")[0])</span><div class="grow"><b>${@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Вы", "Сіз", "You")))}</b><small>${@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("сыграйте, чтобы подняться", "көтерілу үшін ойнаңыз", "play to climb")))}</small></div><b class="tabular">${total}</b>`;
+    const list = document.querySelector("[data-leaders]");
+    list.appendChild(me);
+    [...list.children].sort((a, b) => b.dataset.xp - a.dataset.xp).forEach((li, i) => { li.querySelector(".gz-rank").textContent = i + 1; list.appendChild(li); });
+
+    // Countdown to the next game of the day
+    const out = document.querySelector("[data-midnight]");
+    (function tick() {
+        const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0);
+        const sec = Math.floor((m - n) / 1000);
+        out.textContent = [sec / 3600, sec % 3600 / 60, sec % 60].map(v => String(Math.floor(v)).padStart(2, "0")).join(":");
+        setTimeout(tick, 1000);
+    })();
+
+    // Random playable game
+    const ids = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(playable.Select(g => g.Id)));
+    document.querySelector("[data-random-game]").addEventListener("click", () => location.href = "/Games/Play/" + ids[Math.floor(Math.random() * ids.length)]);
+})();
+</script>
+}

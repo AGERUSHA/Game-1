@@ -1,0 +1,124 @@
+@model List<CalendarEvent>
+@{
+    ViewData["Title"] = L.T("Календарь", "Күнтізбе", "Calendar");
+    ViewData["Nav"] = "calendar";
+    var month = (DateTime)ViewData["Month"]!;
+    var offset = (int)ViewData["Offset"]!;
+    var culture = System.Globalization.CultureInfo.GetCultureInfo(L.Current switch { "kk" => "kk-KZ", "en" => "en-US", _ => "ru-RU" });
+    var title = culture.TextInfo.ToTitleCase(culture.DateTimeFormat.GetMonthName(month.Month)) + " " + month.Year;
+    var days = DateTime.DaysInMonth(month.Year, month.Month);
+    var lead = ((int)month.DayOfWeek + 6) % 7;            // Monday-first grid
+    var cells = (int)Math.Ceiling((lead + days) / 7.0) * 7;
+    var today = DateTime.Today;
+    var isThisMonth = month.Year == today.Year && month.Month == today.Month;
+    var dayNames = L.Current switch { "kk" => new[] { "Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жс" }, "en" => new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" }, _ => new[] { "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс" } };
+    (string Label, string Icon) Kind(string k) => k switch
+    {
+        "assignment" => (L.T("Задание", "Тапсырма", "Assignment"), "clipboard-list"),
+        "test" => (L.T("Тест", "Тест", "Test"), "clipboard-check"),
+        "consult" => (L.T("Консультация", "Кеңес", "Consultation"), "users"),
+        _ => (L.T("Занятие", "Сабақ", "Class"), "presentation"),
+    };
+    var upcoming = Model.Where(e => e.Kind is "assignment" or "test" && (!isThisMonth || e.Day >= today.Day)).OrderBy(e => e.Day).Take(4).ToList();
+    string Left(int day)
+    {
+        var n = day - today.Day;
+        return n == 0 ? L.T("Сегодня", "Бүгін", "Today") : n == 1 ? L.T("Завтра", "Ертең", "Tomorrow") : L.T($"Через {n} дн.", $"{n} күннен кейін", $"In {n} days");
+    }
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Календарь", "Күнтізбе", "Calendar")</h1>
+        <p>@L.T("Дедлайны, тесты, занятия и консультации на одном экране.", "Мерзімдер, тесттер, сабақтар және кеңестер бір экранда.", "Deadlines, tests, classes and consultations on one screen.")</p>
+    </div>
+    <button class="btn btn-outline" type="button" data-toast="@L.T("Синхронизация с Google Calendar появится вместе с бэкендом", "Google Calendar-мен синхрондау бэкендпен бірге қосылады", "Google Calendar sync arrives with the backend")" data-toast-icon="info">@Html.Icon("refresh-cw") Google Calendar</button>
+</div>
+
+<div class="grid cols-main-side" style="align-items:start">
+    <section class="card card-lg">
+        <div class="flex items-center justify-between gap-3 wrap mb-4">
+            <div class="flex items-center gap-2">
+                <a class="icon-btn" href="/Student/Calendar?m=@(offset - 1)" aria-label="@L.T("Предыдущий месяц", "Алдыңғы ай", "Previous month")">@Html.Icon("chevron-left")</a>
+                <h2 class="h-section cal-title">@title</h2>
+                <a class="icon-btn" href="/Student/Calendar?m=@(offset + 1)" aria-label="@L.T("Следующий месяц", "Келесі ай", "Next month")">@Html.Icon("chevron-right")</a>
+                @if (offset != 0) { <a class="btn btn-ghost btn-sm" href="/Student/Calendar">@L.T("Сегодня", "Бүгін", "Today")</a> }
+            </div>
+            <div class="cal-legend">
+                @foreach (var k in new[] { "assignment", "test", "lesson", "consult" })
+                {
+                    <span><i class="cal-dot k-@k"></i>@Kind(k).Label</span>
+                }
+            </div>
+        </div>
+
+        <div class="cal-grid" role="grid" aria-label="@title">
+            @foreach (var d in dayNames) { <div class="cal-head" role="columnheader">@d</div> }
+            @for (var c = 0; c < cells; c++)
+            {
+                var day = c - lead + 1;
+                if (day < 1 || day > days) { <div class="cal-cell is-out" aria-hidden="true"></div>; continue; }
+                var ev = Model.Where(e => e.Day == day).ToList();
+                var isToday = isThisMonth && day == today.Day;
+                var weekend = c % 7 >= 5;
+                <div class="cal-cell @(isToday ? "is-today" : "") @(weekend ? "is-weekend" : "") @(isThisMonth && day < today.Day ? "is-past" : "")" role="gridcell" aria-current="@(isToday ? "date" : null)">
+                    <span class="cal-num">@day</span>
+                    @foreach (var e in ev)
+                    {
+                        if (e.Href != null) { <a class="cal-ev k-@e.Kind" href="@e.Href" title="@e.Time · @e.Title"><span class="hide-sm">@e.Title</span></a> }
+                        else { <span class="cal-ev k-@e.Kind" title="@e.Time · @e.Title"><span class="hide-sm">@e.Title</span></span> }
+                    }
+                </div>
+            }
+        </div>
+        @if (Model.Count == 0)
+        {
+            <partial name="_EmptyState" model='new EmptyState("calendar-x", L.T("В этом месяце пока пусто", "Бұл айда әзірге бос", "Nothing this month yet"), L.T("Преподаватели ещё не добавили события.", "Оқытушылар әлі оқиға қоспады.", "Teachers have not added events yet."), Mood: "is-sleep")' />
+        }
+
+        @* Agenda list — the main view on phones *@
+        @if (Model.Count > 0)
+        {
+            <div class="cal-agenda">
+                <div class="label-caps mb-2">@L.T("Все события месяца", "Айдың барлық оқиғалары", "All events this month")</div>
+                @foreach (var e in Model.OrderBy(e => e.Day))
+                {
+                    <a class="cal-agenda-item @(isThisMonth && e.Day < today.Day ? "is-past" : "")" href="@(e.Href ?? "#")">
+                        <span class="cal-date"><b>@e.Day</b><small>@culture.DateTimeFormat.GetAbbreviatedDayName(new DateTime(month.Year, month.Month, e.Day).DayOfWeek)</small></span>
+                        <i class="cal-bar k-@e.Kind"></i>
+                        <div class="grow"><div class="list-title">@e.Title</div><div class="list-meta">@Kind(e.Kind).Label · @e.Time · @e.Course</div></div>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+
+    <aside class="col gap-6">
+        <section class="card">
+            <div class="flex items-center justify-between mb-3">
+                <div class="card-title">@Html.Icon("flame", "icon-sm c-error") @L.T("Ближайшие дедлайны", "Жақын мерзімдер", "Upcoming deadlines")</div>
+                <span class="badge badge-error">@upcoming.Count</span>
+            </div>
+            @if (upcoming.Count == 0)
+            {
+                <p class="text-sm muted">@L.T("Ближайших дедлайнов нет — можно выдохнуть.", "Жақын мерзім жоқ — демалуға болады.", "No upcoming deadlines — breathe out.")</p>
+            }
+            <div class="col gap-3">
+                @foreach (var e in upcoming)
+                {
+                    var hot = isThisMonth && e.Day - today.Day <= 1;
+                    <a class="deadline-card k-@e.Kind @(hot ? "is-hot" : "")" href="@(e.Href ?? "#")">
+                        <div class="flex items-center justify-between gap-2"><span class="label-caps">@Kind(e.Kind).Label</span><span class="badge @(hot ? "badge-error" : "")">@(isThisMonth ? Left(e.Day) : e.Day.ToString()) · @e.Time</span></div>
+                        <b>@e.Title</b>
+                        <small class="subtle">@e.Course</small>
+                    </a>
+                }
+            </div>
+        </section>
+        <section class="card card-soft">
+            <div class="card-title">@Html.Icon("bell-ring", "icon-sm") @L.T("Напоминания", "Еске салғыштар", "Reminders")</div>
+            <p class="text-sm muted mt-2">@L.T("Напомним за 2 дня и в день сдачи — на сайте, по email или в Telegram.", "2 күн бұрын және тапсыру күні еске саламыз — сайтта, email немесе Telegram арқылы.", "We remind you 2 days before and on the due date — on the site, by email or Telegram.")</p>
+            <a class="btn btn-secondary btn-sm mt-4" href="/Settings">@L.T("Настроить", "Баптау", "Configure")</a>
+        </section>
+    </aside>
+</div>

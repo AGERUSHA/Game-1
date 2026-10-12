@@ -1,0 +1,48 @@
+@model LoginViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = L.T("Вход", "Кіру", "Sign in");
+}
+<div class="auth-card">
+    <partial name="_Mascot" />
+    <h2>@L.T("Добро пожаловать!", "Қош келдіңіз!", "Welcome back!")</h2>
+    <p class="sub">@L.T("Войдите, чтобы продолжить обучение.", "Оқуды жалғастыру үшін кіріңіз.", "Sign in to continue learning.")</p>
+
+    <form class="auth-form" method="post" asp-action="Login" data-loading="@L.T("Входим…", "Кіруде…", "Signing in…")">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <partial name="_FormError" />
+        <div class="field">
+            <label class="label" for="email">Email</label>
+            <div class="input-group">
+                @Html.Icon("mail")
+                <input class="input" id="email" name="Email" type="email" placeholder="name@edu.ai" value="@Model.Email" autocomplete="email" required />
+            </div>
+        </div>
+        <div class="field">
+            <label class="label" for="password">@L.T("Пароль", "Құпиясөз", "Password") <a href="/Account/ForgotPassword" class="text-sm fw-600">@L.T("Забыли пароль?", "Құпиясөзді ұмыттыңыз ба?", "Forgot password?")</a></label>
+            <div class="input-group">
+                @Html.Icon("lock")
+                <input class="input" id="password" name="Password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+                <button class="icon-btn input-action" type="button" data-pw-toggle aria-label="@L.T("Показать пароль", "Құпиясөзді көрсету", "Show password")">@Html.Icon("eye")</button>
+            </div>
+        </div>
+        <label class="check"><input type="checkbox" name="RememberMe" value="true" checked="@Model.RememberMe" /> @L.T("Запомнить меня", "Мені есте сақтау", "Remember me")</label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">@L.T("Войти", "Кіру", "Sign in") @Html.Icon("arrow-right")</button>
+    </form>
+    <div class="divider-text">@L.T("или", "немесе", "or")</div>
+    <partial name="_ExternalLogins" />
+
+    @if (ViewData["DevLogin"] as bool? == true)
+    {
+        <div class="dev-login">
+            <div class="dev-login-head">@Html.Icon("zap", "icon-sm") @L.T("Быстрый вход · только этот компьютер", "Жылдам кіру · тек осы компьютер", "Quick sign-in · this computer only")</div>
+            <form method="post" asp-action="DevLogin" class="dev-login-row">
+                <button class="btn btn-outline btn-sm" type="submit" name="role" value="student">@Html.Icon("graduation-cap", "icon-sm") @L.T("Студент", "Студент", "Student")</button>
+                <button class="btn btn-outline btn-sm" type="submit" name="role" value="teacher">@Html.Icon("presentation", "icon-sm") @L.T("Преподаватель", "Оқытушы", "Teacher")</button>
+                <button class="btn btn-outline btn-sm" type="submit" name="role" value="admin">@Html.Icon("shield-check", "icon-sm") @L.T("Админ", "Әкімші", "Admin")</button>
+            </form>
+        </div>
+    }
+
+    <p class="auth-foot">@L.T("Нет аккаунта?", "Аккаунтыңыз жоқ па?", "No account yet?") <a class="fw-600" href="/Account/Register">@L.T("Зарегистрироваться", "Тіркелу", "Sign up")</a></p>
+</div>

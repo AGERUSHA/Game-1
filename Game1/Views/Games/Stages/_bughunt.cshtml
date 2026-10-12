@@ -1,0 +1,57 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("mouse-pointer-click", L.T("Нажмите на строку, в которой ошибка.", "Қатесі бар жолды басыңыз.", "Click the line that contains the bug.")),
+        ("tags", L.T("Угадайте тип ошибки — бонус +50 очков.", "Қате түрін табыңыз — +50 ұпай бонус.", "Name the bug type for a +50 bonus.")),
+        ("flame", L.T("Верные ответы подряд дают комбо-множитель.", "Қатарынан дұрыс жауаптар комбо береді.", "Correct answers in a row build a combo multiplier.")),
+        ("heart", L.T("3 жизни. Ошибка или конец таймера — минус жизнь.", "3 өмір. Қате немесе таймер біту — минус өмір.", "3 lives. A miss or timeout costs a life.")),
+    };
+    ViewData["Options"] = new (string, string, string)[]
+    {
+        ("level", "junior", L.T("Джун · 30 сек", "Джун · 30 сек", "Junior · 30 s")),
+        ("level", "middle", L.T("Мидл · 20 сек", "Мидл · 20 сек", "Middle · 20 s")),
+        ("level", "senior", L.T("Сеньор · 12 сек", "Сеньор · 12 сек", "Senior · 12 s")),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="bh" data-game-stage hidden>
+    <div class="flex items-center justify-between gap-2 wrap mb-3">
+        <p class="g-task" data-bh-task>@L.T("Найдите строку с ошибкой", "Қатесі бар жолды табыңыз", "Find the buggy line")</p>
+        <span class="g-tag" data-bh-lang></span>
+    </div>
+    <div class="g-code">
+        <div class="g-code-bar"><i></i><i></i><i></i><span data-bh-file></span></div>
+        <pre data-bh-code></pre>
+    </div>
+
+    <div class="bh-types" data-bh-types hidden>
+        <p class="text-sm fw-600 mb-2">@L.T("Отлично! Какого типа эта ошибка?", "Тамаша! Бұл қандай қате?", "Nice! What kind of bug is it?")</p>
+        <div class="bh-type-row">
+            <button class="g-choice" type="button" data-type="syntax">🧩 @L.T("Синтаксис", "Синтаксис", "Syntax")</button>
+            <button class="g-choice" type="button" data-type="logic">🧠 @L.T("Логика", "Логика", "Logic")</button>
+            <button class="g-choice" type="button" data-type="security">🛡️ @L.T("Безопасность", "Қауіпсіздік", "Security")</button>
+            <button class="g-choice" type="button" data-type="perf">🐢 @L.T("Скорость", "Жылдамдық", "Performance")</button>
+        </div>
+    </div>
+
+    <div class="g-explain" data-bh-explain hidden></div>
+    <div class="flex justify-end mt-4"><button class="btn btn-primary" type="button" data-bh-next hidden>@L.T("Дальше", "Келесі", "Next") @Html.Icon("arrow-right")</button></div>
+</section>
+
+<script>
+    window.BH_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        types = new { syntax = L.T("синтаксис", "синтаксис", "syntax"), logic = L.T("логика", "логика", "logic"), security = L.T("безопасность", "қауіпсіздік", "security"), perf = L.T("скорость", "жылдамдық", "performance") },
+        found = L.T("Баг найден", "Баг табылды", "Bug found"),
+        missed = L.T("Ошибка была в строке {n}", "Қате {n}-жолда болды", "The bug was on line {n}"),
+        timeout = L.T("Время вышло!", "Уақыт бітті!", "Time's up!"),
+        typeOk = L.T("Тип верный: {t}", "Түрі дұрыс: {t}", "Right type: {t}"),
+        typeNo = L.T("Тип ошибки: {t}", "Қате түрі: {t}", "Bug type: {t}"),
+        accuracy = L.T("Точность", "Дәлдік", "Accuracy"),
+        bestCombo = L.T("Лучшее комбо", "Үздік комбо", "Best combo"),
+        score = L.T("Очки", "Ұпай", "Score"),
+        done = L.T("Охота окончена", "Аң аулау аяқталды", "Hunt over"),
+        outOfLives = L.T("Жизни закончились", "Өмір бітті", "Out of lives"),
+    }));
+</script>

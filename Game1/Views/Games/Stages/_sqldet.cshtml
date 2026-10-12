@@ -1,0 +1,73 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("database", L.T("У вас настоящая база данных города: жители, машины, отчёты, показания, визиты в музей.", "Сізде қаланың нақты деректер қоры бар: тұрғындар, көліктер, есептер, айғақтар, мұражайға келу.", "You get a real city database: people, cars, reports, interviews, museum visits.")),
+        ("code-2", L.T("Пишите SQL-запросы (SELECT, WHERE, JOIN, ORDER BY…) и читайте улики.", "SQL сұрауларын жазып (SELECT, WHERE, JOIN…), айғақтарды оқыңыз.", "Write SQL queries (SELECT, WHERE, JOIN, ORDER BY…) and read the clues.")),
+        ("shuffle", L.T("Каждое дело генерируется заново — новый вор, свидетели и улики.", "Әр іс қайта жасалады — жаңа ұры, куәгерлер және айғақтар.", "Every case is generated fresh — a new thief, witnesses and clues.")),
+        ("gavel", L.T("Нашли вора? Введите его имя и предъявите обвинение. Подсказки и ошибки уменьшают награду.", "Ұрыны таптыңыз ба? Атын енгізіп, айып тағыңыз.", "Found the thief? Enter the name and accuse. Hints and wrong guesses reduce the reward.")),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="sd" data-game-stage hidden>
+    <div class="sd-layout">
+        @* ---------- Case board ---------- *@
+        <aside class="sd-board">
+            <div class="sd-file">
+                <span class="label-caps">@L.T("Дело", "Іс", "Case") <span data-sd-case></span></span>
+                <h2>@L.T("Похищение Золотой совы", "Алтын үкінің ұрлануы", "The Golden Owl heist")</h2>
+                <p class="text-sm">@L.T("10 октября 2026 года из музея EDU-Сити (район Центр) похитили Золотую сову. Начните с отчёта о преступлении в таблице crime_reports.", "2026 жылғы 10 қазанда EDU-Сити мұражайынан (Орталық ауданы) Алтын үкі ұрланды. crime_reports кестесіндегі есептен бастаңыз.", "On October 10, 2026 the Golden Owl was stolen from the EDU City museum (Center district). Start with the report in crime_reports.")</p>
+            </div>
+            <ol class="sd-steps" data-sd-steps></ol>
+            <div class="sd-accuse">
+                <label class="label" for="sdName">@L.T("Кто вор?", "Ұры кім?", "Who is the thief?")</label>
+                <div class="flex gap-2">
+                    <input class="input" id="sdName" data-sd-name placeholder="@L.T("Имя и фамилия", "Аты-жөні", "Full name")" autocomplete="off" />
+                    <button class="btn btn-primary" type="button" data-sd-accuse>@Html.Icon("gavel") <span class="hide-sm">@L.T("Обвинить", "Айыптау", "Accuse")</span></button>
+                </div>
+            </div>
+        </aside>
+
+        @* ---------- SQL console ---------- *@
+        <div class="sd-console">
+            <div class="sd-schema" data-sd-schema></div>
+            <div class="sd-editor">
+                <textarea data-sd-sql spellcheck="false" rows="5" aria-label="SQL"></textarea>
+                <div class="sd-editor-bar">
+                    <span class="text-xs subtle">Ctrl + Enter</span>
+                    <span class="grow"></span>
+                    <button class="btn btn-ghost btn-sm" type="button" data-sd-hint>@Html.Icon("lightbulb", "icon-sm") @L.T("Подсказка", "Кеңес", "Hint") <span class="text-xs">(−35 XP)</span></button>
+                    <button class="btn btn-primary btn-sm" type="button" data-sd-run>@Html.Icon("play", "icon-sm") @L.T("Выполнить", "Орындау", "Run")</button>
+                </div>
+            </div>
+            <div class="sd-out" data-sd-out>
+                <div class="sd-loading"><span class="spinner"></span> @L.T("Загружаем базу данных города…", "Қала деректер қорын жүктеп жатырмыз…", "Loading the city database…")</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    window.SD_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        steps = new[] {
+            L.T("Найдите отчёт о краже 10 октября в районе «Центр»", "10 қазандағы «Орталық» ауданындағы ұрлық есебін табыңыз", "Find the theft report for Oct 10 in the Center district"),
+            L.T("Найдите обоих свидетелей в таблице people", "people кестесінен екі куәгерді табыңыз", "Find both witnesses in the people table"),
+            L.T("Прочитайте их показания в interviews", "interviews кестесінен олардың айғақтарын оқыңыз", "Read their statements in interviews"),
+            L.T("Сопоставьте машины (cars) и визиты в музей (museum_visits)", "Көліктерді (cars) және мұражайға келуді (museum_visits) салыстырыңыз", "Match cars and museum_visits"),
+        },
+        rows = L.T("строк", "жол", "rows"),
+        empty = L.T("Запрос выполнен, но ничего не найдено.", "Сұрау орындалды, бірақ ештеңе табылмады.", "The query ran but returned nothing."),
+        error = L.T("Ошибка SQL", "SQL қатесі", "SQL error"),
+        hintPrefix = L.T("Подсказка — попробуйте:", "Кеңес — көріңіз:", "Hint — try:"),
+        wrong = L.T("{n} не вор — у этого человека алиби. −30 XP", "{n} ұры емес — алиби бар. −30 XP", "{n} isn't the thief — they have an alibi. −30 XP"),
+        solved = L.T("Дело раскрыто!", "Іс ашылды!", "Case closed!"),
+        solvedText = L.T("Вор — {n}. Золотая сова вернулась в музей!", "Ұры — {n}. Алтын үкі мұражайға оралды!", "The thief is {n}. The Golden Owl is back in the museum!"),
+        queries = L.T("Запросов", "Сұраулар", "Queries"),
+        hints = L.T("Подсказок", "Кеңестер", "Hints"),
+        mistakes = L.T("Ошибок", "Қателер", "Mistakes"),
+        found = L.T("Найдено", "Табылды", "Found"),
+        noDb = L.T("Не удалось загрузить SQL-движок. Проверьте файлы wwwroot/lib/sqljs.", "SQL қозғалтқышы жүктелмеді.", "Couldn't load the SQL engine. Check wwwroot/lib/sqljs."),
+        start = L.T("-- Начните расследование:\nSELECT * FROM crime_reports\nWHERE date = '2026-10-10';", "-- Тергеуді бастаңыз:\nSELECT * FROM crime_reports\nWHERE date = '2026-10-10';", "-- Start the investigation:\nSELECT * FROM crime_reports\nWHERE date = '2026-10-10';"),
+    }));
+</script>

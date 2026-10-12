@@ -1,0 +1,172 @@
+@model Deck
+@{
+    ViewData["Title"] = L.T("Карточки", "Карточкалар", "Flashcards");
+    ViewData["Nav"] = "flashcards";
+    var decks = (List<Deck>)ViewData["Decks"]!;
+    var cards = (List<Flashcard>)ViewData["Cards"]!;
+    var mastery = Model.Total == 0 ? 0 : Model.Learned * 100 / Model.Total;
+    var payload = System.Text.Json.JsonSerializer.Serialize(cards, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+    // SM-2 style rating: label, next review, tone, key
+    var ratings = new[]
+    {
+        ("again", L.T("Не помню", "Есімде жоқ", "Again"), L.T("< 1 мин", "< 1 мин", "< 1 min"), "error", "1"),
+        ("hard", L.T("Сложно", "Қиын", "Hard"), L.T("10 мин", "10 мин", "10 min"), "warning", "2"),
+        ("good", L.T("Помню", "Есімде", "Good"), L.T("1 день", "1 күн", "1 day"), "primary", "3"),
+        ("easy", L.T("Легко", "Оңай", "Easy"), L.T("4 дня", "4 күн", "4 days"), "success", "4"),
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Карточки", "Карточкалар", "Flashcards")</h1>
+        <p>@L.T("Интервальное повторение: сложное — чаще, лёгкое — реже.", "Аралықты қайталау: қиынын — жиі, оңайын — сирек.", "Spaced repetition: hard cards come back sooner, easy ones later.")</p>
+    </div>
+    <button class="btn btn-primary" type="button" data-modal-open="#aiDeck">@Html.Icon("sparkles") @L.T("AI: создать карточки", "AI: карточка жасау", "AI: generate cards")</button>
+</div>
+
+<div class="chips mb-6" role="tablist" aria-label="@L.T("Колоды", "Колодалар", "Decks")">
+    @foreach (var d in decks)
+    {
+        <a class="chip @(d.Id == Model.Id ? "active" : "")" href="/Student/Flashcards?deck=@d.Id" role="tab" aria-selected="@(d.Id == Model.Id ? "true" : "false")">
+            @Html.Icon(d.Icon, "icon-sm") @d.Title @if (d.Due > 0) { <span class="count">@d.Due</span> }
+        </a>
+    }
+</div>
+
+<div class="grid cols-main-side" style="align-items:start">
+    <section>
+        <div class="flex items-center justify-between gap-3 wrap mb-3">
+            <div class="flex items-center gap-2 wrap">
+                <span class="badge badge-primary">@Model.Course</span>
+                <span class="text-sm subtle">@L.T("Карточка", "Карточка", "Card") <b class="tabular" data-fc-num>1</b> @L.T("из", "/", "of") @cards.Count</span>
+            </div>
+            <span class="text-sm subtle hide-sm">@Html.Icon("keyboard", "icon-sm") @L.T("Пробел — перевернуть, 1–4 — оценка", "Бос орын — аудару, 1–4 — баға", "Space flips, 1–4 rates")</span>
+        </div>
+
+        <div class="fc-stage" data-fc>
+            <button class="fc-card" type="button" data-fc-card aria-live="polite">
+                <span class="fc-face fc-front">
+                    <span class="badge" data-fc-topic></span>
+                    <span class="fc-q" data-fc-front></span>
+                    <span class="fc-hint">@Html.Icon("rotate-3d", "icon-sm") @L.T("Нажмите, чтобы увидеть ответ", "Жауапты көру үшін басыңыз", "Tap to see the answer")</span>
+                </span>
+                <span class="fc-face fc-back">
+                    <span class="label-caps">@L.T("Ответ", "Жауап", "Answer")</span>
+                    <span class="fc-a" data-fc-back></span>
+                    <pre class="question-code" data-fc-code hidden></pre>
+                </span>
+            </button>
+
+            <p class="label-caps text-center mt-6 mb-3">@L.T("Насколько легко вспомнили?", "Қаншалықты оңай есіңізге түсті?", "How easily did you recall it?")</p>
+            <div class="fc-rate" data-fc-rate>
+                @foreach (var (key, label, next, tone, num) in ratings)
+                {
+                    <button class="fc-rate-btn tone-@tone" type="button" data-rate="@key" disabled>
+                        <b>@label</b><small>@next</small><kbd>@num</kbd>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div data-fc-done hidden>
+            <div class="card">
+                <partial name="_EmptyState" model='new EmptyState("party-popper", L.T("Колода на сегодня пройдена!", "Бүгінгі колода өтілді!", "Done for today!"), L.T("Ух доволен. Следующие карточки вернутся по расписанию повторений.", "Ух риза. Келесі карточкалар кесте бойынша қайтады.", "Hoot is proud. The next cards will come back on schedule."), ActionText: L.T("Другая колода", "Басқа колода", "Another deck"), ActionHref: "/Student/Flashcards?deck=3", Mood: "is-cheer")' />
+            </div>
+        </div>
+    </section>
+
+    <aside class="col gap-6">
+        <section class="card">
+            <div class="flex items-center justify-between"><div class="card-title">@L.T("Освоение колоды", "Колоданы меңгеру", "Deck mastery")</div><b class="c-primary">@mastery%</b></div>
+            @Html.Progress(mastery, "mt-3")
+            <div class="fc-stats mt-4">
+                <div><b>@Model.Total</b><small>@L.T("Всего", "Барлығы", "Total")</small></div>
+                <div><b class="c-success">@Model.Learned</b><small>@L.T("Изучено", "Меңгерілді", "Learned")</small></div>
+                <div><b class="c-warning" data-fc-due>@Model.Due</b><small>@L.T("Повторить", "Қайталау", "Due")</small></div>
+            </div>
+            <div class="fc-session mt-4 text-sm muted">@L.T("За эту сессию", "Осы сессияда", "This session"): <b data-fc-session>0</b> @L.T("карточек", "карточка", "cards") · <b class="c-primary">+<span data-fc-xp>0</span> XP</b></div>
+        </section>
+
+        <section class="card ai-card">
+            <div class="card-title">@Html.Icon("sparkles", "icon-sm") @L.T("AI-помощник колод", "Колода AI-көмекшісі", "AI deck helper")</div>
+            <p class="text-sm muted mt-2">@L.T("Вставьте конспект или ссылку на лекцию — AI сделает до 20 карточек с вопросами на понимание.", "Конспектіні немесе дәріс сілтемесін қойыңыз — AI 20-ға дейін карточка жасайды.", "Paste notes or a lecture link — AI will make up to 20 understanding-check cards.")</p>
+            <button class="btn btn-secondary btn-block mt-4" type="button" data-modal-open="#aiDeck">@Html.Icon("wand-sparkles", "icon-sm") @L.T("Сгенерировать", "Жасау", "Generate")</button>
+        </section>
+
+        <section class="card">
+            <div class="card-title mb-3">@L.T("Все колоды", "Барлық колодалар", "All decks")</div>
+            <div class="list">
+                @foreach (var d in decks)
+                {
+                    <a class="list-item" href="/Student/Flashcards?deck=@d.Id">
+                        <span class="ibox ibox-sm">@Html.Icon(d.Icon)</span>
+                        <div class="grow"><div class="list-title">@d.Title</div><div class="list-meta">@d.Learned / @d.Total · @(d.Due > 0 ? L.T($"{d.Due} к повторению", $"{d.Due} қайталау", $"{d.Due} due") : L.T("всё повторено", "бәрі қайталанды", "all caught up"))</div></div>
+                        @if (d.Due == 0) { @Html.Icon("check-circle-2", "c-success") }
+                    </a>
+                }
+            </div>
+        </section>
+    </aside>
+</div>
+
+<div class="modal-backdrop" id="aiDeck">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-5"><h2>@Html.Icon("sparkles") @L.T("Карточки из материала", "Материалдан карточкалар", "Cards from your material")</h2><button class="icon-btn" type="button" data-modal-close aria-label="@L.T("Закрыть", "Жабу", "Close")">@Html.Icon("x")</button></div>
+        <div class="col gap-4">
+            <div class="field"><label class="label" for="aiSrc">@L.T("Конспект, тема или ссылка", "Конспект, тақырып немесе сілтеме", "Notes, topic or link")</label><textarea class="textarea" id="aiSrc" rows="5" maxlength="4000" data-counter="#aiSrcCount" placeholder="@L.T("Например: индексы в PostgreSQL, B-Tree, Hash, EXPLAIN…", "Мысалы: PostgreSQL индекстері, B-Tree, Hash, EXPLAIN…", "e.g. PostgreSQL indexes, B-Tree, Hash, EXPLAIN…")"></textarea><small class="subtle text-right tabular" id="aiSrcCount"></small></div>
+            <div class="grid cols-2" style="gap:12px">
+                <div class="field"><label class="label" for="aiCount">@L.T("Сколько карточек", "Қанша карточка", "How many")</label><select class="select" id="aiCount"><option>5</option><option selected>10</option><option>20</option></select></div>
+                <div class="field"><label class="label" for="aiLevel">@L.T("Сложность", "Күрделілік", "Difficulty")</label><select class="select" id="aiLevel"><option>@L.T("Базовая", "Негізгі", "Basic")</option><option selected>@L.T("Средняя", "Орташа", "Medium")</option><option>@L.T("Продвинутая", "Күрделі", "Advanced")</option></select></div>
+            </div>
+            <div class="flex gap-3 justify-end mt-2">
+                <button class="btn btn-ghost" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button>
+                <button class="btn btn-primary" type="button" data-modal-close data-toast="@L.T("AI готовит карточки — появятся в колоде через минуту", "AI карточкаларды дайындап жатыр — бір минуттан кейін пайда болады", "AI is preparing cards — they will appear in a minute")" data-toast-icon="sparkles">@Html.Icon("wand-sparkles", "icon-sm") @L.T("Создать", "Жасау", "Generate")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const cards = @Html.Raw(payload);
+    const root = document.querySelector("[data-fc]");
+    const q = s => document.querySelector(s);
+    const XP = { again: 1, hard: 2, good: 4, easy: 5 };
+    let i = 0, flipped = false, session = 0, xp = 0, due = +q("[data-fc-due]").textContent;
+
+    function show() {
+        if (i >= cards.length) { root.hidden = true; q("[data-fc-done]").hidden = false; window.eduCelebrate?.({ xp }); return; }
+        const c = cards[i];
+        flipped = false;
+        q("[data-fc-card]").classList.remove("is-flipped");
+        q("[data-fc-topic]").textContent = c.topic;
+        q("[data-fc-front]").textContent = c.front;
+        q("[data-fc-back]").textContent = c.back;
+        q("[data-fc-code]").hidden = !c.code; q("[data-fc-code]").textContent = c.code || "";
+        q("[data-fc-num]").textContent = i + 1;
+        root.querySelectorAll("[data-rate]").forEach(b => b.disabled = true);
+    }
+    function flip() {
+        flipped = !flipped;
+        q("[data-fc-card]").classList.toggle("is-flipped", flipped);
+        root.querySelectorAll("[data-rate]").forEach(b => b.disabled = !flipped);
+    }
+    function rate(key) {
+        if (!flipped) return;
+        session++; xp += XP[key]; if (key !== "again" && due > 0) due--;
+        q("[data-fc-session]").textContent = session; q("[data-fc-xp]").textContent = xp; q("[data-fc-due]").textContent = due;
+        if (key === "again") cards.push(cards[i]);   // comes back in this session
+        i++; show();
+    }
+    q("[data-fc-card]").addEventListener("click", flip);
+    root.addEventListener("click", e => { const b = e.target.closest("[data-rate]"); if (b) rate(b.dataset.rate); });
+    document.addEventListener("keydown", e => {
+        if (e.target.closest("input, textarea, select") || root.hidden) return;
+        if (e.code === "Space") { e.preventDefault(); flip(); }
+        const k = ["1", "2", "3", "4"].indexOf(e.key); if (k >= 0) rate(["again", "hard", "good", "easy"][k]);
+    });
+    show();
+})();
+</script>
+}

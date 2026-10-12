@@ -1,0 +1,148 @@
+@inject IEduDataService Data
+@inject IWebHostEnvironment Env
+@{
+    var role = ViewData["Role"] as string ?? "student";
+    var (name, initials, roleTitle, av) = role switch
+    {
+        "teacher" => ("Айгерим Нурланова", "АН", L.T("Преподаватель", "Оқытушы", "Teacher"), "av-3"),
+        "admin" => ("Ольга Петрова", "ОП", L.T("Администратор", "Әкімші", "Administrator"), "av-2"),
+        _ => ("Акерке Серикова", "АС", L.T("Студент · Уровень 8", "Студент · 8-деңгей", "Student · Level 8"), "av-1")
+    };
+    // Signed-in user (from the auth cookie) replaces the demo name.
+    if (User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(User.Identity.Name))
+    {
+        name = User.Identity.Name;
+        // Role label follows the real account role, not the section being viewed
+        var realRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+        if (realRole != null && realRole != role)
+            roleTitle = realRole switch { "admin" => L.T("Администратор", "Әкімші", "Administrator"), "teacher" => L.T("Преподаватель", "Оқытушы", "Teacher"), _ => L.T("Студент", "Студент", "Student") };
+        initials = string.Concat(name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => char.ToUpper(p[0])));
+    }
+    var photo = User.FindFirst(UserSession.AvatarClaim)?.Value;
+    var notifications = Data.GetNotifications();
+    var student = role == "student" ? Data.GetStudent() : null;
+    var weekDays = L.Current switch
+    {
+        "kk" => new[] { "Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жс" },
+        "en" => new[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" },
+        _ => new[] { "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс" }
+    };
+}
+<header class="topbar">
+    <button class="icon-btn menu-toggle" type="button" data-sidebar-toggle aria-label="@L.T("Открыть меню", "Мәзірді ашу", "Open menu")">@Html.Icon("menu")</button>
+
+    <form class="topbar-search" role="search" onsubmit="return false">
+        <div class="input-group">
+            @Html.Icon("search")
+            <input class="input" type="search" placeholder="@L.T("Поиск курсов, материалов, тестов…", "Курстарды, материалдарды, тесттерді іздеу…", "Search courses, materials, tests…")" aria-label="@L.T("Поиск", "Іздеу", "Search")" />
+        </div>
+        <kbd>Ctrl K</kbd>
+    </form>
+
+    <div class="topbar-actions">
+        <button class="icon-btn search-toggle" type="button" aria-label="@L.T("Поиск", "Іздеу", "Search")">@Html.Icon("search")</button>
+        @if (student is not null)
+        {
+            <div class="dropdown">
+                <button class="icon-btn streak-btn" type="button" data-dropdown data-streak="@student.Streak" aria-label="@L.T("Серия обучения", "Оқу сериясы", "Learning streak")">
+                    @Html.Icon("flame")<span data-streak-count>@student.Streak</span>
+                </button>
+                <div class="menu streak-menu">
+                    <div class="streak-hero">
+                        <span class="streak-flame">@Html.Icon("flame")</span>
+                        <div><b><span data-streak-count>@student.Streak</span> @L.T("дн. подряд", "күн қатарынан", "days in a row")</b><small>@L.T("Учитесь каждый день, чтобы огонёк не погас", "От сөнбеуі үшін күн сайын оқыңыз", "Study every day to keep the flame alive")</small></div>
+                    </div>
+                    <div class="streak-week">
+                        @foreach (var d in weekDays)
+                        {
+                            <span class="streak-day" data-streak-day><i>🔥</i>@d</span>
+                        }
+                    </div>
+                    <p class="streak-msg" data-streak-msg></p>
+                </div>
+            </div>
+        }
+        <div class="dropdown">
+            <button class="icon-btn pomo-btn" type="button" data-dropdown aria-label="@L.T("Фокус-режим (помодоро)", "Фокус-режим (помодоро)", "Focus mode (Pomodoro)")">
+                @Html.Icon("timer")<span class="hide-sm" data-pomo-mini hidden></span>
+            </button>
+            <div class="menu pomo-menu">
+                <div class="pomo-head">
+                    <b>@L.T("Фокус-режим", "Фокус-режим", "Focus mode")</b>
+                    <span class="badge badge-primary" data-pomo-mode>@L.T("Фокус", "Фокус", "Focus")</span>
+                </div>
+                <div class="pomo-time" data-pomo-time>25:00</div>
+                <div class="progress progress-sm is-ready"><span data-pomo-bar style="--value:0%"></span></div>
+                <p class="pomo-note">@L.T("25 минут учёбы → 5 минут отдыха. Пока идёт фокус, Ух в наушниках, а всё отвлекающее спрятано. +25 XP за каждый подход.", "25 минут оқу → 5 минут демалыс. Фокус кезінде Ух құлаққапта, ал алаңдататынның бәрі жасырылады. Әр кезең үшін +25 XP.", "25 minutes of study → 5 minutes of rest. During focus Hoot wears headphones and distractions are hidden. +25 XP per round.")</p>
+                <div class="pomo-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-pomo-action="toggle">@L.T("Старт", "Бастау", "Start")</button>
+                    <button class="btn btn-outline btn-sm" type="button" data-pomo-action="reset" aria-label="@L.T("Сбросить", "Қалпына келтіру", "Reset")">@Html.Icon("rotate-ccw", "icon-sm")</button>
+                    <button class="btn btn-outline btn-sm" type="button" data-pomo-action="skip" aria-label="@L.T("Пропустить этап", "Кезеңді өткізу", "Skip phase")">@Html.Icon("skip-forward", "icon-sm")</button>
+                </div>
+            </div>
+        </div>
+        <button class="icon-btn hide-sm" type="button" data-theme-toggle aria-label="@L.T("Тёмная тема", "Қараңғы тақырып", "Dark mode")">@Html.Icon("moon")</button>
+
+        <div class="dropdown">
+            <button class="icon-btn" type="button" data-dropdown aria-label="@L.T("Уведомления", "Хабарландырулар", "Notifications")">
+                @Html.Icon("bell")<span class="dot"></span>
+            </button>
+            <div class="menu notif-menu">
+                <div class="menu-head">
+                    <b>@L.T("Уведомления", "Хабарландырулар", "Notifications")</b>
+                    <span class="badge badge-primary">2 @L.T("новых", "жаңа", "new")</span>
+                </div>
+                @foreach (var n in notifications)
+                {
+                    <div class="notif-item @(n.Unread ? "unread" : "")">
+                        <span class="ibox ibox-sm ibox-@n.Kind">@Html.Icon(n.Icon)</span>
+                        <div class="grow">
+                            <div class="list-title">@n.Title</div>
+                            <div class="list-meta">@n.Time</div>
+                        </div>
+                    </div>
+                }
+                <a class="notif-foot" href="/Notifications">@L.T("Показать все", "Барлығын көрсету", "View all")</a>
+            </div>
+        </div>
+
+        <partial name="_LangSwitcher" />
+
+        <div class="dropdown">
+            <button class="user-btn" type="button" data-dropdown aria-label="@L.T("Профиль", "Профиль", "Profile")">
+                @Html.Avatar(initials, photo, "avatar-sm " + av)
+                <span class="user-meta"><b>@name</b><small>@roleTitle</small></span>
+                @Html.Icon("chevron-down")
+            </button>
+            <div class="menu">
+                <div class="menu-head flex items-center gap-3">
+                    @Html.Avatar(initials, photo, av)
+                    <div><b class="text-md">@name</b><div class="list-meta">@roleTitle</div></div>
+                </div>
+                <div class="menu-sep"></div>
+                <a class="menu-item" href="/Profile">@Html.Icon("user-round") @L.T("Мой профиль", "Менің профилім", "My profile")</a>
+                <a class="menu-item" href="/Student/Achievements">@Html.Icon("trophy") @L.T("Достижения", "Жетістіктер", "Achievements")</a>
+                <a class="menu-item" href="/Settings">@Html.Icon("settings") @L.T("Настройки", "Баптаулар", "Settings")</a>
+                <div class="menu-sep"></div>
+                <a class="menu-item @(role == "student" ? "active" : "")" href="/Student/Dashboard">@Html.Icon("graduation-cap") @L.T("Режим студента", "Студент режимі", "Student view")</a>
+                <a class="menu-item @(role == "teacher" ? "active" : "")" href="/Teacher/Dashboard">@Html.Icon("presentation") @L.T("Режим преподавателя", "Оқытушы режимі", "Teacher view")</a>
+                <a class="menu-item @(role == "admin" ? "active" : "")" href="/Admin/Dashboard">@Html.Icon("shield-check") @L.T("Режим администратора", "Әкімші режимі", "Admin view")</a>
+                @if (Env.IsDevelopment() && Context.Connection.RemoteIpAddress is { } ip && System.Net.IPAddress.IsLoopback(ip))
+                {
+                    <div class="menu-sep"></div>
+                    <form method="post" action="/Account/DevLogin" class="dev-switch">
+                        @Html.AntiForgeryToken()
+                        <span class="text-xs subtle">@Html.Icon("zap", "icon-sm") @L.T("Сменить роль (только этот ПК)", "Рөлді ауыстыру (тек осы ДК)", "Switch role (this PC only)")</span>
+                        <div class="flex gap-1">
+                            <button class="btn btn-ghost btn-sm" type="submit" name="role" value="student" title="@L.T("Студент", "Студент", "Student")">@Html.Icon("graduation-cap", "icon-sm")</button>
+                            <button class="btn btn-ghost btn-sm" type="submit" name="role" value="teacher" title="@L.T("Преподаватель", "Оқытушы", "Teacher")">@Html.Icon("presentation", "icon-sm")</button>
+                            <button class="btn btn-ghost btn-sm" type="submit" name="role" value="admin" title="@L.T("Админ", "Әкімші", "Admin")">@Html.Icon("shield-check", "icon-sm")</button>
+                        </div>
+                    </form>
+                }
+                <div class="menu-sep"></div>
+                <a class="menu-item danger" href="/Account/Logout">@Html.Icon("log-out") @L.T("Выйти", "Шығу", "Log out")</a>
+            </div>
+        </div>
+    </div>
+</header>

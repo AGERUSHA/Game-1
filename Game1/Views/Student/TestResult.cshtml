@@ -1,0 +1,152 @@
+@model List<Question>
+@{
+    var test = (TestItem)ViewData["Test"]!;
+    var answers = (List<int>)ViewData["Answers"]!;
+    var seconds = (int)ViewData["Seconds"]!;
+    ViewData["Title"] = L.T("Результат теста", "Тест нәтижесі", "Test result");
+    ViewData["Nav"] = "tests";
+
+    var total = Model.Count;
+    var correct = Model.Select((q, i) => answers[i] == q.Correct).Count(ok => ok);
+    var skipped = answers.Count(x => x < 0);
+    var wrong = total - correct - skipped;
+    var pct = total == 0 ? 0 : (int)Math.Round(correct * 100.0 / total);
+    var passed = pct >= 70;
+    var xp = correct * 5 + (passed ? 25 : 0);
+    string Time(int s) => $"{s / 60}:{s % 60:00}";
+    string[] keys = ["A", "B", "C", "D"];
+
+    // Per-topic score → weak topics first
+    var topics = Model.Select((q, i) => (q.Topic, ok: answers[i] == q.Correct))
+        .GroupBy(x => x.Topic)
+        .Select(g => (Topic: g.Key, Ok: g.Count(x => x.ok), Total: g.Count()))
+        .OrderBy(x => (double)x.Ok / x.Total).ToList();
+}
+
+<nav class="breadcrumbs mb-4" aria-label="@L.T("Навигация", "Навигация", "Breadcrumbs")">
+    <a href="/Student/Tests">@L.T("Тесты", "Тесттер", "Tests")</a> @Html.Icon("chevron-right", "icon-sm") <span>@test.Title</span>
+</nav>
+
+@* ---------- Summary ---------- *@
+<section class="card card-lg result-hero mb-6">
+    <div class="result-main">
+        <span class="badge badge-primary">@test.Course</span>
+        <h1 class="mt-3">@test.Title</h1>
+        <p class="muted mt-2">
+            @(passed
+                ? L.T("Тест сдан. Результата достаточно для зачёта модуля.", "Тест тапсырылды. Нәтиже модульді есептеуге жеткілікті.", "Passed. Your score is enough to complete the module.")
+                : L.T("Пока не хватило до зачёта (нужно 70%). Разберите ошибки и попробуйте снова.", "Сынаққа әлі жетпеді (70% керек). Қателерді талдап, қайталап көріңіз.", "Not enough to pass yet (70% needed). Review the mistakes and try again."))
+        </p>
+        <div class="result-stats">
+            <div><span class="label-caps">@L.T("Верно", "Дұрыс", "Correct")</span><b>@correct <small>/ @total</small></b></div>
+            <div><span class="label-caps">@L.T("Время", "Уақыт", "Time")</span><b class="tabular">@Time(seconds) <small>/ @test.Minutes:00</small></b></div>
+            <div><span class="label-caps">XP</span><b class="c-primary">+@xp</b></div>
+            <div><span class="label-caps">@L.T("Ошибки", "Қателер", "Mistakes")</span><b class="@(wrong > 0 ? "c-error" : "")">@wrong</b>@if (skipped > 0) { <small class="subtle"> + @skipped @L.T("без ответа", "жауапсыз", "skipped")</small> }</div>
+        </div>
+        <div class="flex gap-2 wrap mt-6">
+            @if (wrong + skipped > 0)
+            {
+                <a class="btn btn-primary" href="/Student/AiAnalysis">@Html.Icon("sparkles") @L.T("Разобрать ошибки с AI", "Қателерді AI-мен талдау", "Review mistakes with AI")</a>
+            }
+            <a class="btn btn-outline" href="/Student/TakeTest/@test.Id">@Html.Icon("rotate-ccw") @L.T("Пройти ещё раз", "Қайта өту", "Retake")</a>
+            <a class="btn btn-ghost" href="/Student/Tests">@L.T("Все тесты", "Барлық тесттер", "All tests")</a>
+        </div>
+    </div>
+    <div class="result-side">
+        <div class="result-owl @(passed ? "is-cheer" : "is-sad")" data-owl aria-hidden="true"><partial name="_Owl" model="8" /></div>
+        @Html.Ring(pct, 150, 12, null, passed ? null : "ring-warn")
+        <span class="result-streak">🔥 @L.T("Серия 7 дней сохранена", "7 күндік серия сақталды", "7-day streak kept")</span>
+    </div>
+</section>
+
+<div class="grid cols-side-main" style="align-items:start">
+    @* ---------- Topics ---------- *@
+    <aside class="card">
+        <div class="card-title mb-4">@Html.Icon("target") @L.T("По темам", "Тақырыптар бойынша", "By topic")</div>
+        <div class="col gap-4">
+            @foreach (var (topic, ok, cnt) in topics)
+            {
+                var p = ok * 100 / cnt;
+                <div>
+                    <div class="flex justify-between text-sm"><span class="fw-600">@topic</span><span class="tabular @(p < 60 ? "c-error" : p < 100 ? "c-warning" : "c-success")">@ok/@cnt</span></div>
+                    @Html.Progress(p, "progress-sm mt-2 " + (p < 60 ? "progress-error" : p < 100 ? "progress-warning" : "progress-success"))
+                </div>
+            }
+        </div>
+        @if (topics.FirstOrDefault() is { } weak && weak.Ok < weak.Total)
+        {
+            <div class="ai-callout mt-6">
+                @Html.Icon("sparkles", "icon-sm")
+                <div class="text-sm">@L.T("Слабая тема", "Әлсіз тақырып", "Weakest topic"): <b>@weak.Topic</b>. @L.T("AI соберёт 5 карточек для повторения.", "AI қайталауға 5 карточка жинайды.", "AI will build 5 cards to review it.")</div>
+            </div>
+        }
+    </aside>
+
+    @* ---------- Breakdown ---------- *@
+    <section>
+        <div class="flex items-center justify-between gap-3 wrap mb-4">
+            <h2 class="h-section">@L.T("Разбор вопросов", "Сұрақтарды талдау", "Question breakdown")</h2>
+            <div class="segmented" data-filter-target="#qList">
+                <button class="active" data-filter="all">@L.T("Все", "Барлығы", "All") · @total</button>
+                <button data-filter="wrong">@L.T("Ошибки", "Қателер", "Mistakes") · @(wrong + skipped)</button>
+                <button data-filter="ok">@L.T("Верные", "Дұрыстар", "Correct") · @correct</button>
+            </div>
+        </div>
+        <div class="col gap-4" id="qList">
+            @for (var i = 0; i < Model.Count; i++)
+            {
+                var q = Model[i];
+                var mine = answers[i];
+                var ok = mine == q.Correct;
+                <article class="card qa-card @(ok ? "is-ok" : "is-wrong")" data-tags="all @(ok ? "ok" : "wrong")">
+                    <div class="flex items-center justify-between gap-2 wrap">
+                        <div class="flex items-center gap-2 wrap">
+                            <span class="badge @(ok ? "badge-success" : "badge-error")">@Html.Icon(ok ? "check" : "x", "icon-sm") @L.T("Вопрос", "Сұрақ", "Question") @(i + 1) · @(ok ? L.T("Верно", "Дұрыс", "Correct") : mine < 0 ? L.T("Без ответа", "Жауапсыз", "Skipped") : L.T("Ошибка", "Қате", "Wrong"))</span>
+                            <span class="subtle text-sm">@q.Topic</span>
+                        </div>
+                        @if (ok) { <span class="xp-chip">+5 XP</span> }
+                    </div>
+                    <p class="qa-text">@q.Text</p>
+                    @if (q.Code != null) { <pre class="question-code">@q.Code</pre> }
+                    <ul class="qa-options">
+                        @for (var k = 0; k < q.Options.Length; k++)
+                        {
+                            var cls = k == q.Correct ? "is-correct" : k == mine ? "is-mine" : "";
+                            <li class="@cls">
+                                <span class="key">@keys[k]</span><span class="grow">@q.Options[k]</span>
+                                @if (k == q.Correct) { <small class="c-success fw-600">@L.T("Правильный ответ", "Дұрыс жауап", "Correct answer")</small> }
+                                else if (k == mine) { <small class="c-error fw-600">@L.T("Ваш ответ", "Сіздің жауабыңыз", "Your answer")</small> }
+                            </li>
+                        }
+                    </ul>
+                    @if (!ok)
+                    {
+                        <div class="ai-explain">
+                            <div class="ai-explain-head">@Html.Icon("sparkles", "icon-sm") @L.T("AI-разбор", "AI-талдау", "AI explanation")</div>
+                            <p>
+                                @L.T($"Правильный ответ — «{q.Options[q.Correct]}». Это ключевая идея темы «{q.Topic}»: стоит повторить её на коротком примере.",
+                                     $"Дұрыс жауап — «{q.Options[q.Correct]}». Бұл «{q.Topic}» тақырыбының негізгі идеясы: оны қысқа мысалмен қайталаңыз.",
+                                     $"The correct answer is “{q.Options[q.Correct]}”. It is the key idea of “{q.Topic}” — worth revisiting with a short example.")
+                            </p>
+                            <div class="flex gap-2 wrap mt-3">
+                                <a class="btn btn-secondary btn-sm" href="/Student/Ai">@Html.Icon("message-circle", "icon-sm") @L.T("Объяснить подробнее", "Толығырақ түсіндіру", "Explain more")</a>
+                                <button class="btn btn-ghost btn-sm" type="button" data-toast="@L.T("Карточка добавлена в колоду", "Карточка колодаға қосылды", "Card added to your deck")" data-toast-icon="layers">@Html.Icon("plus", "icon-sm") @L.T("В карточки", "Карточкаларға", "Add to flashcards")</button>
+                            </div>
+                        </div>
+                    }
+                </article>
+            }
+        </div>
+        <partial name="_EmptyState" model='new EmptyState("party-popper", L.T("Ошибок нет!", "Қате жоқ!", "No mistakes!"), L.T("Все ответы верные — так держать.", "Барлық жауап дұрыс — осылай жалғастыр.", "Every answer is correct — keep it up."), "#qList", Mood: "is-cheer")' />
+    </section>
+</div>
+
+@section Scripts {
+<script>
+    // Celebrate a passed test once the page is visible
+    @if (passed)
+    {
+        <text>window.addEventListener("load", () => setTimeout(() => window.eduCelebrate?.({ xp: @xp }), 500));</text>
+    }
+</script>
+}

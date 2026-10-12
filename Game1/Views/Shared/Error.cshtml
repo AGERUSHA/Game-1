@@ -1,0 +1,34 @@
+@model ErrorViewModel
+@{
+    Layout = "_FocusLayout";
+    var (title, text, mood) = Model.StatusCode switch
+    {
+        404 => (L.T("Страница не найдена", "Бет табылмады", "Page not found"),
+                L.T("Ух облетел весь сайт, но такой страницы нет. Возможно, ссылка устарела или в адресе опечатка.", "Ух бүкіл сайтты аралап шықты, бірақ мұндай бет жоқ. Сілтеме ескірген немесе мекенжайда қате болуы мүмкін.", "Hoot searched the whole site, but this page doesn't exist. The link may be outdated or mistyped."),
+                "is-sad"),
+        403 => (L.T("Нет доступа", "Қолжетімділік жоқ", "Access denied"),
+                L.T("У вашей роли нет доступа к этой странице.", "Сіздің рөліңізге бұл бетке кіруге рұқсат жоқ.", "Your role doesn't have access to this page."),
+                "is-nervous"),
+        _ => (L.T("Что-то пошло не так", "Бірдеңе дұрыс болмады", "Something went wrong"),
+              L.T("На сервере произошла ошибка. Мы уже знаем о ней — попробуйте обновить страницу через минуту.", "Серверде қате орын алды. Бетті бір минуттан кейін жаңартып көріңіз.", "A server error occurred. Please try refreshing the page in a minute."),
+              "is-nervous"),
+    };
+    ViewData["Title"] = title;
+}
+<main class="error-page">
+    <partial name="_Logo" />
+    <div class="error-body">
+        <div class="error-owl @mood" aria-hidden="true"><partial name="_Owl" model="1" /></div>
+        <p class="error-code">@Model.StatusCode</p>
+        <h1>@title</h1>
+        <p class="muted">@text</p>
+        <div class="flex gap-3 wrap justify-center mt-6">
+            <a class="btn btn-primary btn-lg" href="/">@Html.Icon("home") @L.T("На главную", "Басты бетке", "Go home")</a>
+            <button class="btn btn-outline btn-lg" type="button" onclick="history.length > 1 ? history.back() : location.assign('/')">@Html.Icon("arrow-left") @L.T("Назад", "Артқа", "Back")</button>
+        </div>
+        @if (Model.ShowRequestId)
+        {
+            <p class="text-xs subtle mt-6">@L.T("Код ошибки", "Қате коды", "Error ID"): <code>@Model.RequestId</code></p>
+        }
+    </div>
+</main>

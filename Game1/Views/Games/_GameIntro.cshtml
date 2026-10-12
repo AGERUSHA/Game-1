@@ -1,0 +1,43 @@
+@model GameInfo
+@*
+    Start screen shared by all games.
+    ViewData["Rules"]   — (icon, text)[] shown as a checklist
+    ViewData["Options"] — (group, value, label)[] chip groups; the first value of each group is selected
+*@
+@{
+    var rules = ViewData["Rules"] as (string Icon, string Text)[] ?? [];
+    var options = ViewData["Options"] as (string Group, string Value, string Label)[] ?? [];
+    var groupTitles = ViewData["OptionTitles"] as Dictionary<string, string> ?? new();
+}
+<section class="game-intro" data-game-intro>
+    <partial name="_GameCover" model="Model" />
+    <div class="game-intro-body">
+        <span class="g-tag">@Html.Icon(Model.Icon, "icon-sm") @Model.Skill</span>
+        <h1 class="mt-3">@Model.Title</h1>
+        <p class="muted mt-2">@Model.Tagline</p>
+        <ul class="game-rules">
+            @foreach (var (icon, text) in rules)
+            {
+                <li><span class="ibox">@Html.Icon(icon)</span><span>@text</span></li>
+            }
+        </ul>
+        @foreach (var grp in options.GroupBy(o => o.Group))
+        {
+            <div class="mt-5">
+                @if (groupTitles.TryGetValue(grp.Key, out var gt)) { <span class="label-caps">@gt</span> }
+                <div class="game-options" data-opt-group="@grp.Key" role="radiogroup">
+                    @{ var first = true; }
+                    @foreach (var o in grp)
+                    {
+                        <button class="chip @(first ? "active" : "")" type="button" data-opt="@o.Value" role="radio" aria-checked="@(first ? "true" : "false")">@o.Label</button>
+                        first = false;
+                    }
+                </div>
+            </div>
+        }
+        <div class="game-start flex gap-3 wrap items-center">
+            <button class="btn btn-primary btn-lg" type="button" data-game-start>@Html.Icon("play") @L.T("Начать", "Бастау", "Start")</button>
+            <span class="text-sm subtle">@Html.Icon("zap", "icon-sm") @L.T("до", "дейін", "up to") @Model.MaxXp XP · ~@Model.Minutes @L.T("мин", "мин", "min")</span>
+        </div>
+    </div>
+</section>

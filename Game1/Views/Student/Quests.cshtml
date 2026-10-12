@@ -1,0 +1,174 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Квесты и магазин", "Квесттер және дүкен", "Quests & shop");
+    ViewData["Nav"] = "quests";
+    var quests = Model.GetDailyQuests();
+    var shop = Model.GetShop();
+    var balance = 1250;
+    var doneCount = quests.Count(q => q.Done >= q.Goal);
+    var questXp = quests.Where(q => q.Done < q.Goal).Sum(q => q.Xp);
+    var hoursLeft = 24 - DateTime.Now.Hour;
+    var kinds = new[] { ("all", L.T("Всё", "Барлығы", "All")), ("boost", L.T("Бусты", "Бустар", "Boosts")), ("owl", L.T("Гардероб Ух", "Ух гардеробы", "Hoot's wardrobe")), ("theme", L.T("Темы", "Тақырыптар", "Themes")) };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Квесты и магазин", "Квесттер және дүкен", "Quests & shop")</h1>
+        <p>@L.T("Выполняйте ежедневные задания и тратьте XP на бусты и наряды для Ух.", "Күнделікті тапсырмаларды орындап, XP-ны бустарға және Ух киімдеріне жұмсаңыз.", "Complete daily quests and spend XP on boosts and outfits for Hoot.")</p>
+    </div>
+    <span class="xp-balance">@Html.Icon("zap") <b class="tabular" data-balance>@balance</b> XP</span>
+</div>
+
+<div class="grid cols-main-side" style="align-items:start">
+    <div class="col gap-6">
+        @* ---------- Daily quests ---------- *@
+        <section class="card card-lg">
+            <div class="flex items-center justify-between gap-3 wrap">
+                <div>
+                    <h2 class="h-section">@L.T("Ежедневные квесты", "Күнделікті квесттер", "Daily quests")</h2>
+                    <p class="text-sm muted mt-1">@L.T("Выполните все 3 — получите супер-бонус.", "Барлық 3-еуін орындаңыз — супер-бонус аласыз.", "Finish all 3 for a super bonus.") · @Html.Icon("clock", "icon-sm") @L.T($"обновятся через {hoursLeft} ч", $"{hoursLeft} сағаттан кейін жаңарады", $"reset in {hoursLeft} h")</p>
+                </div>
+                <span class="badge badge-warning">🎁 @L.T("Бонус дня", "Күн бонусы", "Daily bonus"): +100 XP</span>
+            </div>
+            <div class="col gap-3 mt-5">
+                @foreach (var q in quests)
+                {
+                    var done = q.Done >= q.Goal;
+                    var pct = Math.Min(100, q.Done * 100 / q.Goal);
+                    <div class="quest @(done ? "is-done" : "")">
+                        <span class="ibox @(done ? "ibox-success" : "ibox-primary")">@Html.Icon(done ? "check" : q.Icon)</span>
+                        <div class="grow">
+                            <div class="flex items-center justify-between gap-2 wrap"><b>@q.Title</b><span class="text-sm tabular @(done ? "c-success fw-600" : "subtle")">@q.Done / @q.Goal</span></div>
+                            <small class="subtle">@q.Text</small>
+                            @Html.Progress(pct, "progress-sm mt-2 " + (done ? "progress-success" : ""))
+                        </div>
+                        <span class="xp-chip">+@q.Xp</span>
+                    </div>
+                }
+            </div>
+            <div class="flex items-center justify-between gap-3 wrap mt-5 text-sm">
+                <span class="muted">@L.T("Выполнено", "Орындалды", "Completed"): <b>@doneCount / @quests.Count</b></span>
+                <span class="c-primary fw-600">@L.T("Осталось получить", "Әлі алуға болады", "Still to earn"): +@(questXp + 100) XP</span>
+            </div>
+        </section>
+
+        @* ---------- Shop ---------- *@
+        <section class="card card-lg">
+            <div class="flex items-center justify-between gap-3 wrap">
+                <h2 class="h-section">@L.T("Магазин наград", "Марапаттар дүкені", "Reward shop")</h2>
+                <div class="segmented" data-filter-target="#shopGrid">
+                    @foreach (var (k, name) in kinds)
+                    {
+                        <button class="@(k == "all" ? "active" : "")" data-filter="@k">@name</button>
+                    }
+                </div>
+            </div>
+            <div class="shop-grid mt-5" id="shopGrid">
+                @foreach (var item in shop)
+                {
+                    var afford = balance >= item.Price;
+                    <article class="shop-item" data-tags="all @item.Kind">
+                        <span class="ibox ibox-lg ibox-@item.Tone">@Html.Icon(item.Icon)</span>
+                        <b>@item.Title</b>
+                        <small class="subtle">@item.Text</small>
+                        <div class="shop-foot">
+                            <span class="shop-price">@Html.Icon("zap", "icon-sm") @item.Price</span>
+                            @switch (item.State)
+                            {
+                                case "equipped":
+                                    <span class="badge badge-success">@Html.Icon("check", "icon-sm") @L.T("Надето", "Киілген", "Equipped")</span>
+                                    break;
+                                case "owned":
+                                    @if (item.Kind == "boost")
+                                    {
+                                        <span class="badge badge-info">@L.T("Есть 1 шт.", "1 дана бар", "You have 1")</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-secondary btn-sm" type="button" data-toast="@L.T("Ух примерил обновку!", "Ух жаңа киімді киіп көрді!", "Hoot tried it on!")" data-toast-icon="sparkles">@L.T("Надеть", "Кию", "Equip")</button>
+                                    }
+                                    break;
+                                default:
+                                    @if (afford)
+                                    {
+                                        <button class="btn btn-primary btn-sm" type="button" data-buy="@item.Price" data-title="@item.Title">@L.T("Купить", "Сатып алу", "Buy")</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline btn-sm" type="button" disabled title="@L.T("Не хватает XP", "XP жетпейді", "Not enough XP")">@Html.Icon("lock", "icon-sm") @L.T($"Ещё {item.Price - balance}", $"Тағы {item.Price - balance}", $"{item.Price - balance} more")</button>
+                                    }
+                                    break;
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+            <p class="text-sm subtle mt-4">@Html.Icon("info", "icon-sm") @L.T("XP начисляются за тесты, задания, карточки, фокус-сессии и помощь одногруппникам.", "XP тесттер, тапсырмалар, карточкалар, фокус-сессиялар үшін беріледі.", "XP comes from tests, assignments, flashcards, focus sessions and helping classmates.")</p>
+        </section>
+    </div>
+
+    <aside class="col gap-6">
+        <section class="card streak-card">
+            <div class="flex items-center gap-3">
+                <span class="streak-big">🔥</span>
+                <div><b class="streak-days">7 @L.T("дней подряд", "күн қатарынан", "day streak")</b><small class="subtle">@L.T("Рекорд: 14 дней", "Рекорд: 14 күн", "Best: 14 days")</small></div>
+            </div>
+            <p class="text-sm muted mt-3">@L.T("Не пропускайте завтра — серия даёт множитель ×1.5 XP.", "Ертең өткізбеңіз — серия ×1.5 XP көбейткішін береді.", "Don't skip tomorrow — your streak gives a ×1.5 XP multiplier.")</p>
+            <div class="freeze-row mt-4">
+                <span class="ibox ibox-sm ibox-info">@Html.Icon("snowflake")</span>
+                <div class="grow"><b class="text-sm">@L.T("Заморозка серии", "Серияны мұздату", "Streak freeze")</b><div class="text-xs subtle">@L.T("Активна · 1 в запасе", "Белсенді · 1 қорда", "Active · 1 in stock")</div></div>
+                @Html.Icon("shield-check", "c-success")
+            </div>
+        </section>
+
+        <section class="card text-center wardrobe">
+            <div class="card-title">@L.T("Гардероб Ух", "Ух гардеробы", "Hoot's wardrobe")</div>
+            <div class="wardrobe-owl" data-owl aria-hidden="true"><partial name="_Owl" model="8" /></div>
+            <div class="chips justify-center">
+                <span class="chip active">@Html.Icon("glasses", "icon-sm") @L.T("Очки", "Көзілдірік", "Glasses")</span>
+                <span class="chip">@Html.Icon("medal", "icon-sm") @L.T("Медаль", "Медаль", "Medal")</span>
+                <span class="chip">@Html.Icon("headphones", "icon-sm") @L.T("Наушники", "Құлаққап", "Headphones")</span>
+            </div>
+            <p class="text-xs subtle mt-3">@L.T("Новые аксессуары открываются на 12 и 16 уровнях.", "Жаңа аксессуарлар 12 және 16 деңгейлерде ашылады.", "New accessories unlock at levels 12 and 16.")</p>
+        </section>
+    </aside>
+</div>
+
+<div class="modal-backdrop" id="buyModal">
+    <div class="modal text-center">
+        <span class="ibox ibox-lg ibox-primary">@Html.Icon("shopping-bag")</span>
+        <h2 class="mt-4">@L.T("Купить", "Сатып алу", "Buy") «<span data-buy-title></span>»?</h2>
+        <p class="muted mt-2">@L.T("С баланса спишется", "Баланстан шегеріледі", "This will cost") <b><span data-buy-price></span> XP</b>.</p>
+        <div class="flex gap-3 justify-center mt-6">
+            <button class="btn btn-outline" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button>
+            <button class="btn btn-primary" type="button" data-buy-confirm>@L.T("Купить", "Сатып алу", "Buy")</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    // Visual purchase flow for now: confirm → balance goes down → item shows as owned
+    let pending = null;
+    const modal = document.getElementById("buyModal");
+    document.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-buy]");
+        if (b) {
+            pending = b;
+            modal.querySelector("[data-buy-title]").textContent = b.dataset.title;
+            modal.querySelector("[data-buy-price]").textContent = b.dataset.buy;
+            modal.classList.add("open");
+        }
+        if (e.target.closest("[data-buy-confirm]") && pending) {
+            const bal = document.querySelector("[data-balance]");
+            bal.textContent = (+bal.textContent - +pending.dataset.buy);
+            pending.outerHTML = '<span class="badge badge-info">' + @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Куплено", "Сатып алынды", "Purchased"))) + '</span>';
+            modal.classList.remove("open");
+            window.eduToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Покупка совершена!", "Сатып алынды!", "Purchased!"))), "shopping-bag");
+            pending = null;
+        }
+    });
+})();
+</script>
+}

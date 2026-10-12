@@ -1,0 +1,82 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Прогресс", "Прогресс", "Progress");
+    ViewData["Nav"] = "progress";
+    var s = Model.GetStudent();
+    var courses = Model.GetCourses().Where(c => c.Progress > 0).OrderByDescending(c => c.Progress).ToList();
+    var perf = Model.GetTestPerformance();
+    var xp = Model.GetXpByWeek() with { Type = "bar" };
+    var heat = Model.GetActivityHeatmap();
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Прогресс", "Прогресс", "Progress")</h1>
+        <p>@L.T("Полная картина вашего обучения: курсы, тесты, активность и XP.", "Оқуыңыздың толық көрінісі: курстар, тесттер, белсенділік және XP.", "The full picture of your learning: courses, tests, activity and XP.")</p>
+    </div>
+    <div class="segmented">
+        <button>@L.T("Неделя", "Апта", "Week")</button><button class="active">@L.T("Семестр", "Семестр", "Semester")</button><button>@L.T("Всё время", "Барлық уақыт", "All time")</button>
+    </div>
+</div>
+
+<div class="grid cols-1-2">
+    <div class="card card-lg text-center col items-center justify-center gap-4">
+        <div class="card-title">@L.T("Общий прогресс", "Жалпы прогресс", "Overall progress")</div>
+        @Html.Ring(64, 170, 14)
+        <p class="text-sm muted" style="max-width:240px">@L.T("Вы прошли 64% учебного плана семестра. Отличный темп!", "Сіз семестр оқу жоспарының 64%-ын өттіңіз. Керемет қарқын!", "You've completed 64% of the semester plan. Great pace!")</p>
+        <span class="badge badge-success">@Html.Icon("trending-up") +12% @L.T("за месяц", "айда", "this month")</span>
+    </div>
+    <div class="grid cols-2" style="gap:20px">
+        <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Уроков пройдено", "Өтілген сабақтар", "Lessons completed")</span><span class="ibox">@Html.Icon("book-open-check")</span></div><div class="stat-value">86 <small>/ 134</small></div>@Html.Progress(64, "progress-sm")</div>
+        <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средний балл тестов", "Тесттердің орташа балы", "Avg test score")</span><span class="ibox">@Html.Icon("target")</span></div><div class="stat-value">@s.AverageScore<small>%</small></div>@Html.Progress(s.AverageScore, "progress-sm progress-success")</div>
+        <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Часов обучения", "Оқу сағаттары", "Study hours")</span><span class="ibox">@Html.Icon("clock")</span></div><div class="stat-value">48.5 <small>@L.T("ч", "сағ", "h")</small></div><span class="text-xs subtle">≈ 1.2 @L.T("ч в день", "сағ күніне", "h per day")</span></div>
+        <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Сертификаты", "Сертификаттар", "Certificates")</span><span class="ibox">@Html.Icon("award")</span></div><div class="stat-value">@s.Certificates</div><span class="text-xs subtle">@L.T("ещё 1 почти готов", "тағы 1 дайын дерлік", "1 more almost done")</span></div>
+    </div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Результаты тестов", "Тест нәтижелері", "Test performance")</div><div class="card-sub">@L.T("Ваш средний балл в сравнении с группой", "Орташа балыңыз топпен салыстырғанда", "Your average vs. the group")</div></div>
+            <div class="chart-legend"><span><i class="lg-1"></i>@perf.Series[0].Label</span><span><i class="lg-2"></i>@perf.Series[1].Label</span></div>
+        </div>
+        <div class="chart-box"><canvas data-chart="@UiHelpers.ChartJson(perf)" aria-label="@L.T("Результаты тестов", "Тест нәтижелері", "Test performance")"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@L.T("Прогресс по курсам", "Курстар бойынша прогресс", "Course progress")</div></div>
+        @foreach (var c in courses.Take(6))
+        {
+            <div class="flex items-center gap-3 mb-4">
+                <span class="cover cover-@c.Cover shrink-0" style="width:38px;height:38px;border-radius:11px">@Html.Icon(c.Icon, "icon-sm")</span>
+                <div class="grow">
+                    <div class="progress-row" style="margin-bottom:5px"><span class="fw-600 truncate" style="color:var(--text)">@c.Title</span><b>@c.Progress%</b></div>
+                    @Html.Progress(c.Progress, c.Progress == 100 ? "progress-sm progress-success" : "progress-sm")
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Активность обучения", "Оқу белсенділігі", "Learning activity")</div><div class="card-sub">@L.T("Последние 18 недель", "Соңғы 18 апта", "Last 18 weeks")</div></div>
+            <div class="heat-legend">@L.T("Меньше", "Аз", "Less") <i style="background:var(--surface-3)"></i><i style="background:var(--primary-200)"></i><i style="background:var(--primary-400)"></i><i style="background:var(--primary-600)"></i><i style="background:var(--primary-800)"></i> @L.T("Больше", "Көп", "More")</div>
+        </div>
+        <div class="heatmap" role="img" aria-label="@L.T("Тепловая карта активности", "Белсенділік жылу картасы", "Activity heatmap")">
+            @foreach (var v in heat)
+            {
+                <i class="l@(v)" title="@(v * 25) @L.T("мин", "мин", "min")"></i>
+            }
+        </div>
+        <div class="flex gap-6 mt-5 wrap">
+            <div><b class="text-lg">96</b> <span class="text-sm muted">@L.T("активных дней", "белсенді күн", "active days")</span></div>
+            <div><b class="text-lg">14</b> <span class="text-sm muted">@L.T("макс. серия", "макс. серия", "longest streak")</span></div>
+            <div><b class="text-lg">@L.T("Сб", "Сб", "Sat")</b> <span class="text-sm muted">@L.T("самый активный день", "ең белсенді күн", "most active day")</span></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">XP @L.T("по неделям", "апталар бойынша", "per week")</div><div class="card-sub">@L.T("Всего", "Барлығы", "Total") 1 530 XP</div></div></div>
+        <div class="chart-box sm"><canvas data-chart="@UiHelpers.ChartJson(xp)" aria-label="XP"></canvas></div>
+    </div>
+</div>

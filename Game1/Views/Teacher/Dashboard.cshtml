@@ -1,0 +1,130 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Панель преподавателя", "Оқытушы панелі", "Teacher dashboard");
+    ViewData["Nav"] = "t-dashboard";
+    ViewData["Role"] = "teacher";
+    var t = Model.GetTeacher();
+    var activity = Model.GetStudentActivity();
+    var completion = Model.GetCourseCompletion();
+    var perf = Model.GetTeacherTestPerformance();
+    var students = Model.GetStudents();
+    var risk = students.Where(s => s.Status != "active").ToList();
+    var top = students.OrderByDescending(s => s.Xp).Take(4).ToList();
+}
+
+<div class="page-head">
+    <div>
+        <span class="badge badge-primary mb-2">@Html.Icon("presentation") @L.T("Преподаватель", "Оқытушы", "Teacher")</span>
+        <h1>@L.T("Добрый день", "Қайырлы күн", "Good afternoon"), @t.FirstName!</h1>
+        <p>@L.T("Сводка по вашим курсам и студентам за неделю.", "Курстарыңыз бен студенттеріңіз бойынша апталық шолу.", "A weekly summary of your courses and students.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <a class="btn btn-outline" href="/Teacher/Reports">@Html.Icon("file-down") @L.T("Отчёт", "Есеп", "Report")</a>
+        <a class="btn btn-primary" href="/Teacher/CreateCourse">@Html.Icon("plus") @L.T("Создать курс", "Курс жасау", "Create course")</a>
+    </div>
+</div>
+
+<div class="grid cols-4 stagger">
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">@L.T("Курсы", "Курстар", "Courses")</span><span class="ibox">@Html.Icon("book-marked")</span></div>
+        <div class="stat-value">@t.Courses</div>
+        <div class="flex items-center gap-2"><span class="badge badge-success">4 @L.T("опубликовано", "жарияланды", "published")</span><span class="badge">2 @L.T("черновика", "жоба", "drafts")</span></div>
+    </div>
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">@L.T("Студенты", "Студенттер", "Students")</span><span class="ibox">@Html.Icon("users")</span></div>
+        <div class="stat-value" data-count="422">422</div>
+        <div class="flex items-center gap-2"><span class="trend trend-up">@Html.Icon("trending-up") +18</span><span class="text-xs subtle">@L.T("за неделю", "аптада", "this week")</span></div>
+    </div>
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">@L.T("Средний балл", "Орташа балл", "Average score")</span><span class="ibox">@Html.Icon("target")</span></div>
+        <div class="stat-value">@t.AverageScore<small>%</small></div>
+        <div class="flex items-center gap-2"><span class="trend trend-up">@Html.Icon("trending-up") +3.2%</span><span class="text-xs subtle">@L.T("к прошлому месяцу", "өткен айға", "vs last month")</span></div>
+    </div>
+    <div class="card card-hover stat">
+        <div class="stat-top"><span class="stat-label">@L.T("Активность", "Белсенділік", "Activity")</span><span class="ibox">@Html.Icon("activity")</span></div>
+        <div class="stat-value">76<small>%</small></div>
+        <div class="flex items-center gap-2"><span class="trend trend-down">@Html.Icon("trending-down") −2%</span><span class="text-xs subtle">@L.T("активных за 7 дней", "7 күнде белсенді", "active in 7 days")</span></div>
+    </div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Активность студентов", "Студенттер белсенділігі", "Student activity")</div><div class="card-sub">@L.T("Уникальные студенты на платформе по дням", "Күндер бойынша платформадағы бірегей студенттер", "Unique students on the platform per day")</div></div>
+            <div class="chart-legend"><span><i class="lg-1"></i>@activity.Series[0].Label</span><span><i class="lg-2"></i>@activity.Series[1].Label</span></div>
+        </div>
+        <div class="chart-box"><canvas data-chart="@UiHelpers.ChartJson(activity)" aria-label="@L.T("Активность студентов", "Студенттер белсенділігі", "Student activity")"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">@L.T("Завершение курсов", "Курстарды аяқтау", "Course completion")</div><div class="card-sub">PHP &amp; Laravel</div></div></div>
+        <div class="donut-wrap">
+            <canvas data-chart="@UiHelpers.ChartJson(completion)" aria-label="@L.T("Завершение курсов", "Курстарды аяқтау", "Course completion")"></canvas>
+            <div class="donut-center"><div><b>58%</b><small>@L.T("завершили", "аяқтады", "completed")</small></div></div>
+        </div>
+        <div class="col gap-2 mt-5">
+            @{ var dc = new[] { "lg-1", "", "" }; var styles = new[] { "", "background:var(--primary-300)", "background:var(--primary-100)" }; }
+            @for (var i = 0; i < completion.Labels.Length; i++)
+            {
+                <div class="flex items-center justify-between text-sm"><span class="flex items-center gap-2"><i class="@dc[i]" style="width:10px;height:10px;border-radius:3px;display:inline-block;@styles[i]"></i>@completion.Labels[i]</span><b>@completion.Series[0].Data[i]%</b></div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Результаты тестов по темам", "Тақырыптар бойынша тест нәтижелері", "Test performance by topic")</div><div class="card-sub">@L.T("Средний балл, %", "Орташа балл, %", "Average score, %")</div></div>
+            <a class="card-link" href="/Teacher/Analytics">@L.T("Аналитика", "Аналитика", "Analytics") @Html.Icon("arrow-right", "icon-sm")</a>
+        </div>
+        <div class="chart-box"><canvas data-chart="@UiHelpers.ChartJson(perf)" aria-label="@L.T("Результаты тестов", "Тест нәтижелері", "Test performance")"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@Html.Icon("alert-triangle", "c-warning") @L.T("Требуют внимания", "Назар аударуды қажет етеді", "Need attention")</div><span class="badge badge-warning">@risk.Count</span></div>
+        <div class="list">
+            @foreach (var s in risk)
+            {
+                <div class="list-item">
+                    <span class="avatar avatar-sm av-@(s.Id % 6 + 1)">@string.Concat(s.Name.Split(' ').Select(w => w[0]))</span>
+                    <div class="grow"><div class="list-title">@s.Name</div><div class="list-meta">@L.T("Прогресс", "Прогресс", "Progress") @s.Progress% · @s.LastActive</div></div>
+                    <button class="btn btn-secondary btn-sm" data-toast="@L.T("Напоминание отправлено", "Еске салу жіберілді", "Reminder sent")" data-toast-icon="send">@Html.Icon("send", "icon-sm")</button>
+                </div>
+            }
+        </div>
+        <div class="ai-callout mt-5" style="padding:14px">
+            <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+            <p class="text-sm muted">@L.T("AI: у 3 студентов падает активность после темы «Eloquent». Добавьте практическое задание.", "AI: 3 студенттің белсенділігі «Eloquent» тақырыбынан кейін төмендеуде. Практикалық тапсырма қосыңыз.", "AI: 3 students lose momentum after “Eloquent”. Consider adding a practice task.")</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid cols-2 mt-6">
+    <div class="card">
+        <div class="card-head"><div class="card-title">@L.T("Ожидают проверки", "Тексеруді күтуде", "Awaiting review")</div><a class="btn btn-ghost btn-sm" href="/Teacher/Review">@L.T("Вся очередь", "Барлық кезек", "Full queue") @Html.Icon("arrow-right", "icon-sm")</a></div>
+        <div class="list">
+            @foreach (var q in Model.GetSubmissions().Where(x => x.Status is "new" or "review").Take(4))
+            {
+                <a class="list-item" href="/Teacher/Review/@q.Id">
+                    <span class="avatar avatar-sm av-@(q.Id % 6 + 1)">@q.Initials</span>
+                    <div class="grow"><div class="list-title">@q.Title</div><div class="list-meta">@q.Student · @q.Group · @q.SubmittedAgo</div></div>
+                    <span class="btn btn-outline btn-sm">@L.T("Проверить", "Тексеру", "Review")</span>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@Html.Icon("medal", "c-primary") @L.T("Лучшие студенты", "Үздік студенттер", "Top students")</div><a class="card-link" href="/Teacher/Students">@L.T("Все", "Барлығы", "All") @Html.Icon("arrow-right", "icon-sm")</a></div>
+        <div class="list">
+            @for (var i = 0; i < top.Count; i++)
+            {
+                var s = top[i];
+                <div class="list-item">
+                    <b class="subtle" style="width:18px">@(i + 1)</b>
+                    <span class="avatar avatar-sm av-@(s.Id % 6 + 1)">@string.Concat(s.Name.Split(' ').Select(w => w[0]))</span>
+                    <div class="grow"><div class="list-title">@s.Name</div><div class="list-meta">@s.Group · @L.T("ср. балл", "орт. балл", "avg") @s.AvgScore%</div></div>
+                    <span class="xp-chip">@Html.Icon("zap") @UiHelpers.Num(s.Xp)</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>

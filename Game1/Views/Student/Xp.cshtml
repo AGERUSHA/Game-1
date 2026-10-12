@@ -1,0 +1,132 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("XP и уровни", "XP және деңгейлер", "XP & Levels");
+    ViewData["Nav"] = "xp";
+    var s = Model.GetStudent();
+    var xp = Model.GetXpByWeek();
+    // Owl evolution stages: accessories unlock with the level (see Views/Shared/_Owl.cshtml)
+    var stages = new[]
+    {
+        (1,  L.T("Птенец", "Балапан", "Owlet"),         L.T("Только вылупился", "Жаңа ғана шықты", "Just hatched")),
+        (3,  L.T("Умник", "Ақылды", "Smarty"),          L.T("Получает очки", "Көзілдірік алады", "Gets glasses")),
+        (5,  L.T("Стиляга", "Сәнқой", "Stylish"),       L.T("Тёплый шарф", "Жылы шарф", "A cosy scarf")),
+        (8,  L.T("Отличник", "Үздік", "Top student"),   L.T("Золотая медаль", "Алтын медаль", "A gold medal")),
+        (12, L.T("Книгочей", "Кітапқұмар", "Bookworm"), L.T("Стопка книг", "Кітаптар бумасы", "A stack of books")),
+        (16, L.T("Профессор", "Профессор", "Professor"), L.T("Золотая шапочка", "Алтын бөрік", "A golden cap")),
+    };
+    var currentStage = stages.Last(st => st.Item1 <= s.Level);
+    var nextStage = stages.FirstOrDefault(st => st.Item1 > s.Level);
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("XP и уровни", "XP және деңгейлер", "XP & Levels")</h1>
+        <p>@L.T("Получайте опыт за обучение и открывайте новые уровни.", "Оқу үшін тәжірибе жинап, жаңа деңгейлерді ашыңыз.", "Earn experience for learning and unlock new levels.")</p>
+    </div>
+</div>
+
+<section class="card card-lg level-card">
+    <div class="flex items-center gap-6 wrap">
+        <div class="level-badge" style="width:120px;height:120px;border-radius:34px"><div><small>LEVEL</small><b style="font-size:52px">@s.Level</b></div></div>
+        <div class="grow" style="min-width:240px">
+            <div class="text-sm" style="opacity:.8">@L.T("Текущий уровень", "Ағымдағы деңгей", "Current level")</div>
+            <h2 style="font-size:30px;letter-spacing:-.03em">@L.T("Уверенный практик", "Сенімді практик", "Confident practitioner")</h2>
+            <div class="flex items-end justify-between mt-5 mb-3 wrap gap-2">
+                <div style="font-size:34px;font-weight:800;letter-spacing:-.04em;line-height:1">@UiHelpers.Num(s.Xp) <span style="font-size:18px;opacity:.7">/ @UiHelpers.Num(s.NextLevelXp) XP</span></div>
+                <span class="badge" style="background:rgba(255,255,255,.18);color:#fff">@Html.Icon("arrow-up-right") @L.T("Уровень 9 через", "9-деңгейге дейін", "Level 9 in") @UiHelpers.Num(s.NextLevelXp - s.Xp) XP</span>
+            </div>
+            @Html.Progress(s.LevelPercent, "progress-xl progress-white")
+            <div class="flex justify-between text-xs mt-2" style="opacity:.75"><span>@L.T("Ур.", "Дең.", "Lvl") 8 · @UiHelpers.Num(s.LevelStartXp) XP</span><span>@L.T("Ур.", "Дең.", "Lvl") 9 · @UiHelpers.Num(s.NextLevelXp) XP</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="card card-lg mt-6">
+    <div class="owl-hero mb-6">
+        <div class="owl-wrap" data-owl>
+            <span class="owl-bubble"></span>
+            <partial name="_Owl" model="s.Level" />
+        </div>
+        <div>
+            <div class="text-sm muted">@L.T("Твой Ух растёт вместе с тобой", "Сенің Ухың сенімен бірге өседі", "Your Hoot grows with you")</div>
+            <h2 style="font-size:26px;letter-spacing:-.03em">@currentStage.Item2 · @L.T("ур.", "дең.", "lvl") @s.Level</h2>
+            <p class="muted mt-1">
+                @if (nextStage.Item1 > 0)
+                {
+                    @L.T($"На {nextStage.Item1} уровне Ух станет «{nextStage.Item2}»: {nextStage.Item3.ToLower()}.", $"{nextStage.Item1}-деңгейде Ух «{nextStage.Item2}» болады: {nextStage.Item3.ToLower()}.", $"At level {nextStage.Item1} Hoot becomes “{nextStage.Item2}”: {nextStage.Item3.ToLower()}.")
+                }
+                else
+                {
+                    @L.T("Ух достиг вершины — настоящий профессор!", "Ух шыңға жетті — нағыз профессор!", "Hoot has reached the top — a true professor!")
+                }
+            </p>
+        </div>
+    </div>
+    <div class="owl-evo">
+        @foreach (var (lvl, name, desc) in stages)
+        {
+            var state = lvl == currentStage.Item1 ? "current" : lvl < s.Level ? "done" : "locked";
+            <div class="owl-stage @state">
+                @if (state == "locked") { <span class="stage-lock">@Html.Icon("lock")</span> }
+                <div class="owl-wrap" data-owl data-owl-click="@(state == "locked" ? "off" : "on")"><partial name="_Owl" model="lvl" /></div>
+                <b>@name</b>
+                <small>@L.T("Ур.", "Дең.", "Lvl") @lvl · @desc</small>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="grid cols-4 mt-6 stagger">
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Всего XP", "Барлық XP", "Total XP")</span><span class="ibox">@Html.Icon("zap")</span></div><div class="stat-value" data-count="@s.Xp">@UiHelpers.Num(s.Xp)</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("За эту неделю", "Осы аптада", "This week")</span><span class="ibox ibox-success">@Html.Icon("trending-up")</span></div><div class="stat-value">+310</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Место в группе", "Топтағы орын", "Group rank")</span><span class="ibox">@Html.Icon("medal")</span></div><div class="stat-value">#3 <small>/ 28</small></div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Серия", "Серия", "Streak")</span><span class="ibox ibox-warning">@Html.Icon("flame")</span></div><div class="stat-value"><span data-streak-count>@s.Streak</span> <small>@L.T("дней", "күн", "days")</small></div></div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head"><div><div class="card-title">@L.T("Динамика XP", "XP динамикасы", "XP trend")</div><div class="card-sub">@L.T("Последние 8 недель", "Соңғы 8 апта", "Last 8 weeks")</div></div></div>
+        <div class="chart-box"><canvas data-chart="@UiHelpers.ChartJson(xp)" aria-label="XP"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@L.T("Как получить XP", "XP қалай алуға болады", "How to earn XP")</div></div>
+        <div class="list">
+            <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("book-open")</span><div class="grow list-title">@L.T("Урок", "Сабақ", "Lesson")</div><span class="xp-chip">+40</span></div>
+            <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("clipboard-check")</span><div class="grow list-title">@L.T("Тест (за 80%+)", "Тест (80%+ үшін)", "Quiz (80%+)")</div><span class="xp-chip">+120</span></div>
+            <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("file-check-2")</span><div class="grow list-title">@L.T("Задание", "Тапсырма", "Assignment")</div><span class="xp-chip">+150</span></div>
+            <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("flame")</span><div class="grow list-title">@L.T("Ежедневная серия", "Күнделікті серия", "Daily streak")</div><span class="xp-chip">+20</span></div>
+            <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("graduation-cap")</span><div class="grow list-title">@L.T("Завершение курса", "Курсты аяқтау", "Course completion")</div><span class="xp-chip">+1 500</span></div>
+        </div>
+    </div>
+</div>
+
+<section class="card mt-6">
+    <div class="card-head"><div class="card-title">@L.T("История XP", "XP тарихы", "XP history")</div><div class="segmented"><button class="active">@L.T("Все", "Барлығы", "All")</button><button>@L.T("Тесты", "Тесттер", "Quizzes")</button><button>@L.T("Уроки", "Сабақтар", "Lessons")</button></div></div>
+    <div class="list">
+        @foreach (var e in Model.GetXpHistory())
+        {
+            <div class="list-item">
+                <span class="ibox">@Html.Icon(e.Icon)</span>
+                <div class="grow"><div class="list-title">@e.Title</div><div class="list-meta">@e.Source · @e.Date</div></div>
+                <span class="xp-amount">+@e.Amount XP</span>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="card mt-6">
+    <div class="card-head"><div class="card-title">@L.T("Путь уровней", "Деңгейлер жолы", "Level path")</div></div>
+    <div class="flex gap-3" style="overflow-x:auto;padding-bottom:6px">
+        @for (var lvl = 6; lvl <= 13; lvl++)
+        {
+            var state = lvl < s.Level ? "done" : lvl == s.Level ? "current" : "locked";
+            <div class="text-center shrink-0" style="width:96px">
+                <div class="ibox ibox-lg @(state == "done" ? "ibox-success" : state == "current" ? "ibox-solid" : "")" style="margin:0 auto;@(state == "locked" ? "background:var(--surface-3);color:var(--text-3)" : "")">
+                    @if (state == "done") { @Html.Icon("check") } else if (state == "locked") { @Html.Icon("lock") } else { <b style="font-size:18px">@lvl</b> }
+                </div>
+                <div class="text-sm fw-600 mt-2">@L.T("Ур.", "Дең.", "Lvl") @lvl</div>
+                <div class="text-xs subtle">@UiHelpers.Num((lvl - 6) * 500) XP</div>
+            </div>
+        }
+    </div>
+</section>

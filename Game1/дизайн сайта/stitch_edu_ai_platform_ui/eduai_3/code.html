@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI — Кабинет Преподавателя &amp; Администрирование (Задача Б)</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with configuration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-primary": "#c6bfff",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-fixed": "#acedff",
+            "on-tertiary": "#ffffff",
+            "surface-container-highest": "#dce2f7",
+            "on-background": "#141b2b",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "surface-container-low": "#f1f3ff",
+            "primary-fixed-dim": "#c6bfff",
+            "on-primary-fixed-variant": "#4029ba",
+            "surface-container-high": "#e1e8fd",
+            "error": "#ba1a1a",
+            "on-error": "#ffffff",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "tertiary-fixed-dim": "#4cd7f6",
+            "background": "#f9f9ff",
+            "surface-bright": "#f9f9ff",
+            "secondary-container": "#dcd5fd",
+            "secondary-fixed": "#e5deff",
+            "tertiary-container": "#007d92",
+            "outline": "#787586",
+            "inverse-surface": "#293040",
+            "surface-dim": "#d3daef",
+            "on-secondary": "#ffffff",
+            "surface-variant": "#dce2f7",
+            "on-primary-fixed": "#160066",
+            "surface-tint": "#5847d2",
+            "on-primary-container": "#faf6ff",
+            "on-secondary-container": "#605b7d",
+            "tertiary": "#006274",
+            "on-surface": "#141b2b",
+            "on-secondary-fixed-variant": "#474363",
+            "secondary": "#5f5a7c",
+            "on-surface-variant": "#474554",
+            "surface-container": "#e9edff",
+            "outline-variant": "#c8c4d7",
+            "primary": "#5341cd",
+            "primary-container": "#6c5ce7",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-tertiary-fixed": "#001f26",
+            "on-tertiary-container": "#edfaff",
+            "surface": "#f9f9ff",
+            "primary-fixed": "#e4dfff",
+            "on-secondary-fixed": "#1b1735",
+            "on-primary": "#ffffff",
+          },
+          fontFamily: {
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "label-md": ["Plus Jakarta Sans"],
+            "caption": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          fontSize: {
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "body-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+          },
+          spacing: {
+            "margin": "2rem",
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2rem",
+            "space-md": "1rem",
+            "space-xs": "0.25rem",
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f1f3ff;
+      border-radius: 9999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #c8c4d7;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md min-h-screen flex flex-col">
+<!-- TOP BRAND / TEACHER GLOBAL APP BAR -->
+<header class="bg-surface/80 backdrop-blur-md sticky top-0 z-40 w-full shadow-sm">
+<div class="max-w-7xl mx-auto px-space-md py-space-sm flex justify-between items-center">
+<!-- Brand & Hub Badge -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-surface-container-lowest shadow-md">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</div>
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight">EduAI</span>
+</div>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-label-md bg-secondary-fixed text-on-secondary-fixed">
+          Преподавательский хаб
+        </span>
+<span class="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-caption font-mono">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> v4.12 Enterprise
+        </span>
+</div>
+<!-- Center System Stat Pill -->
+<div class="hidden lg:flex items-center gap-4 bg-surface-container-low px-4 py-1.5 rounded-xl border border-outline-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span class="text-caption font-body-sm text-on-surface-variant">Поток: <strong class="text-on-surface font-semibold">IT-2101 / Backend</strong></span>
+</div>
+<div class="h-3 w-[1px] bg-outline-variant/50"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px]">psychology</span>
+<span class="text-caption font-body-sm text-on-surface-variant">AI-Ассистент: <span class="text-primary font-semibold">Активен (Llama-3-Edu)</span></span>
+</div>
+</div>
+<!-- Right Controls: Language & Teacher Profile -->
+<div class="flex items-center gap-3">
+<!-- Language Switcher -->
+<div class="flex items-center bg-surface-container p-0.5 rounded-lg border border-outline-variant/40">
+<button class="px-2 py-1 text-caption font-label-sm rounded-md bg-surface-container-lowest text-primary shadow-xs font-semibold">RU</button>
+<button class="px-2 py-1 text-caption font-label-sm rounded-md text-on-surface-variant hover:text-primary transition-colors">KZ</button>
+<button class="px-2 py-1 text-caption font-label-sm rounded-md text-on-surface-variant hover:text-primary transition-colors">EN</button>
+</div>
+<!-- Notification Button -->
+<button class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<!-- Teacher Profile Card in Bar -->
+<div class="flex items-center gap-2.5 pl-2 border-l border-outline-variant/30">
+<div class="relative">
+<div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-primary-container text-white flex items-center justify-center font-bold text-label-md shadow-sm">
+              АВ
+            </div>
+<span class="absolute -bottom-1 -right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 block"></span>
+</span>
+</div>
+<div class="hidden sm:flex flex-col text-left">
+<span class="text-label-md font-label-md text-on-surface leading-tight">Александр Волков</span>
+<span class="text-caption font-body-sm text-on-surface-variant">Senior Backend Lead / Куратор</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- TEACHER METRICS & SUBHEADER BAR -->
+<div class="bg-surface-container-low/70 border-b border-outline-variant/20 py-2.5">
+<div class="max-w-7xl mx-auto px-space-md flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2 text-body-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">dashboard_customize</span>
+<span class="font-semibold text-on-surface">Рабочее пространство кафедры:</span>
+<span class="text-on-surface-variant">Архитектура распределенных веб-систем (3 курс)</span>
+</div>
+<!-- Quick Metrics Counters -->
+<div class="flex items-center gap-4 text-body-sm">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container-lowest rounded-lg border border-outline-variant/30 shadow-xs">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-on-surface-variant text-caption font-body-sm">Работ на проверке:</span>
+<span class="font-mono font-semibold text-on-surface">7</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container-lowest rounded-lg border border-outline-variant/30 shadow-xs">
+<span class="material-symbols-outlined text-emerald-600 text-[16px]">trending_up</span>
+<span class="text-on-surface-variant text-caption font-body-sm">Средний балл потока:</span>
+<span class="font-mono font-semibold text-emerald-700">84.6%</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container-lowest rounded-lg border border-outline-variant/30 shadow-xs">
+<span class="material-symbols-outlined text-primary text-[16px]">group</span>
+<span class="text-on-surface-variant text-caption font-body-sm">Активных студентов:</span>
+<span class="font-mono font-semibold text-primary">48/52</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 1. TOP SCENARIO SWITCHER BAR (TABS) -->
+<nav class="bg-surface-container-lowest shadow-xs sticky top-[57px] z-30 border-b border-outline-variant/20">
+<div class="max-w-7xl mx-auto px-space-md flex items-center gap-1 overflow-x-auto no-scrollbar py-1.5">
+<!-- Tab 1: Active -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-all">
+<span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+<span>1. Проверка работ студентов</span>
+<span class="ml-1 px-1.5 py-0.2 bg-white/20 text-white rounded-full text-caption font-mono text-[11px]">7</span>
+</button>
+<!-- Tab 2 -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">account_tree</span>
+<span>2. Конструктор курса (Drag &amp; Drop)</span>
+</button>
+<!-- Tab 3 -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">quiz</span>
+<span>3. Конструктор адаптивного теста</span>
+</button>
+<!-- Tab 4 -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">table_view</span>
+<span>4. Экспорт отчётов &amp; Модерация</span>
+</button>
+<div class="ml-auto hidden xl:flex items-center gap-2 text-caption text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-tertiary">tune</span>
+<span>Режим: Экспертный асессор</span>
+</div>
+</div>
+</nav>
+<!-- MAIN INTERACTIVE WORKSPACE (Split Layout) -->
+<main class="max-w-7xl mx-auto px-space-md py-6 flex-1 w-full flex flex-col gap-6">
+<!-- Primary Split Grid: Left queue (380px) & Center/Right Inspection (remaining) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- ================= LEFT PANEL: Очередь работ на проверку ================= -->
+<aside class="lg:col-span-4 bg-surface-container-lowest rounded-[18px] border border-outline-variant/30 p-4 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] flex flex-col gap-4">
+<!-- Header & Search -->
+<div class="flex items-center justify-between pb-2 border-b border-outline-variant/20">
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-2">
+<span>Очередь работ</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-caption font-bold font-mono">7 в ожидании</span>
+</h2>
+<p class="text-caption font-body-sm text-on-surface-variant">Поток IT-2101 / IT-2102</p>
+</div>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors" title="Сортировка">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+<!-- Filter Chips -->
+<div class="flex items-center gap-1.5 flex-wrap">
+<button class="px-3 py-1 rounded-full text-caption font-label-sm bg-primary-container text-on-primary-container shadow-xs font-semibold">
+            Все (7)
+          </button>
+<button class="px-3 py-1 rounded-full text-caption font-label-sm bg-surface-container text-on-surface-variant hover:text-primary transition-colors">
+            Лабораторные (4)
+          </button>
+<button class="px-3 py-1 rounded-full text-caption font-label-sm bg-surface-container text-on-surface-variant hover:text-primary transition-colors">
+            Курсовые (2)
+          </button>
+<button class="px-3 py-1 rounded-full text-caption font-label-sm bg-surface-container text-on-surface-variant hover:text-primary transition-colors">
+            Тесты (1)
+          </button>
+</div>
+<!-- Queue Cards List -->
+<div class="flex flex-col gap-3 custom-scroll max-h-[720px] overflow-y-auto pr-1">
+<!-- Card 1: Active / Selected -->
+<article class="p-3.5 rounded-2xl bg-surface-container-low border-2 border-primary shadow-[0_10px_25px_-5px_rgba(108,92,231,0.12)] cursor-pointer transition-all relative">
+<div class="absolute top-3 right-3 flex items-center gap-1">
+<span class="px-2 py-0.5 rounded-full text-[11px] font-label-sm font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                Требует проверки
+              </span>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-semibold text-label-md shrink-0 shadow-xs">
+                АН
+              </div>
+<div class="pr-20">
+<h3 class="text-label-md font-label-md text-on-surface">Акерке Нургали</h3>
+<span class="text-caption font-mono text-primary font-semibold">Группа IT-2101</span>
+</div>
+</div>
+<div class="mt-3 bg-surface-container-lowest/80 p-2.5 rounded-xl border border-outline-variant/30">
+<p class="text-body-sm font-label-md text-on-surface font-semibold line-clamp-1">
+                Лабораторная №4: Оптимизация Eloquent &amp; N+1
+              </p>
+<div class="flex items-center justify-between mt-2 text-caption text-on-surface-variant font-mono">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                  Сдано: Сегодня 14:20
+                </span>
+<span class="text-emerald-700 font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span> AI: 94%
+                </span>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="p-3.5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low/60 border border-outline-variant/40 hover:border-primary/50 transition-all cursor-pointer">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-semibold text-label-md shrink-0">
+                  ДС
+                </div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Данияр Сериков</h3>
+<span class="text-caption font-mono text-on-surface-variant">Группа IT-2102</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-label-sm font-semibold bg-purple-100 text-purple-800">
+                Курсовая
+              </span>
+</div>
+<div class="mt-2.5">
+<p class="text-body-sm font-body-sm text-on-surface line-clamp-1">
+                REST API аутентификация JWT &amp; Refresh Token rotation
+              </p>
+<div class="flex items-center justify-between mt-2 text-caption text-on-surface-variant font-mono">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                  Сдано: Вчера 19:10
+                </span>
+<span class="text-on-surface-variant">AI: 89%</span>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="p-3.5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low/60 border border-outline-variant/40 hover:border-primary/50 transition-all cursor-pointer">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center font-semibold text-label-md shrink-0">
+                  АК
+                </div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Алина Ким</h3>
+<span class="text-caption font-mono text-on-surface-variant">Группа IT-2101</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-label-sm font-semibold bg-blue-100 text-blue-800">
+                Лабораторная №5
+              </span>
+</div>
+<div class="mt-2.5">
+<p class="text-body-sm font-body-sm text-on-surface line-clamp-1">
+                Docker-контейнеризация Nginx &amp; PHP-FPM с multi-stage build
+              </p>
+<div class="flex items-center justify-between mt-2 text-caption text-on-surface-variant font-mono">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                  Сдано: 2 дня назад
+                </span>
+<span class="text-emerald-700 font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span> AI: 98%
+                </span>
+</div>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="p-3.5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low/60 border border-outline-variant/40 hover:border-primary/50 transition-all cursor-pointer opacity-80">
+<div class="flex items-start justify-between">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container text-on-surface flex items-center justify-center font-semibold text-label-md shrink-0">
+                  БТ
+                </div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface">Бауыржан Тохтаров</h3>
+<span class="text-caption font-mono text-on-surface-variant">Группа IT-2101</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-label-sm font-semibold bg-gray-100 text-gray-700">
+                Тест Модуля 3
+              </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface line-clamp-1 mt-2">
+              Адаптивный срез: Индексация B-Tree &amp; Hash в PostgreSQL
+            </p>
+<div class="flex items-center justify-between mt-2 text-caption text-on-surface-variant font-mono">
+<span>Сдано: 2 дня назад</span>
+<span class="text-amber-700 font-semibold">AI: Проверка открытого ответа</span>
+</div>
+</article>
+</div>
+<!-- Quick footer stat -->
+<div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between text-caption text-on-surface-variant">
+<span>Среднее время ответа: <strong>4.2 ч</strong></span>
+<a class="text-primary hover:underline font-label-sm font-semibold flex items-center gap-0.5" href="#">
+            Архив проверок <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</aside>
+<!-- ================= CENTER & RIGHT INSPECTION & GRADING PANEL ================= -->
+<section class="lg:col-span-8 flex flex-col gap-6">
+<!-- Inspection Top Card -->
+<div class="bg-surface-container-lowest rounded-[18px] border border-outline-variant/30 p-5 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)]">
+<!-- Student Title & Header -->
+<div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-outline-variant/20">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-mono text-caption font-bold">
+                  IT-2101
+                </span>
+<span class="text-caption text-on-surface-variant font-mono">ID студента: #448920</span>
+<span class="text-caption text-emerald-700 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Посещаемость 96%
+                </span>
+</div>
+<h1 class="text-headline-md font-headline-md text-on-surface">
+                Акерке Нургали: Лабораторная №4: Оптимизация Eloquent &amp; N+1
+              </h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">
+                Курс: Высоконагруженные веб-приложения • Дедлайн: Вчера 23:59 (Сдано без штрафа)
+              </p>
+</div>
+<div class="flex items-center gap-2">
+<a class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-outline-variant/60 bg-surface-container-low text-on-surface hover:border-primary transition-all text-body-sm font-label-md" href="https://github.com/eduai-student-work/repo-it2101-nurgali" target="_blank">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+<span class="font-mono text-caption">GitHub Repo</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+<button class="p-2 rounded-xl border border-outline-variant/50 text-on-surface-variant hover:bg-surface-container transition-colors" title="Скачать всё zip архивом">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<!-- Attached Files Chips -->
+<div class="flex items-center gap-3 py-3 border-b border-outline-variant/20 flex-wrap">
+<span class="text-caption font-label-md text-on-surface-variant font-semibold">Прикреплённые файлы:</span>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 hover:border-primary/50 text-on-surface text-body-sm transition-all group" href="#">
+<span class="material-symbols-outlined text-primary text-[18px]">folder_zip</span>
+<span class="font-mono text-caption text-on-surface font-medium">eloquent_optimization_final.zip</span>
+<span class="text-caption text-on-surface-variant font-mono">(14.2 MB)</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-primary">download</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 hover:border-primary/50 text-on-surface text-body-sm transition-all group" href="#">
+<span class="material-symbols-outlined text-tertiary text-[18px]">database</span>
+<span class="font-mono text-caption text-on-surface font-medium">benchmark_explain_queries.sql</span>
+<span class="text-caption text-on-surface-variant font-mono">(3.8 MB)</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-primary">visibility</span>
+</a>
+</div>
+<!-- Quick AI Assistant Summary for Teacher Banner -->
+<div class="mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-cyan-50 border border-primary/20 flex items-start gap-3">
+<div class="p-2 rounded-xl bg-primary-container text-white shrink-0 mt-0.5 shadow-xs">
+<span class="material-symbols-outlined text-[20px]">psychology</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<span class="text-label-md font-label-md text-primary font-bold flex items-center gap-1.5">
+                  EduAI Inspector • Экспресс-анализ артефактов работы
+                </span>
+<span class="text-caption font-mono px-2 py-0.5 rounded bg-white text-primary border border-purple-200">
+                  Совпадение с эталоном: 96.4%
+                </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface mt-1 leading-relaxed">
+<strong>AI-проверка плагиата: 2%</strong> (Оригинальная работа) • 
+                <span class="text-emerald-700 font-semibold">0 синтаксических ошибок</span> • 
+                <span class="text-primary font-semibold">Скорость запросов ускорена на 92%</span> (с 1.48с до 0.11с благодаря <code class="font-mono bg-white/70 px-1 py-0.5 rounded text-[12px]">with(['user', 'tags'])</code>).
+              </p>
+</div>
+</div>
+<!-- Code Inspection Preview Box with Syntax Highlighting -->
+<div class="mt-5 rounded-2xl border border-outline-variant/40 overflow-hidden bg-[#181825] text-[#CDD6F4] font-mono text-body-sm shadow-inner">
+<!-- Code Tab / Toolbar -->
+<div class="flex items-center justify-between px-4 py-2.5 bg-[#11111B] border-b border-gray-800">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+<span class="ml-2 text-caption text-gray-400 font-mono flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">code</span>
+                  app/Services/OrderReportOptimizationService.php
+                </span>
+</div>
+<div class="flex items-center gap-3 text-caption text-gray-400">
+<span class="px-2 py-0.5 rounded bg-gray-800 text-gray-300">PHP 8.3 / Laravel 11</span>
+<span>Строк: 48</span>
+</div>
+</div>
+<!-- Code Body -->
+<pre class="p-4 overflow-x-auto text-[13px] leading-6 font-mono selection:bg-purple-900 selection:text-white"><code><span class="text-gray-500">1  </span><span class="text-[#F38BA8]">&lt;?php</span>
+<span class="text-gray-500">2  </span><span class="text-[#CBA6F7]">namespace</span> App\Services;
+<span class="text-gray-500">3  </span>
+<span class="text-gray-500">4  </span><span class="text-[#6C7086]">// [AI Note]: Оптимизированный запрос без N+1 проблемы</span>
+<span class="text-gray-500">5  </span><span class="text-[#CBA6F7]">class</span> <span class="text-[#F9E2AF]">OrderReportOptimizationService</span>
+<span class="text-gray-500">6  </span>{
+<span class="text-gray-500">7  </span>    <span class="text-[#CBA6F7]">public function</span> <span class="text-[#89B4FA]">getHighPerformanceFeed</span>(<span class="text-[#89DCEB]">int</span> <span class="text-[#FAB387]">$organizationId</span>): <span class="text-[#89DCEB]">Collection</span>
+<span class="text-gray-500">8  </span>    {
+<span class="text-gray-500">9  </span>        <span class="text-[#6C7086]">// БЫЛО (342 запроса): Order::where('org_id', $organizationId)-&gt;get();</span>
+<span class="text-gray-500">10 </span>        <span class="text-[#6C7086]">// СТАЛО: Eager loading с фильтрацией и ограничением колонок</span>
+<span class="text-gray-500">11 </span>        <span class="text-[#CBA6F7]">return</span> <span class="text-[#F9E2AF]">Order</span>::<span class="text-[#89B4FA]">query</span>()
+<span class="text-gray-500">12 </span>            -&gt;<span class="text-[#89B4FA]">select</span>([<span class="text-[#A6E3A1]'id'&lt;/span&gt;, &lt;span class=" span="" text-[#a6e3a1]'user_id'<="">, <span class="text-[#A6E3A1]'total_amount'&lt;/span&gt;, &lt;span class=" span="" text-[#a6e3a1]'created_at'<="">])
+<span class="text-gray-500">13 </span>            -&gt;<span class="text-[#89B4FA]">where</span>(<span class="text-[#A6E3A1]'organization_id'&lt;/span&gt;, &lt;span class=" text-[#fab387]"="">$organizationId</span>)
+<span class="text-gray-500">14 </span>            -&gt;<span class="text-[#89B4FA]">with</span>([
+<span class="text-gray-500">15 </span>                <span class="text-[#A6E3A1]'customer:id,full_name,email'&lt;/span&gt;, &lt;span class=" text-gray-500"="">16 </span>                <span class="text-[#A6E3A1]'items'&lt;/span&gt; =&gt; &lt;span class=" text-[#cba6f7]"="">fn</span>(<span class="text-[#FAB387]">$query</span>) =&gt; <span class="text-[#FAB387]">$query</span>-&gt;<span class="text-[#89B4FA]">select</span>([<span class="text-[#A6E3A1]'id'&lt;/span&gt;, &lt;span class=" span="" text-[#a6e3a1]'order_id'<="">, <span class="text-[#A6E3A1]'sku'&lt;/span&gt;, &lt;span class=" span="" text-[#a6e3a1]'price'<="">])
+<span class="text-gray-500">17 </span>            ])
+<span class="text-gray-500">18 </span>            -&gt;<span class="text-[#89B4FA]">whereHas</span>(<span class="text-[#A6E3A1]'payment'&lt;/span&gt;, &lt;span class=" text-[#cba6f7]"="">fn</span>(<span class="text-[#FAB387]">$q</span>) =&gt; <span class="text-[#FAB387]">$q</span>-&gt;<span class="text-[#89B4FA]">where</span>(<span class="text-[#A6E3A1]'status'&lt;/span&gt;, &lt;span class=" span="" text-[#a6e3a1]'settled'<="">))
+<span class="text-gray-500">19 </span>            -&gt;<span class="text-[#89B4FA]">cursor</span>(); <span class="text-[#6C7086]">// Использование lazy cursor для экономии памяти</span>
+<span class="text-gray-500">20 </span>    }
+<span class="text-gray-500">21 </span>}</span></span></span></span></span></code></pre>
+</div>
+</div>
+<!-- Grading & Feedback Controls Card -->
+<div class="bg-surface-container-lowest rounded-[18px] border border-outline-variant/30 p-5 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.05)] flex flex-col gap-5">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">grade</span>
+<span>Оценивание и рецензия преподавателя</span>
+</h2>
+<div class="flex items-center gap-2">
+<span class="text-caption font-body-sm text-on-surface-variant">Шкала оценивания: ECTS / 100 баллов</span>
+</div>
+</div>
+<!-- Score Input & Quick Grade Chip -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-surface-container-low p-4 rounded-2xl border border-outline-variant/30">
+<div class="md:col-span-4 flex items-center gap-3">
+<label class="text-label-md font-label-md text-on-surface font-semibold shrink-0" for="grade-input">
+                Итоговый балл:
+              </label>
+<div class="relative flex items-center">
+<input class="w-20 px-3 py-2 text-center text-headline-sm font-headline-sm font-mono font-bold bg-surface-container-lowest border border-outline-variant rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 text-primary" id="grade-input" max="100" min="0" type="number" value="95"/>
+<span class="ml-2 font-mono text-on-surface-variant font-semibold">/ 100</span>
+</div>
+</div>
+<div class="md:col-span-4 flex items-center gap-2">
+<span class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-label-md text-label-md font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+                Отлично (A) • 4.0 GPA
+              </span>
+</div>
+<div class="md:col-span-4 flex md:justify-end items-center gap-2 text-caption font-mono text-on-surface-variant">
+<span>+120 XP студенту</span>
+<span>•</span>
+<span class="text-emerald-700 font-semibold">+1 навык «SQL Master»</span>
+</div>
+</div>
+<!-- Quick Feedback Templates Chips -->
+<div>
+<div class="flex items-center justify-between mb-2">
+<label class="text-caption font-label-md text-on-surface-variant font-semibold uppercase tracking-wider">
+                Быстрые шаблоны рецензии:
+              </label>
+<span class="text-caption text-on-surface-variant">Кликните для добавления в отзыв</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1.5 rounded-xl bg-purple-50 text-primary hover:bg-primary hover:text-white border border-purple-200 transition-all text-body-sm font-label-md flex items-center gap-1">
+<span>+ Чистый код</span>
+</button>
+<button class="px-3 py-1.5 rounded-xl bg-purple-50 text-primary hover:bg-primary hover:text-white border border-purple-200 transition-all text-body-sm font-label-md flex items-center gap-1">
+<span>+ Отличный EXPLAIN</span>
+</button>
+<button class="px-3 py-1.5 rounded-xl bg-purple-50 text-primary hover:bg-primary hover:text-white border border-purple-200 transition-all text-body-sm font-label-md flex items-center gap-1">
+<span>+ Добавить индексы</span>
+</button>
+<button class="px-3 py-1.5 rounded-xl bg-purple-50 text-primary hover:bg-primary hover:text-white border border-purple-200 transition-all text-body-sm font-label-md flex items-center gap-1">
+<span>+ Оформить README</span>
+</button>
+<button class="px-3 py-1.5 rounded-xl bg-surface-container text-on-surface-variant hover:text-primary transition-all text-body-sm font-label-md flex items-center gap-1">
+<span>+ Рефакторинг cursor()</span>
+</button>
+</div>
+</div>
+<!-- Teacher Review Text Area with Formatting Toolbar -->
+<div class="flex flex-col rounded-2xl border border-outline-variant/40 overflow-hidden focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+<!-- Formatting Mini Bar -->
+<div class="flex items-center gap-1 p-2 bg-surface-container-low border-b border-outline-variant/30 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="Жирный"><span class="material-symbols-outlined text-[18px]">format_bold</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="Курсив"><span class="material-symbols-outlined text-[18px]">format_italic</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="Код"><span class="material-symbols-outlined text-[18px]">code</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface" title="Список"><span class="material-symbols-outlined text-[18px]">format_list_bulleted</span></button>
+<div class="h-4 w-[1px] bg-outline-variant/50 mx-1"></div>
+<button class="flex items-center gap-1 px-2 py-0.5 rounded text-caption bg-surface-container text-primary font-semibold hover:bg-primary-fixed">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span> Вставить AI-рекомендацию
+              </button>
+</div>
+<!-- Textarea -->
+<textarea class="p-3.5 bg-surface-container-lowest font-body-sm text-body-sm text-on-surface focus:outline-none resize-none leading-relaxed" placeholder="Напишите развёрнутый отзыв студенту..." rows="4">Превосходное решение, Акерке! Задача с N+1 полностью решена через жадную загрузку и фильтрацию отношений на уровне SQL. Использование cursor() вместо get() для больших выборок — отличный взрослый паттерн экономии памяти. Обрати внимание на составной индекс в миграции (organization_id, status) — это даст ещё +15% при росте таблицы до 5 млн записей.</textarea>
+</div>
+<!-- Action Buttons Bar -->
+<div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-error text-error hover:bg-error/5 transition-all font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[20px]">replay</span>
+<span>Вернуть на доработку</span>
+</button>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/60 text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">save</span>
+<span>Сохранить черновик</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary hover:bg-[#5b21b6] text-white shadow-md hover:shadow-lg transition-all font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[20px]">task_alt</span>
+<span>Утвердить оценку (+120 XP студенту)</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- ================= BOTTOM AUXILIARY PANEL: TEACHER ECOSYSTEM PREVIEWS ================= -->
+<section class="mt-4 pt-6 border-t border-outline-variant/30 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">space_dashboard</span>
+<span>Инструменты куратора и архитектора курсов</span>
+</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+            Быстрый переход к смежным сценариям проектирования и академической аналитики
+          </p>
+</div>
+<span class="text-caption font-mono bg-surface-container px-3 py-1 rounded-full text-on-surface-variant">
+          Синхронизация с деканатом: 10 мин назад
+        </span>
+</div>
+<!-- Bento-style auxiliary preview grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+<!-- 1. Miniature step preview: Конструктор курса (Drag & Drop) [Col: 5] -->
+<div class="md:col-span-5 bg-surface-container-lowest rounded-[18px] border border-outline-variant/30 p-5 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-md font-label-md text-primary font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]">account_tree</span>
+                2. Конструктор курса
+              </span>
+<span class="text-caption px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold font-mono">
+                Черновик v2.4
+              </span>
+</div>
+<h3 class="text-body-lg font-headline-sm text-on-surface font-semibold mb-1">
+              Архитектура распределенных веб-систем
+            </h3>
+<p class="text-caption font-body-sm text-on-surface-variant mb-4">
+              Визуальный пайплайн конструирования курса с адаптивными ветвлениями.
+            </p>
+<!-- Stepper visualization -->
+<div class="space-y-2.5">
+<div class="flex items-center justify-between text-caption font-label-sm">
+<span class="text-on-surface font-semibold">Прогресс структуры:</span>
+<span class="text-primary font-mono font-bold">Шаг 3 из 5</span>
+</div>
+<div class="grid grid-cols-5 gap-1.5">
+<!-- Step 1 -->
+<div class="flex flex-col gap-1 items-center">
+<div class="h-2 w-full rounded-full bg-primary"></div>
+<span class="text-[10px] text-primary font-semibold text-center leading-tight">1. Основное</span>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col gap-1 items-center">
+<div class="h-2 w-full rounded-full bg-primary"></div>
+<span class="text-[10px] text-primary font-semibold text-center leading-tight">2. Модули</span>
+</div>
+<!-- Step 3 (Active) -->
+<div class="flex flex-col gap-1 items-center">
+<div class="h-2 w-full rounded-full bg-primary-container animate-pulse"></div>
+<span class="text-[10px] text-primary font-bold text-center leading-tight">3. Материалы</span>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col gap-1 items-center">
+<div class="h-2 w-full rounded-full bg-surface-container-high"></div>
+<span class="text-[10px] text-on-surface-variant text-center leading-tight">4. Тесты</span>
+</div>
+<!-- Step 5 -->
+<div class="flex flex-col gap-1 items-center">
+<div class="h-2 w-full rounded-full bg-surface-container-high"></div>
+<span class="text-[10px] text-on-surface-variant text-center leading-tight">5. Релиз</span>
+</div>
+</div>
+</div>
+<!-- Drag & Drop visual hint -->
+<div class="mt-4 p-3 rounded-xl border border-dashed border-outline-variant/60 bg-surface-container-low flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">drag_indicator</span>
+<span class="text-caption font-mono">Модуль 3: Redis Pub/Sub &amp; Queues</span>
+</div>
+<span class="text-[11px] font-mono text-primary bg-primary-fixed px-2 py-0.5 rounded">6 уроков</span>
+</div>
+</div>
+<div class="pt-4 mt-3 border-t border-outline-variant/20 flex items-center justify-between">
+<span class="text-caption text-on-surface-variant font-mono">12 модулей • 34 лекции</span>
+<button class="text-primary hover:text-[#5b21b6] font-label-md text-caption font-bold flex items-center gap-1">
+              Открыть редактор <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- 2. Modal preview: Экспорт отчётов & Модерация [Col: 4] -->
+<div class="md:col-span-4 bg-surface-container-lowest rounded-[18px] border border-outline-variant/30 p-5 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="text-label-md font-label-md text-primary font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]">table_view</span>
+                4. Экспорт отчётов
+              </span>
+<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Готов к выгрузке
+              </span>
+</div>
+<div class="space-y-3">
+<!-- Selection Group -->
+<div>
+<label class="text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Группа и поток</label>
+<div class="mt-1 flex items-center justify-between p-2 rounded-xl bg-surface-container-low border border-outline-variant/30 text-body-sm">
+<span class="font-semibold text-on-surface">IT-2101 (Веб-разработка)</span>
+<span class="text-caption font-mono text-on-surface-variant">52 студента</span>
+</div>
+</div>
+<!-- Format & Period -->
+<div class="grid grid-cols-2 gap-2">
+<div>
+<label class="text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Период</label>
+<div class="mt-1 p-2 rounded-xl bg-surface-container-low border border-outline-variant/30 text-caption font-mono">
+                    Весенний семестр 2025
+                  </div>
+</div>
+<div>
+<label class="text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Формат</label>
+<div class="mt-1 flex gap-1">
+<span class="px-2.5 py-1.5 rounded-lg bg-primary-fixed text-primary font-mono text-caption font-bold">PDF</span>
+<span class="px-2.5 py-1.5 rounded-lg bg-surface-container text-on-surface-variant font-mono text-caption">Excel</span>
+</div>
+</div>
+</div>
+<!-- Status box -->
+<div class="p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-2.5 text-caption">
+<span class="material-symbols-outlined text-emerald-600 text-[20px]">cloud_done</span>
+<div class="flex-1">
+<span class="font-semibold text-on-surface block">Ведомость_IT-2101_сем2.pdf</span>
+<span class="text-on-surface-variant font-mono">Размер: 1.8 MB • Сформирован</span>
+</div>
+<button class="p-1 text-primary hover:bg-surface-container rounded">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+</div>
+</div>
+<div class="pt-3 mt-3 border-t border-outline-variant/20 flex items-center justify-between">
+<button class="w-full py-2 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-caption font-semibold flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">print</span>
+              Отправить в Деканат &amp; СЭД
+            </button>
+</div>
+</div>
+<!-- 3. Mascot Owl 'Ух' in Teacher Mentor Costume [Col: 3] -->
+<div class="md:col-span-3 bg-gradient-to-br from-purple-50 via-indigo-50/50 to-white rounded-[18px] border border-primary/25 p-5 shadow-sm flex flex-col justify-between relative overflow-hidden">
+<!-- Top Tag -->
+<div class="flex items-center justify-between z-10">
+<span class="px-2.5 py-0.5 rounded-full bg-primary text-white text-[11px] font-label-md font-bold">
+              Наставник EduAI
+            </span>
+<span class="text-caption font-mono text-primary font-semibold">Филин «Ух»</span>
+</div>
+<!-- Mascot Illustration & Speech Bubble -->
+<div class="my-3 z-10 flex flex-col items-center text-center">
+<!-- Speech Bubble -->
+<div class="relative bg-white p-3 rounded-2xl shadow-sm border border-purple-100 mb-3 text-left">
+<p class="text-caption font-body-sm text-on-surface leading-tight">
+                «Отличный темп, Александр! Вы проверили <strong>8 из 15</strong> работ за сегодня. Поток IT-2101 опережает график на <strong>3 дня</strong>!»
+              </p>
+<!-- Bubble tail -->
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-white"></div>
+</div>
+<!-- Owl SVG Avatar Character (Teacher Mentor with Glasses & Pointer) -->
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full drop-shadow-md" viewbox="0 0 120 120">
+<!-- Owl Body -->
+<ellipse cx="60" cy="68" fill="#6C5CE7" rx="42" ry="44"></ellipse>
+<!-- Chest / Belly -->
+<ellipse cx="60" cy="74" fill="#E4DFFF" rx="28" ry="32"></ellipse>
+<!-- Academic Tie / Collar -->
+<polygon fill="#4029BA" points="56,58 64,58 60,70"></polygon>
+<!-- Ears/Feathers -->
+<polygon fill="#5341CD" points="26,36 38,18 48,34"></polygon>
+<polygon fill="#5341CD" points="94,36 82,18 72,34"></polygon>
+<!-- Glasses Frame -->
+<circle cx="45" cy="46" fill="#FFFFFF" r="15" stroke="#160066" stroke-width="3"></circle>
+<circle cx="75" cy="46" fill="#FFFFFF" r="15" stroke="#160066" stroke-width="3"></circle>
+<line stroke="#160066" stroke-width="3" x1="58" x2="62" y1="46" y2="46"></line>
+<!-- Eyes pupils (smart looking) -->
+<circle cx="47" cy="46" fill="#141B2B" r="6"></circle>
+<circle cx="77" cy="46" fill="#141B2B" r="6"></circle>
+<circle cx="49" cy="44" fill="#FFFFFF" r="2"></circle>
+<circle cx="79" cy="44" fill="#FFFFFF" r="2"></circle>
+<!-- Beak -->
+<polygon fill="#EA580C" points="60,52 54,60 66,60"></polygon>
+<!-- Academic Cap / Mortarboard -->
+<polygon fill="#1B1530" points="60,8 96,20 60,30 24,20"></polygon>
+<rect fill="#293040" height="8" rx="2" width="28" x="46" y="22"></rect>
+<circle cx="60" cy="19" fill="#FBBF24" r="3"></circle>
+<line stroke="#FBBF24" stroke-width="2" x1="60" x2="88" y1="19" y2="28"></line>
+<!-- Wooden Pointer Stick in Hand -->
+<line stroke="#B45309" stroke-linecap="round" stroke-width="4" x1="90" x2="114" y1="85" y2="40"></line>
+<!-- Wing / Hand Holding pointer -->
+<ellipse cx="88" cy="80" fill="#5341CD" rx="10" ry="8" transform="rotate(20 88 80)"></ellipse>
+</svg>
+</div>
+<span class="text-caption font-label-sm font-semibold text-primary mt-1">Кураторский ИИ-советник</span>
+</div>
+<!-- Bottom Action -->
+<div class="pt-2 z-10">
+<button class="w-full py-2 rounded-xl bg-primary text-white hover:bg-primary-container transition-all text-caption font-label-md font-semibold flex items-center justify-center gap-1 shadow-xs">
+<span class="material-symbols-outlined text-[16px]">chat</span>
+              Спросить филина «Ух»
+            </button>
+</div>
+<!-- Ambient soft purple circle in background -->
+<div class="absolute -right-10 -bottom-10 w-36 h-36 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- FOOTER -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant/30 py-4 mt-8">
+<div class="max-w-7xl mx-auto px-space-md flex flex-col sm:flex-row items-center justify-between gap-3 text-caption text-on-surface-variant font-mono">
+<div class="flex items-center gap-3">
+<span class="font-bold text-primary font-headline-sm text-body-sm">EduAI University Cloud</span>
+<span>•</span>
+<span>Кабинет преподавателя (Задача Б)</span>
+<span>•</span>
+<span>Лицензия: КазНУ / МУИТ Enterprise</span>
+</div>
+<div class="flex items-center gap-4">
+<a class="hover:text-primary transition-colors" href="#">Методические стандарты</a>
+<a class="hover:text-primary transition-colors" href="#">Справка по ASP.NET Core Razor</a>
+<a class="hover:text-primary transition-colors" href="#">Техподдержка</a>
+</div>
+</div>
+</footer>
+<!-- Notification Toast Simulation (Non-intrusive) -->
+<div class="fixed bottom-4 right-4 z-50 bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-outline-variant/30 animate-fade-in">
+<span class="material-symbols-outlined text-emerald-400 text-[20px]">cloud_sync</span>
+<div class="text-caption font-body-sm">
+<span class="font-semibold block text-white">Автосохранение активно</span>
+<span>Черновик отзыва Акерке Нургали сохранён</span>
+</div>
+<button class="text-on-surface-variant hover:text-white ml-2 text-caption">✕</button>
+</div>
+</body></html>

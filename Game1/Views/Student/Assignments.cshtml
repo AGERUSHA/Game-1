@@ -1,0 +1,99 @@
+@model List<Assignment>
+@{
+    ViewData["Title"] = L.T("Задания", "Тапсырмалар", "Assignments");
+    ViewData["Nav"] = "assignments";
+    (string cls, string label, string group) Status(string s) => s switch
+    {
+        "todo" => ("badge-info", L.T("К выполнению", "Орындалуы керек", "To do"), "active"),
+        "in-progress" => ("badge-primary", L.T("В работе", "Орындалуда", "In progress"), "active"),
+        "submitted" => ("badge-warning", L.T("На проверке", "Тексерілуде", "Under review"), "submitted"),
+        "graded" => ("badge-success", L.T("Оценено", "Бағаланды", "Graded"), "graded"),
+        _ => ("badge-error", L.T("Просрочено", "Мерзімі өтті", "Overdue"), "active")
+    };
+    int Count(string g) => Model.Count(a => Status(a.Status).group == g);
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Задания", "Тапсырмалар", "Assignments")</h1>
+        <p>@L.T("Практические работы, дедлайны и оценки в одном месте.", "Практикалық жұмыстар, мерзімдер мен бағалар бір жерде.", "Practical work, deadlines and grades in one place.")</p>
+    </div>
+    @if (Model.FirstOrDefault(x => x.Status is "in-progress" or "todo") is { } next)
+    {
+        <a class="btn btn-primary" href="/Student/Assignment/@next.Id">@Html.Icon("upload") @L.T("Сдать работу", "Жұмысты тапсыру", "Submit work")</a>
+    }
+</div>
+
+<div class="grid cols-4 mb-6 stagger">
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Активные", "Белсенді", "Active")</span><span class="ibox ibox-info">@Html.Icon("list-todo")</span></div><div class="stat-value">@Count("active")</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("На проверке", "Тексерілуде", "Under review")</span><span class="ibox ibox-warning">@Html.Icon("hourglass")</span></div><div class="stat-value">@Count("submitted")</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Оценено", "Бағаланды", "Graded")</span><span class="ibox ibox-success">@Html.Icon("check-circle-2")</span></div><div class="stat-value">@Count("graded")</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средняя оценка", "Орташа баға", "Average grade")</span><span class="ibox">@Html.Icon("star")</span></div><div class="stat-value">94<small>%</small></div></div>
+</div>
+
+<section class="card card-flush">
+    <div class="tabs" style="padding:0 16px" data-filter-target="#asgTable">
+        <button class="tab active" data-filter="all">@L.T("Все", "Барлығы", "All") <span class="count">@Model.Count</span></button>
+        <button class="tab" data-filter="active">@L.T("Активные", "Белсенді", "Active") <span class="count">@Count("active")</span></button>
+        <button class="tab" data-filter="submitted">@L.T("На проверке", "Тексерілуде", "Under review") <span class="count">@Count("submitted")</span></button>
+        <button class="tab" data-filter="graded">@L.T("Оценённые", "Бағаланған", "Graded") <span class="count">@Count("graded")</span></button>
+    </div>
+    <div class="table-wrap">
+        <table class="table table-stack" id="asgTable">
+            <thead>
+                <tr>
+                    <th>@L.T("Название", "Атауы", "Title")</th>
+                    <th>@L.T("Курс", "Курс", "Course")</th>
+                    <th>@L.T("Дедлайн", "Мерзімі", "Deadline")</th>
+                    <th>@L.T("Статус", "Мәртебе", "Status")</th>
+                    <th>@L.T("Оценка", "Баға", "Score")</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                    var st = Status(a.Status);
+                    <tr data-tags="all @st.group">
+                        <td class="cell-main">
+                            <div class="cell-user">
+                                <span class="ibox ibox-sm">@Html.Icon("file-code-2")</span>
+                                <div><a class="fw-600" href="/Student/Assignment/@a.Id">@a.Title</a><small>@L.T("Макс.", "Макс.", "Max") @a.MaxScore @L.T("баллов", "балл", "pts")</small></div>
+                            </div>
+                        </td>
+                        <td data-label="@L.T("Курс", "Курс", "Course")" class="muted">@a.Course</td>
+                        <td data-label="@L.T("Дедлайн", "Мерзімі", "Deadline")">
+                            <div class="nowrap fw-500">@a.Deadline</div>
+                            @if (a.DaysLeft >= 0 && a.Status is "todo" or "in-progress")
+                            {
+                                <small class="@(a.DaysLeft <= 2 ? "c-warning" : "subtle") fw-600">@L.T("Осталось", "Қалды", "Left"): @a.DaysLeft @L.T("дн.", "күн", "d")</small>
+                            }
+                        </td>
+                        <td data-label="@L.T("Статус", "Мәртебе", "Status")"><span class="badge badge-dot @st.cls">@st.label</span></td>
+                        <td data-label="@L.T("Оценка", "Баға", "Score")">
+                            @if (a.Score is int sc)
+                            {
+                                <b class="c-success">@sc</b><span class="subtle"> / @a.MaxScore</span>
+                            }
+                            else
+                            {
+                                <span class="subtle">—</span>
+                            }
+                        </td>
+                        <td class="text-right">
+                            @if (a.Status is "todo" or "in-progress" or "overdue")
+                            {
+                                <a class="btn btn-primary btn-sm" href="/Student/Assignment/@a.Id">@L.T("Сдать", "Тапсыру", "Submit")</a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-ghost btn-sm" href="/Student/Assignment/@a.Id">@L.T("Открыть", "Ашу", "Open") @Html.Icon("chevron-right", "icon-sm")</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+        <partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#asgTable")' />
+</section>

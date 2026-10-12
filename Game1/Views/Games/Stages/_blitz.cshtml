@@ -1,0 +1,38 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("timer", L.T("60 секунд — ответьте на как можно больше вопросов.", "60 секунд — мүмкіндігінше көп сұраққа жауап беріңіз.", "60 seconds — answer as many questions as you can.")),
+        ("zap", L.T("Ответ быстрее 3 секунд — бонус. Серия верных — комбо.", "3 секундтан жылдам жауап — бонус. Қатарынан дұрыс — комбо.", "Answer within 3 s for a bonus. A streak builds a combo.")),
+        ("clock-alert", L.T("Ошибка отнимает 3 секунды.", "Қате 3 секундты алады.", "A mistake costs 3 seconds.")),
+        ("keyboard", L.T("Клавиши: 1–4, а для «верно/неверно» — ← и →.", "Пернелер: 1–4, ал «дұрыс/қате» үшін ← және →.", "Keys: 1–4, or ← / → for true/false.")),
+    };
+    ViewData["Options"] = new (string, string, string)[]
+    {
+        ("topic", "all", L.T("Все темы", "Барлық тақырыптар", "All topics")),
+        ("topic", "web", L.T("Веб и JS", "Веб және JS", "Web & JS")),
+        ("topic", "data", "SQL"),
+        ("topic", "cs", L.T("Основы CS", "CS негіздері", "CS basics")),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="blitz" data-game-stage hidden>
+    <div class="blitz-card" data-bz-card>
+        <span class="g-tag" data-bz-topic></span>
+        <p class="blitz-q" data-bz-q></p>
+    </div>
+    <div class="g-choices" data-bz-choices></div>
+</section>
+
+<script>
+    window.BZ_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        yes = L.T("Верно", "Дұрыс", "True"),
+        no = L.T("Неверно", "Қате", "False"),
+        answered = L.T("Ответов", "Жауап", "Answered"),
+        correct = L.T("Верных", "Дұрыс", "Correct"),
+        score = L.T("Очки", "Ұпай", "Score"),
+        done = L.T("Время вышло!", "Уақыт бітті!", "Time's up!"),
+        topics = new { web = L.T("Веб", "Веб", "Web"), data = "SQL", cs = "CS" },
+    }));
+</script>

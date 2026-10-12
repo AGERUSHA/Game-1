@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI — Student Dashboard &amp; State Master System</title>
+<!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-on-surface": "#edf0ff",
+            "surface-container-high": "#e1e8fd",
+            "on-secondary-fixed-variant": "#474363",
+            "secondary-fixed": "#e5deff",
+            "inverse-surface": "#293040",
+            "secondary-container": "#dcd5fd",
+            "tertiary-fixed-dim": "#4cd7f6",
+            "surface": "#f9f9ff",
+            "on-surface": "#141b2b",
+            "surface-bright": "#f9f9ff",
+            "tertiary-container": "#007d92",
+            "on-error": "#ffffff",
+            "on-primary-container": "#faf6ff",
+            "tertiary-fixed": "#acedff",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-primary-fixed": "#160066",
+            "surface-container-low": "#f1f3ff",
+            "tertiary": "#006274",
+            "background": "#f9f9ff",
+            "surface-container": "#e9edff",
+            "primary": "#5341cd",
+            "on-surface-variant": "#474554",
+            "error": "#ba1a1a",
+            "primary-container": "#6c5ce7",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed": "#1b1735",
+            "surface-variant": "#dce2f7",
+            "on-primary-fixed-variant": "#4029ba",
+            "on-tertiary-fixed": "#001f26",
+            "on-secondary-container": "#605b7d",
+            "surface-tint": "#5847d2",
+            "on-error-container": "#93000a",
+            "surface-dim": "#d3daef",
+            "outline": "#787586",
+            "secondary": "#5f5a7c",
+            "on-tertiary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "on-primary": "#ffffff",
+            "on-secondary": "#ffffff",
+            "outline-variant": "#c8c4d7",
+            "primary-fixed-dim": "#c6bfff",
+            "on-tertiary-container": "#edfaff",
+            "inverse-primary": "#c6bfff",
+            "surface-container-highest": "#dce2f7",
+            "on-background": "#141b2b",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "primary-fixed": "#e4dfff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "gutter": "1.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "2rem",
+            "space-xl": "2rem",
+            "margin-mobile": "1rem",
+            "gutter-mobile": "1rem"
+          },
+          fontFamily: {
+            "headline-xl": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"],
+            "label-md": ["Plus Jakarta Sans", "sans-serif"],
+            "label-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "caption": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          fontSize: {
+            "headline-xl": ["40px", { lineHeight: "48px", letterSpacing: "-0.025em", fontWeight: "700" }],
+            "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600" }],
+            "headline-sm": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "-0.005em", fontWeight: "400" }],
+            "body-md": ["16px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "400" }],
+            "body-sm": ["14px", { lineHeight: "20px", letterSpacing: "0em", fontWeight: "400" }],
+            "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }],
+            "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }],
+            "caption": ["12px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-focus-ring:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.22);
+    }
+    .ambient-card {
+      background-color: #ffffff;
+      border: 1px solid #E0E7FF;
+      box-shadow: 0 4px 20px -2px rgba(108, 92, 231, 0.05);
+    }
+    .ambient-card-hover:hover {
+      box-shadow: 0 10px 25px -5px rgba(108, 92, 231, 0.08);
+      border-color: #C7D2FE;
+    }
+    .shimmer-bg {
+      background: linear-gradient(90deg, #f1f3ff 25%, #e1e8fd 50%, #f1f3ff 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .ai-gradient-border {
+      border: 1px solid transparent;
+      background: linear-gradient(#FAF5FF, #FAF5FF) padding-box, linear-gradient(135deg, #6C5CE7, #06B6D4) border-box;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col selection:bg-secondary-fixed selection:text-primary">
+<!-- TOP APP BAR (Shared Component: TopAppBar) -->
+<header class="bg-surface/80 backdrop-blur-md text-primary shadow-sm border-b border-outline-variant/30 sticky top-0 z-40 w-full transition-colors h-[70px]">
+<div class="max-w-[1440px] mx-auto h-full px-6 flex justify-between items-center">
+<!-- Left: Logo & Mascot Badge -->
+<div class="flex items-center gap-4">
+<a class="flex items-center gap-2 custom-focus-ring rounded-lg" href="#">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary shadow-md">
+<!-- Custom Vector Mascot "Ух" head icon -->
+<svg class="w-7 h-7" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 20C12 14 18 10 24 14C30 18 34 18 40 14C46 10 52 14 52 20C54 36 46 54 32 54C18 54 10 36 12 20Z" fill="#5847D2"></path>
+<ellipse cx="32" cy="38" fill="#E4DFFF" rx="15" ry="12"></ellipse>
+<!-- Glasses -->
+<circle cx="25" cy="27" fill="#FFFFFF" r="8" stroke="#FED7AA" stroke-width="2.5"></circle>
+<circle cx="39" cy="27" fill="#FFFFFF" r="8" stroke="#FED7AA" stroke-width="2.5"></circle>
+<line stroke="#FED7AA" stroke-width="2.5" x1="33" x2="31" y1="27" y2="27"></line>
+<!-- Eyes with reflection -->
+<circle cx="26" cy="27" fill="#141B2B" r="3.5"></circle>
+<circle cx="27" cy="25.5" fill="#FFFFFF" r="1.2"></circle>
+<circle cx="40" cy="27" fill="#141B2B" r="3.5"></circle>
+<circle cx="41" cy="25.5" fill="#FFFFFF" r="1.2"></circle>
+<!-- Beak -->
+<polygon fill="#F59E0B" points="32,31 29,36 35,36"></polygon>
+<!-- Scarf knot -->
+<path d="M22 47C26 49 38 49 42 47L40 52C36 53 28 53 24 52L22 47Z" fill="#EC4899"></path>
+</svg>
+</div>
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight">EduAI</span>
+</a>
+<!-- System Pill & Context -->
+<span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-label-sm bg-surface-container text-on-surface-variant border border-outline-variant/40">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          State Master v2.4 • ASP.NET Core MVC
+        </span>
+</div>
+<!-- Center: Search & Command Palette Quick trigger -->
+<div class="hidden lg:flex items-center w-72 bg-surface-container-lowest border border-outline-variant/50 rounded-xl px-3 py-1.5 text-body-sm text-on-surface-variant shadow-sm focus-within:border-primary-container transition-all">
+<span class="material-symbols-outlined text-[18px] text-outline mr-2" data-icon="search">search</span>
+<input class="w-full bg-transparent border-0 p-0 text-body-sm focus:ring-0 placeholder:text-outline text-on-surface" placeholder="Поиск по курсам, материалам..." type="text"/>
+<kbd class="font-mono text-[10px] bg-surface-container px-1.5 py-0.5 rounded text-on-surface-variant border border-outline-variant/60">⌘K</kbd>
+</div>
+<!-- Right: Language Selector, Theme Toggle, Notifications & Avatar Badge -->
+<div class="flex items-center gap-3">
+<!-- Language Switcher -->
+<div class="flex items-center bg-surface-container rounded-lg p-0.5 border border-outline-variant/30 text-label-sm">
+<button class="px-2 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-xs">RU</button>
+<button class="px-2 py-1 rounded-md text-on-surface-variant hover:text-on-surface">KZ</button>
+<button class="px-2 py-1 rounded-md text-on-surface-variant hover:text-on-surface">EN</button>
+</div>
+<!-- Theme Toggle Button -->
+<button class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container border border-outline-variant/30 transition-colors custom-focus-ring" id="themeToggleBtn" title="Переключить тему">
+<span class="material-symbols-outlined text-[20px]" data-icon="light_mode">light_mode</span>
+</button>
+<!-- Notification Icon with unread dot -->
+<button class="relative w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container border border-outline-variant/30 transition-colors custom-focus-ring">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full ring-2 ring-surface-container-lowest"></span>
+</button>
+<!-- User Profile Avatar with Level 8 Ring -->
+<div class="flex items-center gap-2 pl-2 border-l border-outline-variant/30">
+<div class="relative">
+<div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-primary-container via-amber-400 to-tertiary-fixed-dim shadow-sm">
+<div class="w-full h-full rounded-full bg-surface-container-lowest flex items-center justify-center font-headline-sm font-bold text-primary text-sm overflow-hidden">
+                АК
+              </div>
+</div>
+<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary text-[10px] font-mono font-bold px-1 rounded-full ring-2 ring-surface-container-lowest shadow-xs">8</span>
+</div>
+<div class="hidden xl:block text-left">
+<p class="text-label-md font-label-md text-on-surface leading-tight">Акерке Нургали</p>
+<p class="text-caption text-on-surface-variant">Мастер • 1,250 XP</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 max-w-[1440px] w-full mx-auto flex">
+<!-- SIDEBAR NAVIGATION (268px Desktop) -->
+<aside class="w-[268px] hidden md:flex flex-col border-r border-outline-variant/30 bg-surface-container-lowest py-6 px-4 shrink-0">
+<div class="space-y-6 flex-1">
+<!-- Mascot Interactive Mood Card -->
+<div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/40 flex items-center gap-3 relative overflow-hidden group">
+<div class="w-12 h-12 rounded-xl bg-surface-container-lowest flex items-center justify-center shadow-xs shrink-0">
+<!-- Owl "Ух" Cheerful Icon with medal -->
+<svg class="w-9 h-9" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 20C12 14 18 10 24 14C30 18 34 18 40 14C46 10 52 14 52 20C54 36 46 54 32 54C18 54 10 36 12 20Z" fill="#6C5CE7"></path>
+<ellipse cx="32" cy="38" fill="#FAF5FF" rx="14" ry="11"></ellipse>
+<circle cx="25" cy="27" fill="#FFFFFF" r="7.5" stroke="#FED7AA" stroke-width="2"></circle>
+<circle cx="39" cy="27" fill="#FFFFFF" r="7.5" stroke="#FED7AA" stroke-width="2"></circle>
+<line stroke="#FED7AA" stroke-width="2" x1="32.5" x2="31.5" y1="27" y2="27"></line>
+<circle cx="26" cy="27" fill="#141B2B" r="3"></circle>
+<circle cx="40" cy="27" fill="#141B2B" r="3"></circle>
+<polygon fill="#F59E0B" points="32,31 29,35 35,35"></polygon>
+<!-- Scarf & Level 8 Golden Medal -->
+<path d="M23 46C27 48 37 48 41 46L39 50C35 51 29 51 25 50L23 46Z" fill="#EC4899"></path>
+<circle cx="32" cy="51" fill="#F59E0B" r="3.5" stroke="#B45309" stroke-width="0.8"></circle>
+</svg>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="text-label-md font-bold text-on-surface">Филин «Ух»</span>
+<span class="px-1.5 py-0.2 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md">Бодр</span>
+</div>
+<p class="text-caption text-on-surface-variant leading-tight mt-0.5">«Готовы ко второму спринту?»</p>
+</div>
+</div>
+<!-- Navigation Menu -->
+<nav class="space-y-1">
+<p class="px-3 text-[11px] font-bold tracking-wider text-outline uppercase font-mono mb-2">Основное меню</p>
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary-container text-on-primary-container font-semibold transition-all shadow-xs custom-focus-ring" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="text-body-sm font-label-md">Дашборд</span>
+<span class="ml-auto w-1.5 h-1.5 rounded-full bg-on-primary-container"></span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors custom-focus-ring" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="school">school</span>
+<span class="text-body-sm">Курсы</span>
+<span class="ml-auto text-caption font-mono text-outline">4</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors custom-focus-ring" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="menu_book">menu_book</span>
+<span class="text-body-sm">Материалы</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors custom-focus-ring" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="quiz">quiz</span>
+<span class="text-body-sm">Тесты</span>
+<span class="ml-auto px-1.5 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded-full">1 скоро</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors custom-focus-ring" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="assignment">assignment</span>
+<span class="text-body-sm">Задания</span>
+</a>
+<!-- AI Assistant with glowing purple badge -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-primary font-medium hover:bg-secondary-fixed/50 transition-colors custom-focus-ring relative overflow-hidden group" href="#">
+<span class="material-symbols-outlined text-[20px] text-primary" data-icon="psychology">psychology</span>
+<span class="text-body-sm font-label-md">AI Ассистент</span>
+<span class="ml-auto flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-container text-on-primary-container shadow-[0_0_12px_rgba(108,92,231,0.5)]">
+              PRO
+            </span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors custom-focus-ring" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="insights">insights</span>
+<span class="text-body-sm">Прогресс</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors custom-focus-ring" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="military_tech">military_tech</span>
+<span class="text-body-sm">XP и Достижения</span>
+<span class="ml-auto text-caption font-mono text-amber-600 font-bold">1250</span>
+</a>
+</nav>
+</div>
+<!-- Bottom Mini-Widget: Storage & Help -->
+<div class="pt-4 border-t border-outline-variant/30 space-y-3">
+<div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30 text-caption">
+<div class="flex justify-between items-center mb-1.5 font-medium text-on-surface">
+<span>Облако конспектов</span>
+<span class="font-mono text-outline">2.4 / 5 GB</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 48%"></div>
+</div>
+</div>
+<a class="flex items-center gap-2 px-3 py-2 rounded-lg text-body-sm text-outline hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span>
+<span>База знаний EduAI</span>
+</a>
+</div>
+</aside>
+<!-- MAIN CONTENT CANVAS -->
+<main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+<!-- PAGE HEAD -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-outline-variant/30">
+<div>
+<div class="flex items-center gap-2">
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight" id="pageMainHeading">Дашборд студента</h1>
+<span class="text-xs px-2 py-0.5 rounded-md bg-secondary-fixed text-primary font-mono font-semibold">Razor View</span>
+</div>
+<p class="text-body-md text-on-surface-variant mt-1" id="pageSubHeading">
+            Добро пожаловать, Акерке! <span class="font-semibold text-primary">Уровень 8 (Мастер)</span> • <span class="font-mono text-on-surface">1,250 XP</span>
+</p>
+</div>
+<!-- Right Quick Actions: Quick AI Diagnostic & Pomodoro Focus Toggle -->
+<div class="flex flex-wrap items-center gap-3">
+<button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-body-sm custom-focus-ring transition-colors shadow-xs">
+<span class="material-symbols-outlined text-[20px] text-tertiary-container" data-icon="timer">timer</span>
+<span>Помодоро (25:00)</span>
+</button>
+<button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-body-sm custom-focus-ring shadow-sm transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]" data-icon="auto_awesome">auto_awesome</span>
+<span>Быстрая диагностика с AI</span>
+</button>
+</div>
+</div>
+<!-- INTERACTIVE STATE SWITCHER BAR (Interactive State Switcher) -->
+<div class="my-6 p-4 rounded-2xl bg-surface-container border border-outline-variant/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]" data-icon="tune">tune</span>
+<div>
+<h4 class="text-label-md font-bold text-on-surface leading-tight">Инспектор состояний системы</h4>
+<p class="text-caption text-on-surface-variant">Переключайте режимы рендера UI для тестирования отказоустойчивости</p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-1.5" id="stateSwitcherContainer">
+<button class="state-btn px-3 py-1.5 rounded-lg text-body-sm font-label-md bg-primary-container text-on-primary-container shadow-xs transition-all" id="btn-state-active" onclick="switchSystemState('active')">
+            Обычный вид (Active)
+          </button>
+<button class="state-btn px-3 py-1.5 rounded-lg text-body-sm font-label-md bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant/30 transition-all" id="btn-state-empty" onclick="switchSystemState('empty')">
+            Пустое состояние (Empty)
+          </button>
+<button class="state-btn px-3 py-1.5 rounded-lg text-body-sm font-label-md bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant/30 transition-all" id="btn-state-skeleton" onclick="switchSystemState('skeleton')">
+            Загрузка (Skeleton)
+          </button>
+<button class="state-btn px-3 py-1.5 rounded-lg text-body-sm font-label-md bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant/30 transition-all" id="btn-state-error" onclick="switchSystemState('error')">
+            Ошибка (Error)
+          </button>
+</div>
+</div>
+<!-- MAIN CONTAINER: DYNAMIC STATE WRAPPER -->
+<div class="space-y-8" id="dynamicStateContainer">
+<!-- ======================= 1. ACTIVE VIEW ======================= -->
+<div class="space-y-8" id="view-active">
+<!-- Stat Grid: 4 Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Stat 1: Streak -->
+<div class="ambient-card ambient-card-hover rounded-2xl p-5 transition-all">
+<div class="flex items-center justify-between">
+<span class="text-caption font-semibold uppercase tracking-wider text-outline">Текущая серия</span>
+<span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg">🔥</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="text-headline-lg font-headline-lg text-on-surface">7 дней</span>
+<span class="text-caption font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">+1 сегодня</span>
+</div>
+<p class="text-caption text-on-surface-variant mt-2">Лучший рекорд: 14 дней подряд</p>
+</div>
+<!-- Stat 2: Average Score -->
+<div class="ambient-card ambient-card-hover rounded-2xl p-5 transition-all">
+<div class="flex items-center justify-between">
+<span class="text-caption font-semibold uppercase tracking-wider text-outline">Средний балл</span>
+<span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="grade">grade</span>
+</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="text-headline-lg font-headline-lg text-on-surface">87%</span>
+<span class="text-caption font-semibold text-emerald-600">↑ 3.2% за неделю</span>
+</div>
+<p class="text-caption text-on-surface-variant mt-2">Топ 12% студентов группы</p>
+</div>
+<!-- Stat 3: XP Progress Ring & Target -->
+<div class="ambient-card ambient-card-hover rounded-2xl p-5 transition-all">
+<div class="flex items-center justify-between">
+<span class="text-caption font-semibold uppercase tracking-wider text-outline">Опыт до Ур. 9</span>
+<span class="w-8 h-8 rounded-lg bg-secondary-fixed text-primary flex items-center justify-center font-bold font-mono text-xs">
+                  XP
+                </span>
+</div>
+<div class="mt-3 flex items-baseline justify-between">
+<div>
+<span class="text-headline-lg font-headline-lg text-on-surface font-mono">1,250</span>
+<span class="text-body-sm text-outline font-mono">/ 1,500</span>
+</div>
+<!-- Mini Ring SVG -->
+<div class="relative w-10 h-10">
+<svg class="w-10 h-10 transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-primary-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="83, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold font-mono text-primary">83%</span>
+</div>
+</div>
+<p class="text-caption text-on-surface-variant mt-2">Осталось 250 XP до ранга «Архитектор»</p>
+</div>
+<!-- Stat 4: Completed -->
+<div class="ambient-card ambient-card-hover rounded-2xl p-5 transition-all">
+<div class="flex items-center justify-between">
+<span class="text-caption font-semibold uppercase tracking-wider text-outline">Пройдено модулей</span>
+<span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="task_alt">task_alt</span>
+</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="text-headline-lg font-headline-lg text-on-surface">12 курсов</span>
+<span class="text-caption font-bold text-on-surface-variant">Всего 16</span>
+</div>
+<p class="text-caption text-on-surface-variant mt-2">Сертификаты подтверждены</p>
+</div>
+</div>
+<!-- 2-COLUMN SECTION: Continue Learning & AI Recommendation with Owl -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column (7 cols): "Продолжить обучение" -->
+<div class="lg:col-span-7 ambient-card rounded-3xl p-6 lg:p-7 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded-md bg-secondary-fixed text-primary font-mono text-caption font-semibold">Backend Track</span>
+<span class="text-caption text-outline">Урок 18 из 24</span>
+</div>
+<span class="text-caption font-bold text-primary font-mono">72% Завершено</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface">PHP &amp; Laravel Backend Development</h3>
+<p class="text-body-sm text-on-surface-variant mt-1">Архитектура контроллеров, Dependency Injection и оптимизация Eloquent запросов.</p>
+<!-- JetBrains Mono Code Snippet Tags -->
+<div class="my-5 p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex flex-wrap gap-2 items-center">
+<span class="font-mono text-caption bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/40 text-primary font-semibold">Route::middleware(['auth:sanctum'])</span>
+<span class="font-mono text-caption bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/40 text-on-surface">Eloquent::with(['student.stats'])</span>
+<span class="font-mono text-caption bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/40 text-tertiary">DB::transaction()</span>
+</div>
+<!-- Mastery Progress Track -->
+<div class="space-y-1.5">
+<div class="flex justify-between text-caption font-mono">
+<span class="text-on-surface-variant">Прогресс текущего спринта</span>
+<span class="font-bold text-on-surface">18 / 24 модулей</span>
+</div>
+<div class="w-full bg-[#EEF2FF] h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 72%"></div>
+</div>
+</div>
+</div>
+<!-- Card Action Button -->
+<div class="mt-6 pt-5 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2 text-caption text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-emerald-600" data-icon="check_circle">check_circle</span>
+<span>Домашнее задание принято куратором</span>
+</div>
+<button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-body-sm custom-focus-ring shadow-sm transition-all active:scale-95">
+<span>Продолжить урок</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Right Column (5 cols): AI Recommended Action with Mascot Owl "Ух" -->
+<div class="lg:col-span-5 ai-gradient-border rounded-3xl p-6 flex flex-col justify-between shadow-xs">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-caption font-label-sm bg-purple-100 text-primary font-semibold">
+<span class="material-symbols-outlined text-[16px]" data-icon="smart_toy">smart_toy</span>
+                    Персональный советник AI
+                  </span>
+<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-caption font-mono font-bold">+50 XP</span>
+</div>
+<!-- Mascot Vector with Speech Bubble in card -->
+<div class="flex items-start gap-4 my-2">
+<div class="w-16 h-16 rounded-2xl bg-white p-1 border border-purple-200 shadow-sm shrink-0 flex items-center justify-center">
+<!-- Owl Thinking Vector -->
+<svg class="w-12 h-12" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 20C12 14 18 10 24 14C30 18 34 18 40 14C46 10 52 14 52 20C54 36 46 54 32 54C18 54 10 36 12 20Z" fill="#6C5CE7"></path>
+<ellipse cx="32" cy="38" fill="#FAF5FF" rx="14" ry="11"></ellipse>
+<!-- Glasses slightly tilted -->
+<circle cx="25" cy="27" fill="#FFFFFF" r="7.5" stroke="#FED7AA" stroke-width="2"></circle>
+<circle cx="39" cy="27" fill="#FFFFFF" r="7.5" stroke="#FED7AA" stroke-width="2"></circle>
+<line stroke="#FED7AA" stroke-width="2" x1="32.5" x2="31.5" y1="27" y2="27"></line>
+<!-- Eyes looking up thoughtfully -->
+<circle cx="26" cy="25" fill="#141B2B" r="3"></circle>
+<circle cx="40" cy="25" fill="#141B2B" r="3"></circle>
+<polygon fill="#F59E0B" points="32,31 29,35 35,35"></polygon>
+<path d="M23 46C27 48 37 48 41 46L39 50C35 51 29 51 25 50L23 46Z" fill="#EC4899"></path>
+</svg>
+</div>
+<div>
+<h4 class="text-headline-sm font-headline-sm text-on-surface leading-snug">Повторите SQL JOIN перед завтрашним тестом</h4>
+<p class="text-body-sm text-on-surface-variant mt-1 leading-relaxed">
+                      AI обнаружил 2 ошибки в запросах <code class="font-mono text-primary font-semibold">LEFT JOIN</code> в тесте №4. Разбор займет 7 минут.
+                    </p>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-purple-100 flex items-center gap-2">
+<button class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-on-primary font-label-md text-body-sm shadow-sm transition-all custom-focus-ring active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="psychology">psychology</span>
+<span>Открыть разбор с AI</span>
+</button>
+</div>
+</div>
+</div>
+<!-- WEEKLY LEARNING ACTIVITY CHART (CSS Bar Chart 14.5 hours) -->
+<div class="ambient-card rounded-3xl p-6 lg:p-7">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+<div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Недельная учебная активность</h3>
+<p class="text-body-sm text-on-surface-variant mt-0.5">Суммарно: <span class="font-bold text-primary font-mono">14.5 часов</span> за последние 7 дней (+2.1 ч к цели)</p>
+</div>
+<!-- Legend -->
+<div class="flex items-center gap-4 text-caption font-label-sm">
+<span class="inline-flex items-center gap-1.5 text-on-surface-variant">
+<span class="w-3 h-3 rounded bg-primary-container"></span> Лекции &amp; Практика
+                </span>
+<span class="inline-flex items-center gap-1.5 text-on-surface-variant">
+<span class="w-3 h-3 rounded bg-tertiary-fixed-dim"></span> Тестирование с AI
+                </span>
+</div>
+</div>
+<!-- CSS Bar Chart (Strict 8pt cadence) -->
+<div class="grid grid-cols-7 gap-3 sm:gap-6 items-end h-44 pt-6 pb-2 border-b border-outline-variant/30">
+<!-- Пн (2.2ч) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group">
+<span class="text-[11px] font-mono font-semibold text-outline opacity-0 group-hover:opacity-100 transition-opacity">2.2ч</span>
+<div class="w-full max-w-[48px] bg-surface-container rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+<div class="w-full bg-primary-container rounded-t-lg transition-all" style="height: 55%"></div>
+</div>
+<span class="text-caption font-mono text-on-surface-variant font-medium">Пн</span>
+</div>
+<!-- Вт (3.1ч) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group">
+<span class="text-[11px] font-mono font-semibold text-outline opacity-0 group-hover:opacity-100 transition-opacity">3.1ч</span>
+<div class="w-full max-w-[48px] bg-surface-container rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+<div class="w-full bg-tertiary-fixed-dim rounded-t-sm" style="height: 25%"></div>
+<div class="w-full bg-primary-container rounded-t-lg transition-all" style="height: 50%"></div>
+</div>
+<span class="text-caption font-mono text-on-surface-variant font-medium">Вт</span>
+</div>
+<!-- Ср (1.0ч) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group">
+<span class="text-[11px] font-mono font-semibold text-outline opacity-0 group-hover:opacity-100 transition-opacity">1.0ч</span>
+<div class="w-full max-w-[48px] bg-surface-container rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+<div class="w-full bg-primary-container rounded-t-lg transition-all" style="height: 28%"></div>
+</div>
+<span class="text-caption font-mono text-on-surface-variant font-medium">Ср</span>
+</div>
+<!-- Чт (3.8ч - Peak) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group">
+<span class="text-[11px] font-mono font-semibold text-primary opacity-100 font-bold">3.8ч 🔥</span>
+<div class="w-full max-w-[48px] bg-surface-container rounded-t-xl overflow-hidden flex flex-col justify-end h-full ring-2 ring-primary/20">
+<div class="w-full bg-tertiary-fixed-dim rounded-t-sm" style="height: 35%"></div>
+<div class="w-full bg-primary-container rounded-t-lg transition-all" style="height: 55%"></div>
+</div>
+<span class="text-caption font-mono text-primary font-bold">Чт</span>
+</div>
+<!-- Пт (2.4ч) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group">
+<span class="text-[11px] font-mono font-semibold text-outline opacity-0 group-hover:opacity-100 transition-opacity">2.4ч</span>
+<div class="w-full max-w-[48px] bg-surface-container rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+<div class="w-full bg-primary-container rounded-t-lg transition-all" style="height: 60%"></div>
+</div>
+<span class="text-caption font-mono text-on-surface-variant font-medium">Пт</span>
+</div>
+<!-- Сб (1.5ч) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group">
+<span class="text-[11px] font-mono font-semibold text-outline opacity-0 group-hover:opacity-100 transition-opacity">1.5ч</span>
+<div class="w-full max-w-[48px] bg-surface-container rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+<div class="w-full bg-tertiary-fixed-dim rounded-t-lg transition-all" style="height: 40%"></div>
+</div>
+<span class="text-caption font-mono text-on-surface-variant font-medium">Сб</span>
+</div>
+<!-- Вс (0.5ч Сегодня) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group">
+<span class="text-[11px] font-mono font-semibold text-outline opacity-0 group-hover:opacity-100 transition-opacity">0.5ч</span>
+<div class="w-full max-w-[48px] bg-surface-container rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+<div class="w-full bg-primary-container rounded-t-lg transition-all" style="height: 18%"></div>
+</div>
+<span class="text-caption font-mono text-on-surface-variant font-medium">Вс</span>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap items-center justify-between text-caption text-on-surface-variant">
+<span>Целевой темп: 12 часов/неделя (выполнено на 121%)</span>
+<a class="text-primary font-semibold hover:underline flex items-center gap-1" href="#">
+                Подробная аналитика успеваемости
+                <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+<!-- ======================= 2. EMPTY STATE VIEW (Hidden by default) ======================= -->
+<div class="hidden" id="view-empty">
+<div class="ambient-card rounded-3xl p-10 lg:p-14 text-center max-w-2xl mx-auto flex flex-col items-center">
+<!-- Owl "Ух" in relaxed posture with speech bubble -->
+<div class="relative mb-6">
+<div class="w-32 h-32 rounded-3xl bg-secondary-fixed/50 flex items-center justify-center p-2 shadow-inner">
+<!-- Relaxed Owl SVG -->
+<svg class="w-24 h-24" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<path d="M14 24C14 18 20 14 26 18C32 22 36 22 42 18C48 14 54 18 54 24C56 38 48 54 34 54C20 54 12 38 14 24Z" fill="#5847D2"></path>
+<ellipse cx="34" cy="40" fill="#E4DFFF" rx="14" ry="11"></ellipse>
+<!-- Sleeping/relaxed crescent eyes -->
+<path d="M22 28C24 31 28 31 30 28" stroke="#141B2B" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M38 28C40 31 44 31 46 28" stroke="#141B2B" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Glasses rested on head or beak -->
+<circle cx="26" cy="27" fill="none" r="6" stroke="#FED7AA" stroke-width="2"></circle>
+<circle cx="42" cy="27" fill="none" r="6" stroke="#FED7AA" stroke-width="2"></circle>
+<line stroke="#FED7AA" stroke-width="2" x1="32" x2="36" y1="27" y2="27"></line>
+<polygon fill="#F59E0B" points="34,32 31,36 37,36"></polygon>
+<!-- Scarf cozy wrap -->
+<path d="M22 46C26 49 42 49 46 46L44 51C40 53 28 53 24 51L22 46Z" fill="#EC4899"></path>
+</svg>
+</div>
+<!-- Speech Bubble -->
+<div class="absolute -top-3 -right-16 bg-surface-container-lowest border border-outline-variant/60 shadow-md rounded-2xl px-3.5 py-1.5 text-label-sm font-bold text-primary flex items-center gap-1.5">
+<span>Отдыхаем! ☕</span>
+</div>
+</div>
+<!-- Multilingual labels as requested -->
+<h3 class="text-headline-md font-headline-md text-on-surface">Заданий нет — можно отдохнуть 🎉</h3>
+<p class="text-body-sm text-outline font-mono mt-1">
+              KZ: «Тапсырмалар жоқ — демалуға болады» • EN: «No assignments — time to rest»
+            </p>
+<p class="text-body-md text-on-surface-variant max-w-md mt-3">
+              Вы успешно сдали все домашние работы и закрыли текущий спринт. Отличный повод закрепить пройденное или исследовать новые направления.
+            </p>
+<div class="mt-8 flex flex-wrap gap-3 justify-center">
+<button class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-container text-on-primary-container font-label-md text-body-sm shadow-sm hover:bg-primary transition-all custom-focus-ring">
+<span class="material-symbols-outlined text-[20px]" data-icon="explore">explore</span>
+<span>Каталог курсов</span>
+</button>
+<button class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-surface-container text-on-surface font-label-md text-body-sm hover:bg-surface-container-high transition-colors custom-focus-ring">
+<span class="material-symbols-outlined text-[20px]" data-icon="auto_stories">auto_stories</span>
+<span>Библиотека статей</span>
+</button>
+</div>
+</div>
+</div>
+<!-- ======================= 3. SKELETON LOADING VIEW (Hidden by default) ======================= -->
+<div class="hidden space-y-8" id="view-skeleton">
+<!-- Stat Grid Skeletons -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="ambient-card rounded-2xl p-5 space-y-4">
+<div class="flex justify-between items-center">
+<div class="w-20 h-4 rounded shimmer-bg"></div>
+<div class="w-8 h-8 rounded-lg shimmer-bg"></div>
+</div>
+<div class="w-32 h-8 rounded-lg shimmer-bg"></div>
+<div class="w-24 h-3 rounded shimmer-bg"></div>
+</div>
+<div class="ambient-card rounded-2xl p-5 space-y-4">
+<div class="flex justify-between items-center">
+<div class="w-20 h-4 rounded shimmer-bg"></div>
+<div class="w-8 h-8 rounded-lg shimmer-bg"></div>
+</div>
+<div class="w-24 h-8 rounded-lg shimmer-bg"></div>
+<div class="w-28 h-3 rounded shimmer-bg"></div>
+</div>
+<div class="ambient-card rounded-2xl p-5 space-y-4">
+<div class="flex justify-between items-center">
+<div class="w-20 h-4 rounded shimmer-bg"></div>
+<div class="w-8 h-8 rounded-lg shimmer-bg"></div>
+</div>
+<div class="w-28 h-8 rounded-lg shimmer-bg"></div>
+<div class="w-36 h-3 rounded shimmer-bg"></div>
+</div>
+<div class="ambient-card rounded-2xl p-5 space-y-4">
+<div class="flex justify-between items-center">
+<div class="w-20 h-4 rounded shimmer-bg"></div>
+<div class="w-8 h-8 rounded-lg shimmer-bg"></div>
+</div>
+<div class="w-24 h-8 rounded-lg shimmer-bg"></div>
+<div class="w-20 h-3 rounded shimmer-bg"></div>
+</div>
+</div>
+<!-- Course & AI Skeletons -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="lg:col-span-7 ambient-card rounded-3xl p-7 space-y-6">
+<div class="flex justify-between">
+<div class="w-28 h-5 rounded shimmer-bg"></div>
+<div class="w-20 h-5 rounded shimmer-bg"></div>
+</div>
+<div class="w-3/4 h-8 rounded-lg shimmer-bg"></div>
+<div class="w-full h-4 rounded shimmer-bg"></div>
+<div class="w-full h-12 rounded-xl shimmer-bg"></div>
+<div class="w-full h-3 rounded-full shimmer-bg"></div>
+<div class="flex justify-between pt-4 border-t border-outline-variant/30">
+<div class="w-36 h-5 rounded shimmer-bg"></div>
+<div class="w-32 h-10 rounded-xl shimmer-bg"></div>
+</div>
+</div>
+<div class="lg:col-span-5 ambient-card rounded-3xl p-7 space-y-6">
+<div class="flex justify-between">
+<div class="w-36 h-6 rounded-full shimmer-bg"></div>
+<div class="w-16 h-6 rounded shimmer-bg"></div>
+</div>
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-2xl shimmer-bg shrink-0"></div>
+<div class="space-y-2 flex-1">
+<div class="w-full h-6 rounded shimmer-bg"></div>
+<div class="w-5/6 h-4 rounded shimmer-bg"></div>
+<div class="w-2/3 h-4 rounded shimmer-bg"></div>
+</div>
+</div>
+<div class="w-full h-11 rounded-xl shimmer-bg"></div>
+</div>
+</div>
+</div>
+<!-- ======================= 4. ERROR STATE VIEW (Hidden by default) ======================= -->
+<div class="hidden" id="view-error">
+<div class="ambient-card rounded-3xl p-10 text-center max-w-xl mx-auto border-error/30 shadow-sm">
+<div class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 mx-auto flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-[36px]" data-icon="error">error</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface">Не удалось загрузить данные курса</h3>
+<p class="text-body-sm text-on-surface-variant mt-2 max-w-md mx-auto">
+              Произошла сетевая ошибка или таймаут соединения с ASP.NET Core API Gateway (<code class="font-mono text-error">503 Service Unavailable</code>).
+            </p>
+<div class="my-6 p-3 rounded-xl bg-rose-50 border border-rose-200 text-left font-mono text-caption text-rose-900 overflow-x-auto">
+<span>Stack: EduAI.Controllers.StudentController.GetDashboardAsync() line 142</span>
+</div>
+<div class="flex justify-center gap-3">
+<button class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-container text-on-primary-container font-label-md text-body-sm shadow-sm hover:bg-primary transition-all custom-focus-ring" onclick="switchSystemState('active')">
+<span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span>
+<span>Повторить попытку</span>
+</button>
+<button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container text-on-surface font-label-md text-body-sm hover:bg-surface-container-high transition-colors custom-focus-ring">
+<span>Проверить статус API</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 5 & 6: STATE DEMONSTRATIONS, TOASTS & MASCOT LEVEL ACCESSORY PREVIEW -->
+<section class="mt-12 pt-8 border-t border-outline-variant/30">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">Системные модалы, тосты и кастомизация «Ух»</h3>
+<p class="text-body-sm text-on-surface-variant">Визуальный аудит вспомогательных состояний интерфейса и наград</p>
+</div>
+<span class="text-caption font-mono px-2.5 py-1 bg-surface-container text-on-surface-variant rounded-md">Token Audited: AA Compliant</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Card 1: Toast Preview -->
+<div class="ambient-card rounded-2xl p-5 flex flex-col justify-between">
+<div>
+<span class="text-caption font-semibold uppercase tracking-wider text-outline">Демонстрация Toast Notification</span>
+<div class="mt-4 p-4 rounded-xl bg-inverse-surface text-inverse-on-surface shadow-lg flex items-center justify-between gap-3 border border-outline/20">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<p class="text-body-sm font-semibold leading-tight">Задание отправлено на проверку!</p>
+<p class="text-caption text-emerald-400 font-mono font-bold mt-0.5">+50 XP начислено</p>
+</div>
+</div>
+<button class="text-outline hover:text-white">
+<span class="material-symbols-outlined text-[18px]" data-icon="close">close</span>
+</button>
+</div>
+</div>
+<p class="text-caption text-on-surface-variant mt-4">Всплывает в правом нижнем углу с авто-закрытием через 4 сек.</p>
+</div>
+<!-- Card 2: Confirmation Modal Preview -->
+<div class="ambient-card rounded-2xl p-5 flex flex-col justify-between">
+<div>
+<span class="text-caption font-semibold uppercase tracking-wider text-outline">Модальное окно подтверждения</span>
+<div class="mt-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-3">
+<div class="flex items-center gap-2 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-amber-500 text-[20px]" data-icon="warning">warning</span>
+<span>Начать финальное тестирование?</span>
+</div>
+<p class="text-caption text-on-surface-variant leading-relaxed">
+                  Таймер на 45 минут запустится сразу. Повторная попытка будет доступна через 24 часа.
+                </p>
+<div class="flex gap-2 justify-end pt-2 border-t border-outline-variant/30">
+<button class="px-3 py-1.5 rounded-lg text-caption font-bold bg-surface-container-lowest hover:bg-surface-container text-on-surface border border-outline-variant/40">Отмена</button>
+<button class="px-3 py-1.5 rounded-lg text-caption font-bold bg-primary-container text-on-primary-container hover:bg-primary shadow-xs">Начать тест</button>
+</div>
+</div>
+</div>
+<p class="text-caption text-on-surface-variant mt-4">Диалог блокирует экран затемнением <code>backdrop-blur-sm</code></p>
+</div>
+<!-- Card 3: Mascot "Ух" Level Accessory Preview (Level 8 with medal and glasses) -->
+<div class="ambient-card rounded-2xl p-5 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="text-caption font-semibold uppercase tracking-wider text-outline">Маскот «Ух» • Уровень 8</span>
+<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-mono text-[10px] font-bold">Аксессуары активны</span>
+</div>
+<!-- Mascot Stage Preview -->
+<div class="mt-4 p-4 rounded-xl bg-gradient-to-b from-purple-50 to-white border border-purple-100 flex items-center justify-around">
+<!-- SVG Owl with Medal and Glasses -->
+<div class="relative">
+<svg class="w-20 h-20 filter drop-shadow-md" fill="none" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<!-- Body -->
+<path d="M12 20C12 14 18 10 24 14C30 18 34 18 40 14C46 10 52 14 52 20C54 36 46 54 32 54C18 54 10 36 12 20Z" fill="#5847D2"></path>
+<ellipse cx="32" cy="38" fill="#FAF5FF" rx="14" ry="11"></ellipse>
+<!-- Golden Glasses Frame (Accessory 1) -->
+<circle cx="25" cy="27" fill="#FFFFFF" r="7.5" stroke="#D97706" stroke-width="2.5"></circle>
+<circle cx="39" cy="27" fill="#FFFFFF" r="7.5" stroke="#D97706" stroke-width="2.5"></circle>
+<line stroke="#D97706" stroke-width="2.5" x1="32.5" x2="31.5" y1="27" y2="27"></line>
+<!-- Focused eyes -->
+<circle cx="25.5" cy="27" fill="#141B2B" r="3"></circle>
+<circle cx="26.5" cy="25.5" fill="#FFFFFF" r="1"></circle>
+<circle cx="39.5" cy="27" fill="#141B2B" r="3"></circle>
+<circle cx="40.5" cy="25.5" fill="#FFFFFF" r="1"></circle>
+<polygon fill="#F59E0B" points="32,31 29,35 35,35"></polygon>
+<!-- Scarf -->
+<path d="M23 45C27 47 37 47 41 45L39 49C35 50 29 50 25 49L23 45Z" fill="#EC4899"></path>
+<!-- Level 8 Ribbon & Medal (Accessory 2) -->
+<polygon fill="#3B82F6" points="32,49 28,58 36,58"></polygon>
+<circle cx="32" cy="54" fill="#F59E0B" r="4.5" stroke="#B45309" stroke-width="1"></circle>
+</svg>
+<span class="absolute -bottom-1 -right-2 px-1.5 py-0.2 bg-amber-400 text-on-surface font-black text-[10px] rounded-full shadow-xs">LVL 8</span>
+</div>
+<div class="space-y-1 text-left">
+<div class="flex items-center gap-1.5 text-caption font-semibold text-on-surface">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span> Золотые очки учёного
+                  </div>
+<div class="flex items-center gap-1.5 text-caption font-semibold text-on-surface">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span> Медаль магистра Backend
+                  </div>
+<div class="flex items-center gap-1.5 text-caption font-semibold text-on-surface">
+<span class="w-2 h-2 rounded-full bg-pink-500"></span> Фирменный шарф «Ух»
+                  </div>
+</div>
+</div>
+</div>
+<p class="text-caption text-on-surface-variant mt-4">Новые артефакты открываются на 10 и 15 уровнях.</p>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- BOTTOM NAVBAR (Shared Component: BottomNavBar - Mobile only fallback as per Semantic Shell logic) -->
+<nav class="md:hidden bg-surface-container-lowest/90 backdrop-blur-lg shadow-[0_-4px_20px_-2px_rgba(108,92,231,0.08)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-sm py-space-xs border-t border-outline-variant/20">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1.5 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="school">school</span>
+<span class="text-label-sm font-label-sm">Learn</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="military_tech">military_tech</span>
+<span class="text-label-sm font-label-sm">Quests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="psychology">psychology</span>
+<span class="text-label-sm font-label-sm">AI Tutor</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="insights">insights</span>
+<span class="text-label-sm font-label-sm">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</a>
+</nav>
+<!-- Interactive State Controller Script -->
+<script>
+    function switchSystemState(state) {
+      // Available views
+      const views = ['active', 'empty', 'skeleton', 'error'];
+      
+      views.forEach(v => {
+        const viewEl = document.getElementById(`view-${v}`);
+        const btnEl = document.getElementById(`btn-state-${v}`);
+        
+        if (v === state) {
+          viewEl.classList.remove('hidden');
+          btnEl.className = 'state-btn px-3 py-1.5 rounded-lg text-body-sm font-label-md bg-primary-container text-on-primary-container shadow-xs transition-all';
+        } else {
+          viewEl.classList.add('hidden');
+          btnEl.className = 'state-btn px-3 py-1.5 rounded-lg text-body-sm font-label-md bg-surface-container-lowest text-on-surface-variant hover:text-on-surface border border-outline-variant/30 transition-all';
+        }
+      });
+    }
+
+    // Theme toggle light / dark simulation
+    const themeBtn = document.getElementById('themeToggleBtn');
+    let isDark = false;
+    themeBtn.addEventListener('click', () => {
+      isDark = !isDark;
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.body.classList.replace('bg-background', 'bg-inverse-surface');
+        document.body.classList.replace('text-on-surface', 'text-inverse-on-surface');
+        themeBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]" data-icon="dark_mode">dark_mode</span>';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.replace('bg-inverse-surface', 'bg-background');
+        document.body.classList.replace('text-inverse-on-surface', 'text-on-surface');
+        themeBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]" data-icon="light_mode">light_mode</span>';
+      }
+    });
+  </script>
+</body></html>

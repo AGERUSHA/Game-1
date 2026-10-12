@@ -1,0 +1,44 @@
+@* Localized phrases for the owl mascot and gamification widgets (read by owl.js / fun.js as window.EDU_T) *@
+@{
+    var t = new Dictionary<string, object>
+    {
+        ["click"] = new[] {
+            L.T("Ух-ух!", "Ух-ух!", "Hoot hoot!"),
+            L.T("Сегодня +50 XP?", "Бүгін +50 XP?", "+50 XP today?"),
+            L.T("Учиться — это круто!", "Оқу — керемет!", "Learning is cool!"),
+            L.T("Не забудь про тест!", "Тестті ұмытпа!", "Don't forget the quiz!") },
+        ["greetMorning"] = L.T("Доброе утро! ☀️ Начнём с короткого урока?", "Қайырлы таң! ☀️ Қысқа сабақтан бастайық па?", "Good morning! ☀️ Start with a short lesson?"),
+        ["greetDay"] = L.T("Привет! Рад тебя видеть 👋", "Сәлем! Сені көргеніме қуаныштымын 👋", "Hi! Happy to see you 👋"),
+        ["greetEvening"] = L.T("Добрый вечер! Пара задачек перед отдыхом?", "Кеш жарық! Демалар алдында бірер тапсырма?", "Good evening! A couple of tasks before you rest?"),
+        ["greetNight"] = L.T("Ночная сова, это ты? 🌙 Не засиживайся!", "Түнгі үкі, бұл сен бе? 🌙 Көп отырма!", "Night owl, is that you? 🌙 Don't stay up too late!"),
+        ["wake"] = L.T("Ой! Я задремал… Уже учимся?", "Ой! Мүлгіп кетіппін… Оқимыз ба?", "Oh! I dozed off… Studying already?"),
+        ["hide"] = L.T("Спрятать Уха", "Ухты жасыру", "Hide Hoot"),
+        ["xp"] = L.T("+{xp} XP! Так держать!", "+{xp} XP! Осылай жалғастыр!", "+{xp} XP! Keep it up!"),
+        ["testCorrect"] = new[] {
+            L.T("Верно! 🎉", "Дұрыс! 🎉", "Correct! 🎉"),
+            L.T("Умница! Шапку вверх!", "Жарайсың! Бөрікті жоғары!", "Brilliant! Caps off!"),
+            L.T("Точно в цель! 🎯", "Дәл нысанаға! 🎯", "Bullseye! 🎯") },
+        ["testWrong"] = new[] {
+            L.T("Ничего, разберём вместе 💜", "Ештеңе етпейді, бірге талдаймыз 💜", "It's okay, we'll go over it together 💜"),
+            L.T("Почти! Правильный ответ подсвечен.", "Сәл қалды! Дұрыс жауап белгіленді.", "Almost! The right answer is highlighted."),
+            L.T("Ошибки — тоже учёба 🙂", "Қателер де — оқу 🙂", "Mistakes are learning too 🙂") },
+        ["testNervous"] = L.T("Ой-ой, время поджимает! ⏰", "Ой-ой, уақыт аз қалды! ⏰", "Uh-oh, time is running out! ⏰"),
+        ["streakKeep"] = L.T("Серия {n} дн.! Не дай огоньку погаснуть 🔥", "{n} күндік серия! Отты сөндірме 🔥", "{n}-day streak! Keep the flame alive 🔥"),
+        ["streakLost"] = L.T("Огонёк погас… было {n} дн. Начнём новую серию вместе!", "От сөнді… {n} күн болған еді. Жаңа серияны бірге бастайық!", "The flame went out… it was {n} days. Let's start a new streak together!"),
+        ["pomoStart"] = L.T("Фокус! Я надел наушники 🎧", "Фокус! Құлаққапты кидім 🎧", "Focus time! Headphones on 🎧"),
+        ["pomoFocusDone"] = L.T("Отличная работа! Теперь перерыв 5 минут ☕", "Керемет жұмыс! Енді 5 минут үзіліс ☕", "Great work! Now take a 5-minute break ☕"),
+        ["pomoBreakDone"] = L.T("Перерыв окончен — продолжим?", "Үзіліс бітті — жалғастырамыз ба?", "Break's over — shall we continue?"),
+        ["pomoBtnStart"] = L.T("Старт", "Бастау", "Start"),
+        ["pomoBtnPause"] = L.T("Пауза", "Үзіліс", "Pause"),
+        ["pomoBtnResume"] = L.T("Продолжить", "Жалғастыру", "Resume"),
+        ["pomoFocus"] = L.T("Фокус", "Фокус", "Focus"),
+        ["pomoBreak"] = L.T("Перерыв", "Үзіліс", "Break"),
+        ["eggToast"] = L.T("Секретное достижение: «Совиный друг» 🦉", "Құпия жетістік: «Үкі досы» 🦉", "Secret achievement: “Owl Friend” 🦉"),
+        ["eggSay"] = L.T("Ну всё, хватит меня тыкать! 🙄", "Болды, мені түрте берме! 🙄", "Okay, okay, stop poking me! 🙄"),
+        ["eggAgain"] = L.T("Мы уже друзья, честно 🙄", "Біз дос болдық қой 🙄", "We're already friends, honestly 🙄"),
+        ["secretTitle"] = L.T("Совиный друг", "Үкі досы", "Owl Friend"),
+        ["secretDesc"] = L.T("Кликните по Уху 10 раз подряд", "Ухты қатарынан 10 рет басыңыз", "Click Hoot 10 times in a row"),
+        ["thinking"] = L.T("Хм, дай подумать…", "Хм, ойланайын…", "Hmm, let me think…"),
+    };
+}
+<script>window.EDU_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(t));</script>

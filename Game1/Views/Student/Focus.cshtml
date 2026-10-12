@@ -1,0 +1,76 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Фокус-режим", "Фокус-режим", "Focus mode");
+    ViewData["Nav"] = "focus";
+    var week = new[] { ("Пн", 50), ("Вт", 75), ("Ср", 25), ("Чт", 100), ("Пт", 75), ("Сб", 25), ("Вс", 0) };
+    var dayNames = L.Current switch { "kk" => new[] { "Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жс" }, "en" => new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" }, _ => new[] { "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс" } };
+    var presets = new[] { ("25/5", L.T("Стандарт", "Стандарт", "Classic")), ("50/10", L.T("Глубокий", "Терең", "Deep")), ("15/3", L.T("Спринт", "Спринт", "Sprint")) };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Фокус-режим", "Фокус-режим", "Focus mode")</h1>
+        <p>@L.T("Помодоро: учитесь блоками без отвлечений, отдыхайте между ними. Таймер работает и в шапке сайта.", "Помодоро: алаңдамай блоктармен оқыңыз. Таймер сайт тақырыбында да жұмыс істейді.", "Pomodoro: study in distraction-free blocks with short breaks. The timer also runs in the top bar.")</p>
+    </div>
+    <span class="xp-chip">@Html.Icon("zap", "icon-sm") +25 XP @L.T("за полный цикл", "толық цикл үшін", "per full cycle")</span>
+</div>
+
+<div class="grid cols-main-side" style="align-items:start">
+    <section class="card card-lg focus-card" data-pomo-running>
+        <div class="focus-task">
+            <label class="label-caps" for="focusTask">@L.T("Над чем работаете?", "Немен айналысасыз?", "What are you working on?")</label>
+            <input class="input" id="focusTask" maxlength="80" placeholder="@L.T("Например: лабораторная №4 — индексы", "Мысалы: №4 зертханалық — индекстер", "e.g. Lab 4 — indexes")" />
+        </div>
+
+        <div class="focus-body">
+            <div class="focus-owl is-focus" data-owl aria-hidden="true">
+                <span class="owl-bubble above">@L.T("Тишина в эфире! Я рядом 🎧", "Эфирде тыныштық! Мен қасыңдамын 🎧", "Quiet time! I'm right here 🎧")</span>
+                <partial name="_Owl" model="8" />
+            </div>
+            <div class="focus-ring" data-pomo-bar role="timer" aria-live="off">
+                <div class="focus-ring-inner">
+                    <span class="badge badge-primary" data-pomo-mode>@L.T("Фокус", "Фокус", "Focus")</span>
+                    <span class="focus-time tabular" data-pomo-time>25:00</span>
+                    <small class="subtle">@L.T("блок", "блок", "block") 1 / 4</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-2 justify-center wrap">
+            <button class="btn btn-primary btn-lg" type="button" data-pomo-action="toggle">@L.T("Старт", "Бастау", "Start")</button>
+            <button class="btn btn-outline btn-lg" type="button" data-pomo-action="skip">@Html.Icon("skip-forward") @L.T("Пропустить фазу", "Кезеңді өткізу", "Skip phase")</button>
+            <button class="btn btn-ghost btn-lg btn-icon" type="button" data-pomo-action="reset" title="@L.T("Сбросить", "Қалпына келтіру", "Reset")" aria-label="@L.T("Сбросить", "Қалпына келтіру", "Reset")">@Html.Icon("rotate-ccw")</button>
+        </div>
+
+        <div class="focus-presets" role="group" aria-label="@L.T("Режим", "Режим", "Mode")">
+            @foreach (var (p, name) in presets)
+            {
+                <button class="chip" type="button" data-pomo-action="preset" data-pomo-preset="@p">@p · @name</button>
+            }
+        </div>
+    </section>
+
+    <aside class="col gap-6">
+        <section class="card">
+            <div class="flex items-center justify-between"><div class="card-title">@L.T("Неделя в фокусе", "Аптадағы фокус", "Focus this week")</div><span class="badge badge-success">+18%</span></div>
+            <div class="focus-total"><b>6.5</b> @L.T("ч чистого фокуса", "сағ таза фокус", "h of deep focus")</div>
+            <div class="mini-bars" aria-hidden="true">
+                @for (var d = 0; d < week.Length; d++)
+                {
+                    <div class="mini-bar @(d == 3 ? "is-best" : "")"><i style="height:@(Math.Max(6, week[d].Item2))%"></i><small>@dayNames[d]</small></div>
+                }
+            </div>
+        </section>
+        <section class="card">
+            <div class="card-title mb-3">@L.T("Сегодня", "Бүгін", "Today")</div>
+            <div class="list">
+                <div class="list-item"><span class="ibox ibox-sm ibox-success">@Html.Icon("check")</span><div class="grow"><div class="list-title">@L.T("Индексы PostgreSQL", "PostgreSQL индекстері", "PostgreSQL indexes")</div><div class="list-meta">2 × 25 @L.T("мин", "мин", "min") · 09:10</div></div><span class="xp-chip">+25</span></div>
+                <div class="list-item"><span class="ibox ibox-sm ibox-success">@Html.Icon("check")</span><div class="grow"><div class="list-title">@L.T("Лабораторная №4", "№4 зертханалық", "Lab 4")</div><div class="list-meta">50 @L.T("мин", "мин", "min") · 11:30</div></div><span class="xp-chip">+25</span></div>
+            </div>
+        </section>
+        <section class="card card-soft text-sm">
+            <b>@Html.Icon("lightbulb", "icon-sm") @L.T("Совет Ух", "Ух кеңесі", "Hoot's tip")</b>
+            <p class="muted mt-2">@L.T("Во время фокуса сайт скрывает уведомления и лишние блоки. После 4 блоков сделайте длинный перерыв 15–20 минут.", "Фокус кезінде сайт хабарландыруларды жасырады. 4 блоктан кейін 15–20 минут үзіліс жасаңыз.", "During focus the site hides notifications and extras. After 4 blocks take a longer 15–20 minute break.")</p>
+        </section>
+    </aside>
+</div>

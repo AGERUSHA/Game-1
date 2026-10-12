@@ -1,0 +1,94 @@
+@model IEduDataService
+@inject IConfiguration Config
+@inject Game1.Data.AppDbContext Db
+@{
+    ViewData["Title"] = L.T("Центр управления", "Басқару орталығы", "Control center");
+    ViewData["Nav"] = "a-center";
+    ViewData["Role"] = "admin";
+    var dbOk = Db.Database.CanConnect();
+    bool Has(string key) => !string.IsNullOrEmpty(Config[key]);
+    // name, icon, configured?, what it does
+    var integrations = new[]
+    {
+        ("SQL Server", "database", dbOk ? "ok" : "err", L.T("Пользователи и вход", "Пайдаланушылар және кіру", "Users and sign-in")),
+        ("Google", "chrome", Has("Authentication:Google:ClientId") ? "ok" : "off", L.T("Вход через Google", "Google арқылы кіру", "Sign in with Google")),
+        ("Microsoft", "grid-2x2", Has("Authentication:Microsoft:ClientId") ? "ok" : "off", L.T("Вход через Microsoft", "Microsoft арқылы кіру", "Sign in with Microsoft")),
+        (L.T("Почта (SMTP)", "Пошта (SMTP)", "Email (SMTP)"), "mail", Has("Smtp:Host") ? "ok" : "off", L.T("Сброс пароля, уведомления", "Құпиясөзді қалпына келтіру, хабарландырулар", "Password reset, notifications")),
+        ("Telegram", "send", "off", L.T("Напоминания о дедлайнах", "Мерзімдер туралы еске салу", "Deadline reminders")),
+        ("1C / Platonus", "building-2", "off", L.T("Выгрузка ведомостей в деканат", "Деканатқа ведомость жіберу", "Grade sheets to the dean's office")),
+        (L.T("AI-сервис", "AI-сервис", "AI service"), "sparkles", "off", L.T("Тьютор, проверка кода, карточки", "Тьютор, кодты тексеру, карточкалар", "Tutor, code review, flashcards")),
+    };
+    var models = new[]
+    {
+        ("bot", "Claude", L.T("Основной тьютор", "Негізгі тьютор", "Primary tutor"), L.T("Объяснения, AI-разбор ошибок, карточки", "Түсіндірмелер, қате талдау, карточкалар", "Explanations, mistake reviews, flashcards"), "42k", "420 ms", true),
+        ("code-2", L.T("Проверка кода", "Кодты тексеру", "Code review"), "AST", L.T("Синтаксис, N+1, уязвимости, совпадение с эталоном", "Синтаксис, N+1, осалдықтар", "Syntax, N+1, vulnerabilities, reference match"), "18k", "310 ms", true),
+        ("audio-lines", L.T("Транскрибация лекций", "Дәрістерді транскрипциялау", "Lecture transcription"), "RU · KZ · EN", L.T("Субтитры и конспекты видеолекций", "Бейнедәрістердің субтитрлері мен конспектілері", "Subtitles and notes for video lectures"), "4.8k", "—", false),
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Центр управления", "Басқару орталығы", "Control center")</h1>
+        <p>@L.T("Интеграции, AI-модели и правила академической честности.", "Интеграциялар, AI-модельдер және академиялық адалдық ережелері.", "Integrations, AI models and academic integrity rules.")</p>
+    </div>
+    <a class="btn btn-outline" href="/Admin/Audit">@Html.Icon("scroll-text") @L.T("Журнал", "Журнал", "Audit log")</a>
+</div>
+
+@* ---------- Integrations ---------- *@
+<section class="card card-lg mb-6">
+    <div class="flex items-center justify-between gap-3 wrap mb-4">
+        <h2 class="h-section">@Html.Icon("plug") @L.T("Интеграции", "Интеграциялар", "Integrations")</h2>
+        <span class="text-sm subtle">@L.T("Статусы читаются из настроек сайта", "Мәртебелер сайт баптауларынан оқылады", "Statuses come from the site configuration")</span>
+    </div>
+    <div class="integ-grid">
+        @foreach (var (name, icon, state, text) in integrations)
+        {
+            var (cls, label) = state switch
+            {
+                "ok" => ("badge-success", L.T("Подключено", "Қосылған", "Connected")),
+                "err" => ("badge-error", L.T("Ошибка", "Қате", "Error")),
+                _ => ("", L.T("Не настроено", "Бапталмаған", "Not set up")),
+            };
+            <div class="integ @(state == "ok" ? "is-ok" : "")">
+                <span class="ibox @(state == "ok" ? "ibox-success" : state == "err" ? "ibox-error" : "")">@Html.Icon(icon)</span>
+                <div class="grow" style="min-width:0"><b>@name</b><small class="subtle">@text</small><span class="badge badge-dot @cls mt-2">@label</span></div>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="grid cols-main-side" style="align-items:start">
+    @* ---------- AI models ---------- *@
+    <section class="card card-lg">
+        <h2 class="h-section mb-4">@Html.Icon("brain-circuit") @L.T("AI-модели", "AI-модельдер", "AI models")</h2>
+        <div class="col gap-3">
+            @foreach (var (icon, name, tag, text, req, lat, on) in models)
+            {
+                <div class="model-card">
+                    <span class="ibox ibox-primary">@Html.Icon(icon)</span>
+                    <div class="grow" style="min-width:0">
+                        <div class="flex items-center gap-2 wrap"><b>@name</b><span class="badge">@tag</span></div>
+                        <p class="text-sm muted mt-1">@text</p>
+                        <div class="audit-meta mt-2"><span>@Html.Icon("activity", "icon-sm") @req @L.T("запросов/день", "сұрау/күн", "req/day")</span><span>@Html.Icon("timer", "icon-sm") @lat</span></div>
+                    </div>
+                    <label class="switch" title="@L.T("Включить", "Қосу", "Enable")"><input type="checkbox" @(on ? "checked" : "") /><span></span></label>
+                </div>
+            }
+        </div>
+        <p class="text-xs subtle mt-4">@Html.Icon("info", "icon-sm") @L.T("Модели заработают после подключения AI-сервиса — сейчас это настройки интерфейса.", "Модельдер AI-сервис қосылғаннан кейін жұмыс істейді.", "Models start working once the AI service is connected — these are interface settings for now.")</p>
+    </section>
+
+    @* ---------- Guardrails ---------- *@
+    <aside class="card">
+        <div class="flex items-center justify-between"><div class="card-title">@Html.Icon("shield-half", "icon-sm") @L.T("Правила AI", "AI ережелері", "AI guardrails")</div><span class="badge badge-success">@L.T("Включены", "Қосулы", "On")</span></div>
+        <div class="mt-4">
+            <div class="flex justify-between text-sm"><span>@L.T("Порог антиплагиата", "Антиплагиат шегі", "Plagiarism threshold")</span><b class="c-primary" data-plag-out>75%</b></div>
+            <input class="score-range" type="range" min="50" max="95" value="75" oninput="this.closest('aside').querySelector('[data-plag-out]').textContent = this.value + '%'" aria-label="@L.T("Порог антиплагиата", "Антиплагиат шегі", "Plagiarism threshold")" />
+            <div class="score-scale"><span>@L.T("Мягкий", "Жұмсақ", "Lenient")</span><span>@L.T("Строгий", "Қатаң", "Strict")</span></div>
+        </div>
+        <div class="setting-row mt-3"><div><b>@L.T("Защита от prompt-инъекций", "Prompt-инъекциядан қорғау", "Prompt-injection protection")</b><small>@L.T("Блокирует попытки обойти правила", "Ережені айналып өту әрекеттерін бұғаттайды", "Blocks attempts to bypass the rules")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+        <div class="setting-row"><div><b>@L.T("Режим экзамена", "Емтихан режимі", "Exam lockdown")</b><small>@L.T("AI не подсказывает во время зачётов", "Сынақ кезінде AI көмектеспейді", "No AI hints during exams")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+        <div class="setting-row"><div><b>@L.T("Без готовых решений", "Дайын шешімсіз", "No ready-made answers")</b><small>@L.T("Тьютор объясняет, а не решает", "Тьютор шешпейді, түсіндіреді", "The tutor explains instead of solving")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+        <button class="btn btn-primary btn-block mt-4" type="button" data-toast="@L.T("Правила AI сохранены", "AI ережелері сақталды", "AI guardrails saved")" data-toast-icon="shield-check">@L.T("Сохранить", "Сақтау", "Save")</button>
+    </aside>
+</div>

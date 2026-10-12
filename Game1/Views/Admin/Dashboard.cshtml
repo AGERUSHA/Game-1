@@ -1,0 +1,95 @@
+@inject Game1.Data.AppDbContext Db
+@model IEduDataService
+@{
+    var dbOk = Db.Database.CanConnect();
+    ViewData["Title"] = L.T("Панель администратора", "Әкімші панелі", "Admin overview");
+    ViewData["Nav"] = "a-dashboard";
+    ViewData["Role"] = "admin";
+    var growth = Model.GetUserGrowth();
+    var roles = Model.GetRoleDistribution();
+    var users = Model.GetUsers().Take(5).ToList();
+}
+
+<div class="page-head">
+    <div>
+        <span class="badge badge-primary mb-2">@Html.Icon("shield-check") @L.T("Администратор", "Әкімші", "Administrator")</span>
+        <h1>@L.T("Панель администратора", "Әкімші панелі", "Admin overview")</h1>
+        <p>@L.T("Пользователи, курсы и состояние платформы.", "Пайдаланушылар, курстар және платформа күйі.", "Users, courses and platform health.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <a class="btn btn-outline" href="/Admin/Settings">@Html.Icon("sliders-horizontal") @L.T("Настройки", "Баптаулар", "Settings")</a>
+        <a class="btn btn-primary" href="/Admin/Users">@Html.Icon("user-plus") @L.T("Добавить пользователя", "Пайдаланушы қосу", "Add user")</a>
+    </div>
+</div>
+
+<div class="grid cols-4 stagger">
+    @foreach (var (label, value, trend, icon) in new[] {
+        (L.T("Пользователи", "Пайдаланушылар", "Users"), "2 214", "+12%", "users"),
+        (L.T("Преподаватели", "Оқытушылар", "Teachers"), "78", "+7", "presentation"),
+        (L.T("Курсы", "Курстар", "Courses"), "124", "+9", "layers"),
+        (L.T("Активны сегодня", "Бүгін белсенді", "Active today"), "1 046", "+4%", "activity") })
+    {
+        <div class="card card-hover stat">
+            <div class="stat-top"><span class="stat-label">@label</span><span class="ibox">@Html.Icon(icon)</span></div>
+            <div class="stat-value">@value</div>
+            <div class="flex items-center gap-2"><span class="trend trend-up">@Html.Icon("trending-up") @trend</span><span class="text-xs subtle">@L.T("за месяц", "айда", "this month")</span></div>
+        </div>
+    }
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="card">
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Рост пользователей", "Пайдаланушылар өсімі", "User growth")</div><div class="card-sub">@L.T("Новые регистрации по месяцам", "Айлар бойынша жаңа тіркелулер", "New sign-ups by month")</div></div>
+            <div class="chart-legend"><span><i class="lg-1"></i>@growth.Series[0].Label</span><span><i class="lg-2"></i>@growth.Series[1].Label</span></div>
+        </div>
+        <div class="chart-box"><canvas data-chart="@UiHelpers.ChartJson(growth)" aria-label="@L.T("Рост пользователей", "Пайдаланушылар өсімі", "User growth")"></canvas></div>
+    </div>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@L.T("Роли", "Рөлдер", "Roles")</div><a class="card-link" href="/Admin/Roles">@L.T("Управлять", "Басқару", "Manage") @Html.Icon("arrow-right", "icon-sm")</a></div>
+        <div class="donut-wrap">
+            <canvas data-chart="@UiHelpers.ChartJson(roles)" aria-label="@L.T("Роли", "Рөлдер", "Roles")"></canvas>
+            <div class="donut-center"><div><b>2 214</b><small>@L.T("всего", "барлығы", "total")</small></div></div>
+        </div>
+        <div class="col gap-2 mt-5">
+            @{ var sw = new[] { "var(--chart-1)", "var(--primary-300)", "var(--primary-100)" }; }
+            @for (var i = 0; i < roles.Labels.Length; i++)
+            {
+                <div class="flex items-center justify-between text-sm"><span class="flex items-center gap-2"><i style="width:10px;height:10px;border-radius:3px;display:inline-block;background:@sw[i]"></i>@roles.Labels[i]</span><b>@UiHelpers.Num(roles.Series[0].Data[i])</b></div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <section class="card card-flush">
+        <div class="card-head" style="padding:18px 20px 0"><div class="card-title">@L.T("Новые пользователи", "Жаңа пайдаланушылар", "Recent users")</div><a class="card-link" href="/Admin/Users">@L.T("Все", "Барлығы", "All") @Html.Icon("arrow-right", "icon-sm")</a></div>
+        <div class="table-wrap">
+            <table class="table table-stack">
+                <thead><tr><th>@L.T("Пользователь", "Пайдаланушы", "User")</th><th>@L.T("Роль", "Рөл", "Role")</th><th>@L.T("Статус", "Мәртебе", "Status")</th><th>@L.T("Регистрация", "Тіркелу", "Joined")</th></tr></thead>
+                <tbody>
+                    @for (var i = 0; i < users.Count; i++)
+                    {
+                        var u = users[i];
+                        <partial name="_UserRow" model="u" view-data="@(new ViewDataDictionary(ViewData) { ["Index"] = i, ["Compact"] = true })" />
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <div class="card">
+        <div class="card-head"><div class="card-title">@L.T("Состояние системы", "Жүйе күйі", "System status")</div>@if (dbOk) {<span class="badge badge-success badge-dot">@L.T("Работает", "Жұмыс істейді", "Operational")</span>} else {<span class="badge badge-error badge-dot">@L.T("Есть проблемы", "Ақаулар бар", "Issues")</span>}</div>
+        @foreach (var (name, val, off) in new[] {
+            ("Web App", "99.98%", false),
+            (L.T("База данных", "Деректер қоры", "Database") + " (SQL Server)", dbOk ? L.T("подключена", "қосылған", "connected") : L.T("нет связи", "байланыс жоқ", "unreachable"), !dbOk),
+            ("AI Service", L.T("не подключён", "қосылмаған", "not connected"), true),
+            (L.T("Хранилище файлов", "Файл қоймасы", "File storage"), "38%", false) })
+        {
+            <div class="sys-row">
+                <span class="pulse-dot" style="@(off ? "background:var(--text-3);box-shadow:0 0 0 4px var(--surface-3)" : "")"></span>
+                <span class="grow">@name</span>
+                <span class="text-sm @(off ? "subtle" : "fw-600")">@val</span>
+            </div>
+        }
+    </div>
+</div>

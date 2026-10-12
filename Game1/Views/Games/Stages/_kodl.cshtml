@@ -1,0 +1,46 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("keyboard", L.T("Угадайте IT-термин из 5 латинских букв за 6 попыток.", "5 латын әрпінен тұратын IT-терминді 6 әрекетте табыңыз.", "Guess a 5-letter IT term in 6 tries.")),
+        ("square", L.T("Зелёная — буква на месте, жёлтая — есть в слове, серая — нет.", "Жасыл — әріп орнында, сары — сөзде бар, сұр — жоқ.", "Green: right spot. Yellow: in the word. Gray: not in it.")),
+        ("lightbulb", L.T("Подсказка покажет значение слова, но уберёт бонус «без ошибок».", "Кеңес сөздің мағынасын көрсетеді, бірақ бонусты алады.", "A hint shows the meaning but removes the perfect bonus.")),
+        ("calendar-check", L.T("Слово дня одно для всех — держите серию!", "Күн сөзі барлығына бір — серияны сақтаңыз!", "The daily word is the same for everyone — keep your streak!")),
+    };
+    ViewData["Options"] = new (string, string, string)[]
+    {
+        ("mode", "daily", L.T("Слово дня", "Күн сөзі", "Daily word")),
+        ("mode", "practice", L.T("Тренировка · случайное слово", "Жаттығу · кездейсоқ сөз", "Practice · random word")),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="kodl" data-game-stage hidden>
+    <div class="kodl-top">
+        <span class="g-tag" data-kodl-mode></span>
+        <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm" type="button" data-kodl-hint>@Html.Icon("lightbulb", "icon-sm") @L.T("Подсказка", "Кеңес", "Hint")</button>
+            <button class="btn btn-secondary btn-sm" type="button" data-kodl-share hidden>@Html.Icon("share-2", "icon-sm") @L.T("Поделиться", "Бөлісу", "Share")</button>
+        </div>
+    </div>
+    <div class="kodl-hint" data-kodl-hinttext hidden></div>
+    <div class="kodl-board" data-board aria-live="polite"></div>
+    <div class="kodl-msg" data-kodl-msg role="status"></div>
+    <div class="kodl-kb" data-kb></div>
+</section>
+
+<script>
+    window.KODL_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        daily = L.T("Слово дня", "Күн сөзі", "Daily word"),
+        practice = L.T("Тренировка", "Жаттығу", "Practice"),
+        notWord = L.T("Нужно 5 латинских букв", "5 латын әрпі керек", "Need 5 Latin letters"),
+        solved = L.T("Угадано с попытки №{n}!", "{n}-әрекетте табылды!", "Solved in {n}!"),
+        failed = L.T("Слово было: {w}", "Сөз: {w}", "The word was: {w}"),
+        already = L.T("Слово дня уже сыграно — новое появится завтра. Попробуйте тренировку!", "Күн сөзі ойналды — жаңасы ертең. Жаттығуды көріңіз!", "Today's word is done — a new one comes tomorrow. Try practice!"),
+        copied = L.T("Результат скопирован — поделитесь с группой!", "Нәтиже көшірілді — топпен бөлісіңіз!", "Result copied — share it with your group!"),
+        meaning = L.T("Значение", "Мағынасы", "Meaning"),
+        attempts = L.T("Попыток", "Әрекет", "Tries"),
+        streak = L.T("Серия", "Серия", "Streak"),
+        title = L.T("Кодл", "Кодл", "Codle"),
+    }));
+</script>

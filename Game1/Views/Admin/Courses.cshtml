@@ -1,0 +1,71 @@
+@model List<Course>
+@{
+    ViewData["Title"] = L.T("Курсы платформы", "Платформа курстары", "Platform courses");
+    ViewData["Nav"] = "a-courses";
+    ViewData["Role"] = "admin";
+    string[] statuses = ["published", "published", "review", "published", "published", "draft", "review", "published"];
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Курсы платформы", "Платформа курстары", "Platform courses")</h1>
+        <p>@L.T("Модерация, публикация и статистика всех курсов.", "Барлық курстарды модерациялау, жариялау және статистикасы.", "Moderation, publishing and statistics for all courses.")</p>
+    </div>
+    <div class="flex gap-3">
+        <span class="badge badge-lg badge-warning">@Html.Icon("hourglass") 2 @L.T("на модерации", "модерацияда", "in review")</span>
+    </div>
+</div>
+
+<section class="card card-flush">
+    <div class="toolbar" style="padding:16px;margin:0;border-bottom:1px solid var(--border)">
+        <div class="input-group search">
+            @Html.Icon("search")
+            <input class="input input-sm" type="search" placeholder="@L.T("Поиск курса…", "Курс іздеу…", "Search course…")" data-search-target="#adminCourses" />
+        </div>
+        <div class="segmented ml-auto" data-filter-target="#adminCourses">
+            <button class="active" data-filter="all">@L.T("Все", "Барлығы", "All")</button>
+            <button data-filter="published">@L.T("Опубликованы", "Жарияланған", "Published")</button>
+            <button data-filter="review">@L.T("Модерация", "Модерация", "Review")</button>
+            <button data-filter="draft">@L.T("Черновики", "Жобалар", "Drafts")</button>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="table table-stack" id="adminCourses">
+            <thead><tr><th>@L.T("Курс", "Курс", "Course")</th><th>@L.T("Преподаватель", "Оқытушы", "Teacher")</th><th class="sortable">@L.T("Студенты", "Студенттер", "Students") @Html.Icon("chevrons-up-down")</th><th class="sortable">@L.T("Рейтинг", "Рейтинг", "Rating") @Html.Icon("chevrons-up-down")</th><th>@L.T("Статус", "Мәртебе", "Status")</th><th></th></tr></thead>
+            <tbody>
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    var c = Model[i];
+                    var st = statuses[i % statuses.Length];
+                    var (cls, label) = st switch
+                    {
+                        "review" => ("badge-warning", L.T("На модерации", "Модерацияда", "In review")),
+                        "draft" => ("", L.T("Черновик", "Жоба", "Draft")),
+                        _ => ("badge-success", L.T("Опубликован", "Жарияланған", "Published"))
+                    };
+                    <tr data-tags="all @st">
+                        <td class="cell-main"><div class="cell-user"><span class="cover cover-@c.Cover shrink-0" style="width:40px;height:40px;border-radius:12px">@Html.Icon(c.Icon, "icon-sm")</span><div><b>@c.Title</b><small>@c.Category · @c.Lessons @L.T("уроков", "сабақ", "lessons")</small></div></div></td>
+                        <td data-label="@L.T("Преподаватель", "Оқытушы", "Teacher")" class="muted">@c.Teacher</td>
+                        <td data-label="@L.T("Студенты", "Студенттер", "Students")" data-value="@c.Students">@UiHelpers.Num(c.Students)</td>
+                        <td data-label="@L.T("Рейтинг", "Рейтинг", "Rating")" data-value="@c.Rating.ToString(System.Globalization.CultureInfo.InvariantCulture)">⭐ @c.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</td>
+                        <td data-label="@L.T("Статус", "Мәртебе", "Status")"><span class="badge badge-dot @cls">@label</span></td>
+                        <td class="text-right">
+                            @if (st == "review")
+                            {
+                                <div class="flex gap-1 justify-end">
+                                    <button class="btn btn-primary btn-sm" data-toast="@L.T("Курс одобрен", "Курс мақұлданды", "Course approved")">@L.T("Одобрить", "Мақұлдау", "Approve")</button>
+                                    <button class="btn btn-danger-soft btn-sm" data-toast="@L.T("Курс отклонён", "Курс қабылданбады", "Course rejected")" data-toast-icon="x-circle">@L.T("Отклонить", "Қабылдамау", "Reject")</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <a class="btn btn-ghost btn-sm" href="/Student/CourseDetails/@c.Id">@L.T("Открыть", "Ашу", "Open") @Html.Icon("chevron-right", "icon-sm")</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+        <partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#adminCourses")' />
+</section>

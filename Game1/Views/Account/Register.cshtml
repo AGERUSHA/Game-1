@@ -1,0 +1,54 @@
+@model RegisterViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = L.T("Регистрация", "Тіркелу", "Sign up");
+}
+<div class="auth-card">
+    <partial name="_Mascot" />
+    <h2>@L.T("Создайте аккаунт", "Аккаунт жасаңыз", "Create your account")</h2>
+    <p class="sub">@L.T("Начните учиться бесплатно — это займёт меньше минуты.", "Тегін оқуды бастаңыз — бір минуттан аз уақыт алады.", "Start learning for free — it takes less than a minute.")</p>
+
+    <form class="auth-form" method="post" asp-action="Register" data-loading="@L.T("Создаём…", "Жасалуда…", "Creating…")">
+        <partial name="_FormError" />
+        <div class="field">
+            <span class="label">@L.T("Роль", "Рөл", "Role")</span>
+            <div class="role-pick">
+                <label><input type="radio" name="Role" value="student" checked="@(Model.Role != "teacher")" /><span class="ibox ibox-sm">@Html.Icon("graduation-cap")</span><span>@L.T("Студент", "Студент", "Student")<small>@L.T("Учусь", "Оқимын", "I learn")</small></span></label>
+                <label><input type="radio" name="Role" value="teacher" checked="@(Model.Role == "teacher")" /><span class="ibox ibox-sm">@Html.Icon("presentation")</span><span>@L.T("Преподаватель", "Оқытушы", "Teacher")<small>@L.T("Обучаю", "Оқытамын", "I teach")</small></span></label>
+            </div>
+        </div>
+        <div class="grid cols-2" style="gap:12px">
+            <div class="field">
+                <label class="label" for="fn">@L.T("Имя", "Аты", "First name")</label>
+                <input class="input" id="fn" name="FirstName" value="@Model.FirstName" required maxlength="100" placeholder="@L.T("Акерке", "Ақерке", "Akerke")" autocomplete="given-name" />
+            </div>
+            <div class="field">
+                <label class="label" for="ln">@L.T("Фамилия", "Тегі", "Last name")</label>
+                <input class="input" id="ln" name="LastName" value="@Model.LastName" required maxlength="100" placeholder="@L.T("Серикова", "Серікова", "Serikova")" autocomplete="family-name" />
+            </div>
+        </div>
+        <div class="field">
+            <label class="label" for="email">Email</label>
+            <div class="input-group">@Html.Icon("mail")<input class="input" id="email" name="Email" type="email" value="@Model.Email" required placeholder="name@edu.ai" autocomplete="email" /></div>
+        </div>
+        <div class="field">
+            <label class="label" for="pw">@L.T("Пароль", "Құпиясөз", "Password")</label>
+            <div class="input-group">
+                @Html.Icon("lock")
+                <input class="input" id="pw" name="Password" type="password" required minlength="8" placeholder="@L.T("Минимум 8 символов", "Кемінде 8 таңба", "At least 8 characters")" data-pw-meter="#pwm" autocomplete="new-password" />
+                <button class="icon-btn input-action" type="button" data-pw-toggle aria-label="@L.T("Показать пароль", "Құпиясөзді көрсету", "Show password")">@Html.Icon("eye")</button>
+            </div>
+            <div class="pw-meter" id="pwm"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="field">
+            <label class="label" for="pw2">@L.T("Подтверждение пароля", "Құпиясөзді растау", "Confirm password")</label>
+            <div class="input-group">@Html.Icon("shield-check")<input class="input" id="pw2" name="ConfirmPassword" type="password" required minlength="8" placeholder="••••••••" autocomplete="new-password" /></div>
+        </div>
+        <label class="check"><input type="checkbox" checked required /> <span>@L.T("Я принимаю", "Мен қабылдаймын:", "I accept the") <a href="/Home/Privacy">@L.T("условия использования", "пайдалану шарттарын", "terms of use")</a></span></label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">@L.T("Создать аккаунт", "Аккаунт жасау", "Create account") @Html.Icon("arrow-right")</button>
+    </form>
+    <div class="divider-text">@L.T("или", "немесе", "or")</div>
+    <partial name="_ExternalLogins" />
+
+    <p class="auth-foot">@L.T("Уже есть аккаунт?", "Аккаунтыңыз бар ма?", "Already have an account?") <a class="fw-600" href="/Account/Login">@L.T("Войти", "Кіру", "Sign in")</a></p>
+</div>

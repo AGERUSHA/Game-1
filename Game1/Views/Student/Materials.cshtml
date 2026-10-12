@@ -1,0 +1,81 @@
+@model List<Material>
+@{
+    ViewData["Title"] = L.T("Материалы", "Материалдар", "Materials");
+    ViewData["Nav"] = "materials";
+    string Icon(string t) => t switch { "video" => "play", "pdf" => "file-text", "article" => "newspaper", _ => "presentation" };
+    string Name(string t) => t switch
+    {
+        "video" => L.T("Видео", "Бейне", "Video"),
+        "pdf" => "PDF",
+        "article" => L.T("Статья", "Мақала", "Article"),
+        _ => L.T("Презентация", "Презентация", "Slides")
+    };
+    string Cover(int i) => new[] { "violet", "indigo", "fuchsia", "deep" }[i % 4];
+    var filters = new[] {
+        ("all", L.T("Все", "Барлығы", "All"), "layout-grid"),
+        ("video", L.T("Видео", "Бейне", "Videos"), "play-circle"),
+        ("pdf", "PDF", "file-text"),
+        ("article", L.T("Статьи", "Мақалалар", "Articles"), "newspaper"),
+        ("presentation", L.T("Презентации", "Презентациялар", "Slides"), "presentation") };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Материалы", "Материалдар", "Materials")</h1>
+        <p>@L.T("Библиотека видео, конспектов, статей и презентаций ваших курсов.", "Курстарыңыздың бейне, конспект, мақала және презентациялар кітапханасы.", "A library of videos, notes, articles and slides from your courses.")</p>
+    </div>
+    <div class="flex gap-3">
+        <span class="badge badge-lg">@Html.Icon("bookmark") 12 @L.T("сохранено", "сақталған", "saved")</span>
+        <span class="badge badge-lg badge-primary">@Html.Icon("book-open-text") 34 @L.T("изучено", "оқылды", "studied")</span>
+    </div>
+</div>
+
+<div class="toolbar">
+    <div class="chips" data-filter-target="#matGrid">
+        @foreach (var (key, label, icon) in filters)
+        {
+            <button class="chip @(key == "all" ? "active" : "")" data-filter="@key">@Html.Icon(icon, "icon-sm") @label <span class="count">@(key == "all" ? Model.Count : Model.Count(m => m.Type == key))</span></button>
+        }
+    </div>
+    <div class="input-group search ml-auto">
+        @Html.Icon("search")
+        <input class="input" type="search" placeholder="@L.T("Найти материал…", "Материал іздеу…", "Find a material…")" data-search-target="#matGrid" />
+    </div>
+</div>
+
+<div class="grid cols-auto stagger" id="matGrid">
+    @for (var i = 0; i < Model.Count; i++)
+    {
+        var m = Model[i];
+        <article class="card card-hover material-card type-@m.Type" data-tags="all @m.Type">
+            @if (m.Type == "video")
+            {
+                <div class="material-thumb cover cover-@Cover(i)">
+                    <span class="play">@Html.Icon("play", "icon-lg")</span>
+                    <span class="duration">@m.Meta</span>
+                </div>
+            }
+            <div class="material-top">
+                <span class="ibox">@Html.Icon(Icon(m.Type))</span>
+                <button class="icon-btn" data-toast="@L.T("Сохранено в закладки", "Бетбелгілерге сақталды", "Saved to bookmarks")" data-toast-icon="bookmark" aria-label="Bookmark">@Html.Icon("bookmark")</button>
+            </div>
+            <div>
+                <span class="badge mb-2">@Name(m.Type)</span>
+                <h4>@m.Title</h4>
+                <div class="text-sm muted mt-1">@m.Course</div>
+            </div>
+            <div class="material-meta">
+                <span>@Html.Icon(m.Type == "video" ? "clock" : m.Type == "pdf" ? "hard-drive" : m.Type == "article" ? "timer" : "layers", "icon-xs") @m.Meta</span>
+                <span>@Html.Icon("calendar", "icon-xs") @m.Date</span>
+            </div>
+            <div class="flex gap-2 mt-1">
+                <a class="btn btn-secondary btn-sm grow" href="#">@Html.Icon(m.Type == "video" ? "play" : "eye", "icon-sm") @(m.Type == "video" ? L.T("Смотреть", "Көру", "Watch") : L.T("Открыть", "Ашу", "Open"))</a>
+                @if (m.Type is "pdf" or "presentation")
+                {
+                    <button class="btn btn-outline btn-sm btn-icon" data-toast="@L.T("Загрузка начата", "Жүктеу басталды", "Download started")" data-toast-icon="download" aria-label="Download">@Html.Icon("download", "icon-sm")</button>
+                }
+            </div>
+        </article>
+    }
+</div>
+<partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#matGrid")' />

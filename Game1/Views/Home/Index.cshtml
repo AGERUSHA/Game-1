@@ -1,0 +1,318 @@
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = L.T("Учитесь. Развивайтесь. Достигайте большего.", "Оқыңыз. Дамыңыз. Көпке жетіңіз.", "Learn. Grow. Achieve more.");
+    var s = (UserProfile)ViewData["Student"]!;
+}
+
+<!-- ===== Navbar ===== -->
+<header class="pub-nav">
+    <div class="container">
+        <partial name="_Logo" />
+        <nav class="pub-links" aria-label="@L.T("Разделы", "Бөлімдер", "Sections")">
+            <a href="#features">@L.T("Возможности", "Мүмкіндіктер", "Features")</a>
+            <a href="#how">@L.T("Как это работает", "Қалай жұмыс істейді", "How it works")</a>
+            <a href="#ai">AI</a>
+            <a href="#gamification">@L.T("Геймификация", "Геймификация", "Gamification")</a>
+        </nav>
+        <div class="pub-actions">
+            <partial name="_LangPills" />
+            <a class="btn btn-ghost btn-ghost-login" href="/Account/Login">@L.T("Войти", "Кіру", "Sign in")</a>
+            <a class="btn btn-primary" href="/Account/Register">@L.T("Начать", "Бастау", "Get started")</a>
+            <button class="icon-btn pub-burger" type="button" data-pubmenu-toggle aria-label="Menu">@Html.Icon("menu")</button>
+        </div>
+    </div>
+    <div class="pub-mobile">
+        <a href="#features">@L.T("Возможности", "Мүмкіндіктер", "Features")</a>
+        <a href="#how">@L.T("Как это работает", "Қалай жұмыс істейді", "How it works")</a>
+        <a href="#ai">AI</a>
+        <a href="#gamification">@L.T("Геймификация", "Геймификация", "Gamification")</a>
+        <div class="flex items-center justify-between mt-2"><partial name="_LangPills" /><a class="btn btn-outline btn-sm" href="/Account/Login">@L.T("Войти", "Кіру", "Sign in")</a></div>
+    </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+    <div class="hero-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+    <div class="container">
+        <div class="hero-grid">
+            <div class="hero-copy stagger">
+                <span class="eyebrow"><b>EDU AI</b> @L.T("Обучение нового поколения", "Жаңа буын оқуы", "Next-generation learning") @Html.Icon("arrow-right", "icon-xs")</span>
+                <h1>@L.T("Учитесь. Развивайтесь.", "Оқыңыз. Дамыңыз.", "Learn. Grow.") <span class="grad-text">@L.T("Достигайте большего.", "Көпке жетіңіз.", "Achieve more.")</span></h1>
+                <p class="hero-sub">@L.T("Современная образовательная платформа с AI-рекомендациями, интерактивными курсами и системой достижений.",
+                                         "AI-ұсыныстары, интерактивті курстары және жетістіктер жүйесі бар заманауи білім беру платформасы.",
+                                         "A modern learning platform with AI recommendations, interactive courses and an achievement system.")</p>
+                <div class="hero-cta">
+                    <a class="btn btn-primary btn-lg" href="/Account/Register">@L.T("Начать обучение", "Оқуды бастау", "Start learning") @Html.Icon("arrow-right")</a>
+                    <a class="btn btn-outline btn-lg" href="/Student/Courses">@Html.Icon("play-circle") @L.T("Смотреть курсы", "Курстарды көру", "Browse courses")</a>
+                </div>
+                <div class="hero-trust">
+                    <div class="avatar-stack">
+                        <span class="avatar avatar-sm av-1">АС</span><span class="avatar avatar-sm av-3">НА</span>
+                        <span class="avatar avatar-sm av-4">ДК</span><span class="avatar avatar-sm av-6">ЖО</span>
+                    </div>
+                    <div>
+                        <div class="stars">@Html.Icon("star")@Html.Icon("star")@Html.Icon("star")@Html.Icon("star")@Html.Icon("star")</div>
+                        <small><b>12 000+</b> @L.T("студентов уже учатся", "студент оқып жүр", "students already learning")</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard preview -->
+            <div class="preview-wrap reveal">
+                <div class="float-card float-2">
+                    <span class="emoji">🏆</span>
+                    <div><b>@L.T("Новое достижение!", "Жаңа жетістік!", "New achievement!")</b><small>@L.T("7 дней подряд", "Қатарынан 7 күн", "7-day streak") · +50 XP</small></div>
+                </div>
+                <div class="preview" aria-hidden="true">
+                    <div class="preview-bar"><i></i><i></i><i></i><span>@Html.Icon("lock", "icon-xs") edu.ai/dashboard</span></div>
+                    <div class="preview-body">
+                        <div class="preview-side">
+                            <span class="logo-mark">@Html.Icon("graduation-cap")</span>
+                            <span class="on">@Html.Icon("layout-dashboard")</span><span>@Html.Icon("library")</span>
+                            <span>@Html.Icon("clipboard-check")</span><span>@Html.Icon("sparkles")</span><span>@Html.Icon("trophy")</span>
+                        </div>
+                        <div class="preview-main">
+                            <div class="pv-card">
+                                <div class="flex items-center justify-between"><span class="pv-title">XP</span><span class="ibox ibox-sm">@Html.Icon("zap")</span></div>
+                                <div class="pv-big">1 250</div>
+                                <div class="progress progress-sm mt-2"><span style="--value:50%"></span></div>
+                            </div>
+                            <div class="pv-card">
+                                <div class="flex items-center justify-between"><span class="pv-title">@L.T("Уровень", "Деңгей", "Level")</span><span class="ibox ibox-sm ibox-warning">@Html.Icon("flame")</span></div>
+                                <div class="pv-big">8</div>
+                                <div class="pv-bars"><i style="height:40%"></i><i style="height:65%"></i><i style="height:50%"></i><i style="height:80%"></i><i style="height:60%"></i><i class="hi" style="height:100%"></i><i style="height:45%"></i></div>
+                            </div>
+                            <div class="pv-card pv-course">
+                                <div class="cover cover-violet"><span class="cover-icon">@Html.Icon("server")</span></div>
+                                <div class="grow">
+                                    <div class="pv-title">@L.T("Продолжить обучение", "Оқуды жалғастыру", "Continue learning")</div>
+                                    <b>PHP &amp; Laravel</b>
+                                    <div class="progress-row mt-2"><span>Backend Development</span><b>72%</b></div>
+                                    <div class="progress progress-sm"><span style="--value:72%"></span></div>
+                                </div>
+                            </div>
+                            <div class="pv-card pv-ai">
+                                <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+                                <div>
+                                    <b class="text-sm">AI @L.T("рекомендация", "ұсынысы", "recommendation")</b>
+                                    <p class="text-sm muted">@L.T("Повторите SQL JOIN — после этого тест пройдёт легче.", "SQL JOIN қайталаңыз — содан кейін тест оңайырақ болады.", "Review SQL JOIN — the quiz will feel easier after that.")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="float-card float-1">
+                    <span class="ibox ibox-solid">@Html.Icon("zap")</span>
+                    <div><b>+120 XP</b><small>@L.T("Тест «Основы Laravel» — 94%", "«Laravel негіздері» — 94%", "“Laravel basics” — 94%")</small></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-strip reveal">
+            <div><b data-count="12000" data-suffix="+">12 000+</b><span>@L.T("студентов", "студент", "students")</span></div>
+            <div><b data-count="120" data-suffix="+">120+</b><span>@L.T("курсов", "курс", "courses")</span></div>
+            <div><b data-count="350" data-suffix="+">350+</b><span>@L.T("преподавателей", "оқытушы", "teachers")</span></div>
+            <div><b data-count="94" data-suffix="%">94%</b><span>@L.T("довольных студентов", "риза студенттер", "satisfied students")</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Features ===== -->
+<section class="section section-soft" id="features">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="section-kicker">@Html.Icon("layers") @L.T("Возможности", "Мүмкіндіктер", "Features")</span>
+            <h2>@L.T("Всё необходимое для эффективного обучения", "Тиімді оқуға қажеттінің бәрі", "Everything you need to learn effectively")</h2>
+            <p>@L.T("Одна платформа для курсов, тестов, аналитики и мотивации — для студентов и преподавателей.", "Курстар, тесттер, аналитика және мотивация үшін бір платформа — студенттер мен оқытушыларға.", "One platform for courses, quizzes, analytics and motivation — for students and teachers.")</p>
+        </div>
+        <div class="features">
+            @{
+                var features = new[]
+                {
+                    ("library", L.T("Курсы", "Курстар", "Courses"), L.T("Структурированные программы с видео, статьями и практикой от лучших преподавателей.", "Үздік оқытушылардан бейне, мақала және практикасы бар құрылымды бағдарламалар.", "Structured programs with videos, articles and practice from top teachers.")),
+                    ("sparkles", L.T("AI рекомендации", "AI ұсыныстары", "AI recommendations"), L.T("AI анализирует ваши ошибки и подсказывает, что повторить и что изучить дальше.", "AI қателеріңізді талдап, нені қайталап, нені әрі қарай оқу керегін айтады.", "AI analyzes your mistakes and suggests what to review and learn next.")),
+                    ("clipboard-check", L.T("Тесты", "Тесттер", "Tests"), L.T("Интерактивные тесты с таймером, мгновенной проверкой и подробным разбором.", "Таймері, жедел тексеруі және толық талдауы бар интерактивті тесттер.", "Interactive quizzes with a timer, instant grading and detailed reviews.")),
+                    ("trophy", L.T("Достижения", "Жетістіктер", "Achievements"), L.T("Коллекционируйте награды за успехи — от первого урока до звания легенды.", "Табыстарыңыз үшін марапаттар жинаңыз — алғашқы сабақтан аңызға дейін.", "Collect badges for your progress — from your first lesson to legend status.")),
+                    ("bar-chart-3", L.T("Аналитика", "Аналитика", "Analytics"), L.T("Наглядные графики прогресса для студентов и подробные отчёты для преподавателей.", "Студенттерге арналған көрнекі прогресс графиктері және оқытушыларға толық есептер.", "Clear progress charts for students and detailed reports for teachers.")),
+                    ("zap", L.T("XP и уровни", "XP және деңгейлер", "XP & levels"), L.T("Получайте XP за каждый урок и тест, повышайте уровень и соревнуйтесь с друзьями.", "Әр сабақ пен тест үшін XP алып, деңгейіңізді көтеріп, достарыңызбен жарысыңыз.", "Earn XP for every lesson and quiz, level up and compete with friends.")),
+                };
+            }
+            @foreach (var (icon, title, text) in features)
+            {
+                <article class="card feature card-hover reveal">
+                    <span class="ibox ibox-lg">@Html.Icon(icon)</span>
+                    <h3>@title</h3>
+                    <p>@text</p>
+                    <a class="more" href="/Account/Register">@L.T("Подробнее", "Толығырақ", "Learn more") @Html.Icon("arrow-right")</a>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ===== How it works ===== -->
+<section class="section" id="how">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="section-kicker">@Html.Icon("route") @L.T("Как это работает", "Қалай жұмыс істейді", "How it works")</span>
+            <h2>@L.T("Четыре шага к новым знаниям", "Жаңа білімге төрт қадам", "Four steps to new skills")</h2>
+            <p>@L.T("Простой и понятный путь — от выбора курса до новых уровней.", "Қарапайым әрі түсінікті жол — курс таңдаудан жаңа деңгейлерге дейін.", "A simple path — from choosing a course to reaching new levels.")</p>
+        </div>
+        <div class="steps">
+            <div class="step-card reveal"><div class="step-num">@Html.Icon("mouse-pointer-click")<b>01</b></div><h3>@L.T("Выберите курс", "Курс таңдаңыз", "Pick a course")</h3><p>@L.T("Каталог по направлениям и уровню сложности.", "Бағыттар мен күрделілік деңгейі бойынша каталог.", "A catalog by topic and difficulty.")</p></div>
+            <div class="step-card reveal"><div class="step-num">@Html.Icon("book-open-text")<b>02</b></div><h3>@L.T("Изучайте материалы", "Материалдарды оқыңыз", "Study materials")</h3><p>@L.T("Видео, статьи и презентации в удобном темпе.", "Бейне, мақала және презентациялар ыңғайлы қарқынмен.", "Videos, articles and slides at your own pace.")</p></div>
+            <div class="step-card reveal"><div class="step-num">@Html.Icon("clipboard-check")<b>03</b></div><h3>@L.T("Проходите тесты", "Тест тапсырыңыз", "Take quizzes")</h3><p>@L.T("Проверяйте знания и получайте AI-разбор ошибок.", "Біліміңізді тексеріп, қателердің AI-талдауын алыңыз.", "Check your knowledge and get AI mistake reviews.")</p></div>
+            <div class="step-card reveal"><div class="step-num">@Html.Icon("rocket")<b>04</b></div><h3>@L.T("Получайте XP и развивайтесь", "XP алып, дамыңыз", "Earn XP and grow")</h3><p>@L.T("Повышайте уровень и открывайте достижения.", "Деңгейіңізді көтеріп, жетістіктерді ашыңыз.", "Level up and unlock achievements.")</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== AI ===== -->
+<section class="section ai-section-bg" id="ai">
+    <div class="container split">
+        <div class="reveal">
+            <span class="section-kicker">@Html.Icon("sparkles") AI Learning Assistant</span>
+            <h2>@L.T("Персональный AI-наставник, который знает ваши сильные и слабые стороны", "Күшті және әлсіз жақтарыңызды білетін жеке AI-тәлімгер", "A personal AI mentor that knows your strengths and gaps")</h2>
+            <p class="lead">@L.T("Ассистент анализирует результаты тестов, объясняет темы простым языком и строит индивидуальный план повторения.", "Ассистент тест нәтижелерін талдап, тақырыптарды қарапайым тілмен түсіндіреді және жеке қайталау жоспарын құрады.", "The assistant analyzes your quiz results, explains topics in plain language and builds a personal review plan.")</p>
+            <ul class="check-list">
+                <li><span class="ibox">@Html.Icon("scan-search")</span><div><b>@L.T("Анализ ошибок", "Қателерді талдау", "Mistake analysis")</b>@L.T("Понимает, почему вы ошиблись, а не только где.", "Қай жерде ғана емес, неге қателескеніңізді түсінеді.", "Understands why you made a mistake, not just where.")</div></li>
+                <li><span class="ibox">@Html.Icon("map")</span><div><b>@L.T("Персональный маршрут", "Жеке бағыт", "Personal roadmap")</b>@L.T("Подбирает следующий урок и материалы под ваш уровень.", "Деңгейіңізге сай келесі сабақ пен материалдарды таңдайды.", "Picks your next lesson and materials for your level.")</div></li>
+                <li><span class="ibox">@Html.Icon("message-circle")</span><div><b>@L.T("Ответы 24/7", "24/7 жауаптар", "Answers 24/7")</b>@L.T("Объяснит любую тему простыми словами в любое время.", "Кез келген тақырыпты кез келген уақытта қарапайым тілмен түсіндіреді.", "Explains any topic in simple words, any time.")</div></li>
+            </ul>
+            <a class="btn btn-primary btn-lg mt-8" href="/Student/Ai">@L.T("Попробовать AI", "AI-ды қолданып көру", "Try the AI") @Html.Icon("arrow-right")</a>
+        </div>
+
+        <div class="ai-mock ai-glow reveal">
+            <div class="ai-head">
+                <span class="ai-avatar">@Html.Icon("sparkles")</span>
+                <div class="grow"><b>AI Learning Assistant</b><div class="list-meta"><span class="c-success">●</span> @L.T("Онлайн · анализирует результаты", "Онлайн · нәтижелерді талдауда", "Online · analyzing results")</div></div>
+                <span class="badge badge-primary">Beta</span>
+            </div>
+            <div class="ai-mock-body">
+                <div class="msg msg-ai">
+                    <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+                    <div class="msg-bubble">@L.T("Мы проанализировали ваши последние результаты. 📊", "Соңғы нәтижелеріңізді талдадық. 📊", "We analyzed your latest results. 📊")</div>
+                </div>
+                <div class="msg msg-ai">
+                    <span class="ai-avatar sm" style="visibility:hidden"></span>
+                    <div class="msg-bubble">@L.T("Рекомендуем повторить", "Қайталауды ұсынамыз:", "We recommend reviewing") <b>SQL JOIN</b> — @L.T("3 из 5 ошибок связаны с этой темой.", "5 қатенің 3-еуі осы тақырыпқа қатысты.", "3 of 5 mistakes relate to this topic.")</div>
+                </div>
+                <div class="ai-mock-reco">
+                    <span class="ibox ibox-sm">@Html.Icon("database")</span>
+                    <div class="grow"><b class="text-sm">SQL JOIN: @L.T("шпаргалка + видео", "анықтамалық + бейне", "cheat sheet + video")</b><div class="list-meta">15 @L.T("минут", "минут", "minutes") · +40 XP</div></div>
+                    <span class="btn btn-primary btn-sm">@L.T("Открыть", "Ашу", "Open")</span>
+                </div>
+                <div class="msg msg-ai">
+                    <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+                    <div class="msg-bubble">@L.T("После этого попробуйте пройти тест снова — вы готовы! 💪", "Содан кейін тестті қайта тапсырып көріңіз — сіз дайынсыз! 💪", "After that, try the quiz again — you're ready! 💪")</div>
+                </div>
+                <div class="msg msg-user">
+                    <div class="msg-bubble">@L.T("Спасибо! Объясни LEFT JOIN на примере?", "Рахмет! LEFT JOIN-ді мысалмен түсіндірші?", "Thanks! Can you explain LEFT JOIN with an example?")</div>
+                </div>
+                <div class="msg msg-ai">
+                    <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+                    <div class="msg-bubble"><span class="typing"><i></i><i></i><i></i></span></div>
+                </div>
+            </div>
+            <div class="ai-mock-input">@Html.Icon("paperclip") <span class="grow">@L.T("Задайте вопрос…", "Сұрақ қойыңыз…", "Ask a question…")</span><span class="btn btn-primary btn-sm btn-icon">@Html.Icon("arrow-up")</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Gamification ===== -->
+<section class="section" id="gamification">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="section-kicker">@Html.Icon("gamepad-2") @L.T("Геймификация", "Геймификация", "Gamification")</span>
+            <h2>@L.T("Учиться интереснее", "Оқу қызықтырақ", "Learning is more fun")</h2>
+            <p>@L.T("XP, уровни, серии и достижения превращают обучение в увлекательный путь.", "XP, деңгейлер, сериялар мен жетістіктер оқуды қызықты саяхатқа айналдырады.", "XP, levels, streaks and achievements turn learning into an exciting journey.")</p>
+        </div>
+        <div class="game-grid">
+            <div class="card level-card reveal">
+                <div class="flex items-center gap-5">
+                    <div class="level-badge"><div><small>LEVEL</small><b>@s.Level</b></div></div>
+                    <div>
+                        <div class="text-sm" style="opacity:.8">@L.T("Ваш уровень", "Сіздің деңгейіңіз", "Your level")</div>
+                        <h3 style="font-size:26px">@L.T("Уверенный практик", "Сенімді практик", "Confident practitioner")</h3>
+                        <span class="badge" style="background:rgba(255,255,255,.18);color:#fff;margin-top:8px">@Html.Icon("flame") @s.Streak @L.T("дней подряд", "күн қатарынан", "day streak")</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-end justify-between mb-3">
+                        <div><div style="font-size:42px;font-weight:800;letter-spacing:-.04em;line-height:1">@UiHelpers.Num(s.Xp) <span style="font-size:18px;opacity:.75">XP</span></div></div>
+                        <div class="text-sm" style="opacity:.85">@UiHelpers.Num(s.Xp) / @UiHelpers.Num(s.NextLevelXp) XP</div>
+                    </div>
+                    @Html.Progress(s.LevelPercent, "progress-lg progress-white")
+                    <div class="text-sm mt-3" style="opacity:.85">@L.T("Ещё 250 XP до уровня 9", "9-деңгейге дейін тағы 250 XP", "250 XP to level 9")</div>
+                </div>
+                <div class="grid cols-3" style="gap:10px">
+                    <div style="background:rgba(255,255,255,.12);border-radius:14px;padding:12px"><b style="font-size:20px">12</b><div class="text-xs" style="opacity:.8">@L.T("курсов", "курс", "courses")</div></div>
+                    <div style="background:rgba(255,255,255,.12);border-radius:14px;padding:12px"><b style="font-size:20px">87%</b><div class="text-xs" style="opacity:.8">@L.T("средний балл", "орташа балл", "avg score")</div></div>
+                    <div style="background:rgba(255,255,255,.12);border-radius:14px;padding:12px"><b style="font-size:20px">5</b><div class="text-xs" style="opacity:.8">@L.T("наград", "марапат", "badges")</div></div>
+                </div>
+            </div>
+
+            <div class="card card-hover reveal">
+                <div class="card-head" style="margin-bottom:0"><div class="card-title">@Html.Icon("trophy", "c-primary") @L.T("Достижения", "Жетістіктер", "Achievements")</div><span class="badge badge-primary">5 / 12</span></div>
+                <div class="ach-row">
+                    <div class="ach-mini" title="First Course">🏆</div><div class="ach-mini">🔥</div><div class="ach-mini">🧠</div><div class="ach-mini">🚀</div>
+                    <div class="ach-mini">🌙</div><div class="ach-mini locked">🎯</div><div class="ach-mini locked">⚡</div><div class="ach-mini locked">👑</div>
+                </div>
+            </div>
+
+            <div class="card card-hover reveal">
+                <div class="card-head" style="margin-bottom:0"><div class="card-title">@Html.Icon("flame", "c-warning") Streak</div><b class="c-warning">7 🔥</b></div>
+                <div class="streak-days">
+                    @foreach (var d in L.Current switch { "kk" => new[] { "Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жс" }, "en" => new[] { "M", "T", "W", "T", "F", "S", "S" }, _ => new[] { "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс" } })
+                    {
+                        <div><i class="on">🔥</i>@d</div>
+                    }
+                </div>
+            </div>
+
+            <div class="card card-hover reveal">
+                <div class="card-head"><div class="card-title">@Html.Icon("medal", "c-primary") @L.T("Рейтинг группы", "Топ рейтингі", "Group leaderboard")</div></div>
+                <div class="leader-row"><span class="pos">1</span><span class="avatar avatar-xs av-5">СК</span><span class="grow">Сабина К.</span><b>2 560</b></div>
+                <div class="leader-row"><span class="pos">2</span><span class="avatar avatar-xs av-2">НА</span><span class="grow">Нурсултан А.</span><b>2 140</b></div>
+                <div class="leader-row me"><span class="pos">3</span><span class="avatar avatar-xs av-1">АС</span><span class="grow fw-600">@L.T("Вы", "Сіз", "You")</span><b class="c-primary">1 250</b></div>
+            </div>
+
+            <div class="card card-hover reveal">
+                <div class="card-head"><div class="card-title">@Html.Icon("target", "c-primary") @L.T("Цель недели", "Апта мақсаты", "Weekly goal")</div><span class="text-sm muted">4 / 5</span></div>
+                @Html.Progress(80, "progress-lg")
+                <p class="text-sm muted mt-3">@L.T("Пройдите ещё 1 урок, чтобы получить бонус +100 XP.", "+100 XP бонус алу үшін тағы 1 сабақ өтіңіз.", "Complete 1 more lesson to earn a +100 XP bonus.")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="container">
+    <div class="cta reveal">
+        <h2>@L.T("Готовы начать обучение?", "Оқуды бастауға дайынсыз ба?", "Ready to start learning?")</h2>
+        <p>@L.T("Присоединяйтесь к тысячам студентов, которые уже учатся с EDU AI.", "EDU AI-мен оқып жүрген мыңдаған студентке қосылыңыз.", "Join thousands of students already learning with EDU AI.")</p>
+        <div class="hero-cta">
+            <a class="btn btn-white btn-lg" href="/Account/Register">@L.T("Начать обучение", "Оқуды бастау", "Start learning") @Html.Icon("arrow-right")</a>
+            <a class="btn btn-glass btn-lg" href="/Account/Login">@L.T("У меня есть аккаунт", "Менде аккаунт бар", "I have an account")</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <partial name="_Logo" />
+                <p class="muted mt-4" style="max-width:320px">@L.T("Универсальная образовательная платформа с AI и геймификацией.", "AI және геймификациясы бар әмбебап білім беру платформасы.", "A universal learning platform with AI and gamification.")</p>
+            </div>
+            <div><h5>@L.T("Платформа", "Платформа", "Platform")</h5><ul><li><a href="#features">@L.T("Возможности", "Мүмкіндіктер", "Features")</a></li><li><a href="/Student/Courses">@L.T("Курсы", "Курстар", "Courses")</a></li><li><a href="#ai">AI</a></li></ul></div>
+            <div><h5>@L.T("Для кого", "Кімге арналған", "For")</h5><ul><li><a href="/Student/Dashboard">@L.T("Студентам", "Студенттерге", "Students")</a></li><li><a href="/Teacher/Dashboard">@L.T("Преподавателям", "Оқытушыларға", "Teachers")</a></li><li><a href="/Admin/Dashboard">@L.T("Администраторам", "Әкімшілерге", "Admins")</a></li></ul></div>
+            <div><h5>@L.T("Ресурсы", "Ресурстар", "Resources")</h5><ul><li><a href="/Home/DesignSystem">Design System</a></li><li><a href="/Home/Privacy">@L.T("Конфиденциальность", "Құпиялылық", "Privacy")</a></li><li><a href="/Account/Login">@L.T("Вход", "Кіру", "Sign in")</a></li></ul></div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 EDU AI. @L.T("Все права защищены.", "Барлық құқықтар қорғалған.", "All rights reserved.")</span>
+            <partial name="_LangPills" />
+        </div>
+    </div>
+</footer>

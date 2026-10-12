@@ -1,0 +1,17 @@
+@* Server-side form messages: errors (wrong password, duplicate email, …) and success notices *@
+@{
+    var error = ViewData["Error"] as string ?? TempData["Error"] as string;
+    var success = TempData["Success"] as string;
+}
+@if (error != null)
+{
+    <div role="alert" style="display:flex;gap:8px;align-items:center;padding:10px 12px;margin-bottom:12px;border-radius:10px;background:var(--error-bg);color:var(--error-ink);font-size:14px;font-weight:600">
+        @Html.Icon("alert-circle") @error
+    </div>
+}
+@if (success != null)
+{
+    <div role="status" style="display:flex;gap:8px;align-items:center;padding:10px 12px;margin-bottom:12px;border-radius:10px;background:var(--success-bg);color:var(--success-ink);font-size:14px;font-weight:600">
+        @Html.Icon("check-circle") @success
+    </div>
+}

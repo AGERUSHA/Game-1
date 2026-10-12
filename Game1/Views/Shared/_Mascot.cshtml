@@ -1,0 +1,15 @@
+@* Owl mascot perched on the auth card: eyes follow the cursor, wings cover the eyes while the password is typed (owl.js) *@
+<div class="mascot" data-owl data-owl-shy
+     data-say-shy="@L.T("Не подглядываю!", "Қарамаймын!", "Not peeking!")"
+     data-say-peek="@L.T("Ой, я чуть-чуть…", "Ой, сәл ғана…", "Oops, just a little…")"
+     data-say-happy="@L.T("Ура! Поехали учиться!", "Жасасын! Оқуға кеттік!", "Yay! Let's learn!")">
+    <span class="owl-bubble" role="status" aria-live="polite"></span>
+    <partial name="_Owl" model="1" />
+</div>
+<script>
+    // Greeting on the sign-in / sign-up screens
+    setTimeout(function () {
+        var o = document.querySelector(".mascot[data-owl]");
+        if (o && !o.classList.contains("is-shy") && window.eduOwl) window.eduOwl.say(o, @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Привет! Я Ух — помогу с учёбой", "Сәлем! Мен Ух — оқуға көмектесемін", "Hi! I'm Hoot, your study buddy"))), 3200);
+    }, 700);
+</script>

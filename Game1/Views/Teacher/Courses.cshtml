@@ -1,0 +1,71 @@
+@model List<Course>
+@{
+    ViewData["Title"] = L.T("Мои курсы", "Менің курстарым", "My courses");
+    ViewData["Nav"] = "t-courses";
+    ViewData["Role"] = "teacher";
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Мои курсы", "Менің курстарым", "My courses")</h1>
+        <p>@L.T("Создавайте, редактируйте и публикуйте учебные программы.", "Оқу бағдарламаларын жасаңыз, өңдеңіз және жариялаңыз.", "Create, edit and publish your learning programs.")</p>
+    </div>
+    <a class="btn btn-primary btn-lg" href="/Teacher/CreateCourse">@Html.Icon("plus") @L.T("Создать курс", "Курс жасау", "Create course")</a>
+</div>
+
+<div class="toolbar">
+    <div class="segmented" data-filter-target="#tcGrid">
+        <button class="active" data-filter="all">@L.T("Все", "Барлығы", "All") · @Model.Count</button>
+        <button data-filter="published">@L.T("Опубликованы", "Жарияланған", "Published")</button>
+        <button data-filter="draft">@L.T("Черновики", "Жобалар", "Drafts")</button>
+    </div>
+    <div class="input-group search ml-auto">
+        @Html.Icon("search")
+        <input class="input" type="search" placeholder="@L.T("Поиск курса…", "Курс іздеу…", "Search course…")" data-search-target="#tcGrid" />
+    </div>
+</div>
+
+<div class="grid cols-auto stagger" id="tcGrid">
+    <a class="card card-hover col items-center justify-center text-center gap-3" href="/Teacher/CreateCourse" style="border:2px dashed var(--primary-200);background:var(--primary-light);box-shadow:none;min-height:340px" data-tags="all published draft">
+        <span class="ibox ibox-lg ibox-solid">@Html.Icon("plus")</span>
+        <h3>@L.T("Новый курс", "Жаңа курс", "New course")</h3>
+        <p class="text-sm muted" style="max-width:220px">@L.T("Начните с шаблона или создайте программу с нуля.", "Үлгіден бастаңыз немесе бағдарламаны нөлден жасаңыз.", "Start from a template or build a program from scratch.")</p>
+    </a>
+    @foreach (var c in Model)
+    {
+        var draft = c.Status == "draft";
+        <article class="card card-hover course-card" data-tags="all @c.Status">
+            <div class="cover cover-@c.Cover">
+                <span class="badge">@c.Category</span>
+                <span class="badge done" style="@(draft ? "background:var(--surface);color:var(--text-2)" : "")">@(draft ? L.T("Черновик", "Жоба", "Draft") : L.T("Опубликован", "Жарияланған", "Published"))</span>
+                <span class="cover-icon">@Html.Icon(c.Icon)</span>
+            </div>
+            <div class="course-body">
+                <div>
+                    <h3>@c.Title</h3>
+                    <div class="text-sm subtle mt-1">@c.Subtitle</div>
+                </div>
+                <div class="test-meta">
+                    <div><small>@L.T("Студенты", "Студенттер", "Students")</small><b>@c.Students</b></div>
+                    <div><small>@L.T("Уроки", "Сабақтар", "Lessons")</small><b>@c.Lessons</b></div>
+                    <div><small>@L.T("Рейтинг", "Рейтинг", "Rating")</small><b>@(c.Rating > 0 ? $"⭐ {c.Rating:0.0}".Replace(',', '.') : "—")</b></div>
+                </div>
+                <div class="course-foot">
+                    <div>
+                        <div class="progress-row"><span>@L.T("Завершаемость", "Аяқталу деңгейі", "Completion rate")</span><b>@c.Completion%</b></div>
+                        @Html.Progress(c.Completion, "progress-sm")
+                    </div>
+                    <div class="flex gap-2">
+                        <a class="btn btn-secondary grow" href="/Teacher/CreateCourse">@Html.Icon("pencil", "icon-sm") @L.T("Редактировать", "Өңдеу", "Edit")</a>
+                        <a class="btn btn-outline btn-icon" href="/Teacher/Analytics" aria-label="@L.T("Аналитика", "Аналитика", "Analytics")">@Html.Icon("bar-chart-3", "icon-sm")</a>
+                        @if (draft)
+                        {
+                            <button class="btn btn-primary btn-icon" aria-label="@L.T("Опубликовать", "Жариялау", "Publish")" data-toast="@L.T("Курс опубликован", "Курс жарияланды", "Course published")" data-toast-icon="rocket">@Html.Icon("rocket", "icon-sm")</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </article>
+    }
+</div>
+<partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#tcGrid")' />

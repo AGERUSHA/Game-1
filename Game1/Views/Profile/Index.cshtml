@@ -1,0 +1,121 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = L.T("Профиль", "Профиль", "Profile");
+    var s = Model.GetStudent();
+    ViewData["Role"] = s.Role;
+    var achievements = Model.GetAchievements().Where(a => a.Unlocked).ToList();
+    var courses = Model.GetCourses().Where(c => c.Progress is > 0 and < 100).Take(3).ToList();
+}
+
+<partial name="_FormError" />
+
+<section class="card card-flush">
+    <div class="profile-cover"></div>
+    <div class="profile-main">
+        @Html.Avatar(s.Initials, s.AvatarUrl, "avatar-xl av-1")
+        <div class="grow" style="padding-top:56px">
+            <div class="flex items-center gap-3 wrap">
+                <h1 style="font-size:28px">@s.FullName</h1>
+                <span class="badge badge-primary">@Html.Icon("graduation-cap") @s.RoleTitle</span>
+                <span class="badge badge-solid">@Html.Icon("award") @L.T("Уровень", "Деңгей", "Level") @s.Level</span>
+            </div>
+            <div class="flex gap-5 mt-2 muted text-sm wrap">
+                <span class="flex items-center gap-1">@Html.Icon("mail", "icon-sm") @s.Email</span>
+                <span class="flex items-center gap-1">@Html.Icon("users", "icon-sm") IT-2101</span>
+                <span class="flex items-center gap-1">@Html.Icon("map-pin", "icon-sm") @L.T("Астана, Казахстан", "Астана, Қазақстан", "Astana, Kazakhstan")</span>
+                <span class="flex items-center gap-1">@Html.Icon("calendar", "icon-sm") @L.T("С сентября 2026", "2026 жылғы қыркүйектен", "Since September 2026")</span>
+            </div>
+        </div>
+        <div class="flex gap-2" style="padding-top:56px">
+            <a class="btn btn-outline" href="/Settings">@Html.Icon("settings")</a>
+            <button class="btn btn-primary" data-modal-open="#editProfile">@Html.Icon("pencil") @L.T("Редактировать профиль", "Профильді өңдеу", "Edit profile")</button>
+        </div>
+    </div>
+</section>
+
+<div class="grid cols-4 mt-6 stagger">
+    <div class="card stat"><div class="stat-top"><span class="stat-label">XP</span><span class="ibox">@Html.Icon("zap")</span></div><div class="stat-value">@UiHelpers.Num(s.Xp)</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Курсы", "Курстар", "Courses")</span><span class="ibox">@Html.Icon("library")</span></div><div class="stat-value">@s.Courses</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средний балл", "Орташа балл", "Average score")</span><span class="ibox">@Html.Icon("target")</span></div><div class="stat-value">@s.AverageScore<small>%</small></div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Серия", "Серия", "Streak")</span><span class="ibox ibox-warning">@Html.Icon("flame")</span></div><div class="stat-value">@s.Streak <small>@L.T("дней", "күн", "days")</small></div></div>
+</div>
+
+<div class="grid cols-main-side mt-6">
+    <div class="col gap-5">
+        <section class="card level-card card-lg">
+            <div class="level-mini">
+                <div class="level-mini-top">
+                    <div class="level-badge"><div><small>LEVEL</small><b>@s.Level</b></div></div>
+                    <div class="grow"><div class="text-sm" style="opacity:.8">@L.T("Текущий уровень", "Ағымдағы деңгей", "Current level")</div><h3 style="font-size:20px">@L.T("Уверенный практик", "Сенімді практик", "Confident practitioner")</h3></div>
+                    <a class="btn btn-glass btn-sm" href="/Student/Xp">@L.T("Подробнее", "Толығырақ", "Details")</a>
+                </div>
+                <div>
+                    <div class="xp-row"><span>@UiHelpers.Num(s.Xp) / @UiHelpers.Num(s.NextLevelXp) XP</span><b>@s.LevelPercent%</b></div>
+                    @Html.Progress(s.LevelPercent, "progress-lg progress-white")
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-head"><div class="card-title">@L.T("Текущие курсы", "Ағымдағы курстар", "Current courses")</div><a class="card-link" href="/Student/Courses">@L.T("Все", "Барлығы", "All") @Html.Icon("arrow-right", "icon-sm")</a></div>
+            <div class="list">
+                @foreach (var c in courses)
+                {
+                    <div class="list-item">
+                        <span class="cover cover-@c.Cover shrink-0" style="width:44px;height:44px;border-radius:12px">@Html.Icon(c.Icon, "icon-sm")</span>
+                        <div class="grow">
+                            <div class="progress-row" style="margin-bottom:6px"><span class="list-title" style="color:var(--text)">@c.Title</span><b>@c.Progress%</b></div>
+                            @Html.Progress(c.Progress, "progress-sm")
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+
+    <div class="col gap-5">
+        <section class="card">
+            <div class="card-head"><div class="card-title">@L.T("Достижения", "Жетістіктер", "Achievements")</div><a class="card-link" href="/Student/Achievements">@achievements.Count / 12</a></div>
+            <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:10px">
+                @foreach (var a in achievements)
+                {
+                    <div class="text-center" title="@a.Description">
+                        <div style="font-size:30px;width:58px;height:58px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:var(--primary-light)">@a.Emoji</div>
+                        <div class="text-xs fw-600 mt-2">@a.Title</div>
+                    </div>
+                }
+            </div>
+        </section>
+        <section class="card">
+            <div class="card-title mb-4">@L.T("О себе", "Өзім туралы", "About")</div>
+            <p class="text-sm muted">@L.T("Студентка 3 курса, направление «Информационные системы». Интересуюсь backend-разработкой и базами данных.", "3-курс студенті, «Ақпараттық жүйелер» бағыты. Backend-әзірлеу мен деректер қорына қызығамын.", "3rd-year Information Systems student. Interested in backend development and databases.")</p>
+            <div class="chips mt-4">
+                <span class="badge badge-primary">PHP</span><span class="badge badge-primary">Laravel</span><span class="badge badge-primary">SQL</span><span class="badge badge-primary">JavaScript</span>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="editProfile">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-5"><h2>@L.T("Редактировать профиль", "Профильді өңдеу", "Edit profile")</h2><button class="icon-btn" data-modal-close aria-label="Close">@Html.Icon("x")</button></div>
+        <div class="flex items-center gap-4 mb-5">
+            @Html.Avatar(s.Initials, s.AvatarUrl, "avatar-lg av-1")
+            <form method="post" asp-controller="Settings" asp-action="UploadAvatar" enctype="multipart/form-data">
+                <input type="hidden" name="returnUrl" value="/Profile" />
+                <label class="btn btn-secondary btn-sm" style="cursor:pointer">@Html.Icon("camera", "icon-sm") @L.T("Сменить фото", "Фотоны ауыстыру", "Change photo")
+                    <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" hidden onchange="this.form.submit()" /></label>
+            </form>
+        </div>
+        <form method="post" asp-controller="Settings" asp-action="SaveProfile" class="col gap-4">
+            <input type="hidden" name="returnUrl" value="/Profile" />
+            <div class="grid cols-2" style="gap:12px">
+                <div class="field"><label class="label" for="ep-fn">@L.T("Имя", "Аты", "First name")</label><input class="input" id="ep-fn" name="firstName" value="@s.FirstName" required maxlength="100" /></div>
+                <div class="field"><label class="label" for="ep-ln">@L.T("Фамилия", "Тегі", "Last name")</label><input class="input" id="ep-ln" name="lastName" value="@s.LastName" maxlength="100" /></div>
+            </div>
+            <div class="field"><label class="label" for="ep-email">Email</label><input class="input" id="ep-email" value="@s.Email" readonly style="background:var(--surface-3)" /></div>
+            <div class="flex gap-3 justify-end"><button class="btn btn-ghost" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button><button class="btn btn-primary" type="submit">@L.T("Сохранить", "Сақтау", "Save")</button></div>
+        </form>
+    </div>
+    </div>
+</div>

@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EDU AI — Студенческий портал</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#f9f9ff",
+            "background": "#f9f9ff",
+            "on-surface": "#141b2b",
+            "on-primary-fixed": "#160066",
+            "surface-container-high": "#e1e8fd",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-tertiary-fixed": "#001f26",
+            "secondary": "#5f5a7c",
+            "on-error": "#ffffff",
+            "on-primary-fixed-variant": "#4029ba",
+            "on-surface-variant": "#474554",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#edf0ff",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#faf6ff",
+            "surface-variant": "#dce2f7",
+            "outline": "#787586",
+            "tertiary-fixed-dim": "#4cd7f6",
+            "on-tertiary-container": "#edfaff",
+            "tertiary-container": "#007d92",
+            "tertiary-fixed": "#acedff",
+            "primary-fixed-dim": "#c6bfff",
+            "surface-container-highest": "#dce2f7",
+            "secondary-fixed": "#e5deff",
+            "on-secondary-fixed-variant": "#474363",
+            "primary-fixed": "#e4dfff",
+            "primary": "#5341cd",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "on-secondary-container": "#605b7d",
+            "secondary-container": "#dcd5fd",
+            "surface-container-lowest": "#ffffff",
+            "surface-tint": "#5847d2",
+            "surface-bright": "#f9f9ff",
+            "surface-dim": "#d3daef",
+            "tertiary": "#006274",
+            "primary-container": "#6c5ce7",
+            "on-background": "#141b2b",
+            "surface-container": "#e9edff",
+            "inverse-surface": "#293040",
+            "surface-container-low": "#f1f3ff",
+            "on-secondary-fixed": "#1b1735",
+            "inverse-primary": "#c6bfff",
+            "error": "#ba1a1a",
+            "on-tertiary": "#ffffff",
+            "outline-variant": "#c8c4d7",
+            "on-error-container": "#93000a",
+            "on-secondary": "#ffffff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "gutter-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "gutter": "1.5rem",
+            "space-md": "1rem",
+            "space-xl": "2rem",
+            "margin-mobile": "1rem",
+            "margin": "2rem"
+          },
+          fontFamily: {
+            "label-md": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "caption": ["Inter"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          fontSize: {
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "body-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-soft-shadow {
+      box-shadow: 0 4px 20px -2px rgba(108, 92, 231, 0.05);
+    }
+    .custom-hover-shadow {
+      box-shadow: 0 10px 25px -5px rgba(108, 92, 231, 0.08), 0 8px 10px -6px rgba(108, 92, 231, 0.04);
+    }
+    .custom-modal-shadow {
+      box-shadow: 0 20px 35px -10px rgba(30, 27, 75, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+    .ai-synthesizer-border {
+      background: linear-gradient(135deg, rgba(108,92,231,0.15), rgba(6,182,212,0.15));
+      border: 1px solid rgba(108, 92, 231, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-fixed">
+<!-- Top Navigation Anchor (Shared Component) -->
+<header class="bg-surface/80 backdrop-blur-md shadow-sm sticky top-0 z-40 w-full border-b border-outline-variant/30">
+<div class="max-w-7xl mx-auto px-space-md py-space-sm flex justify-between items-center">
+<!-- Leading: Brand + Level Ring Avatar -->
+<div class="flex items-center gap-3">
+<div class="relative flex items-center justify-center w-11 h-11 rounded-full bg-secondary-container p-0.5">
+<div class="w-full h-full rounded-full bg-surface-container-lowest flex items-center justify-center font-label-md text-label-md text-primary font-bold overflow-hidden shadow-inner">
+<span>АК</span>
+</div>
+<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold shadow-sm">LV.8</span>
+</div>
+<div>
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight">EduAI</span>
+<span class="hidden sm:inline-block ml-2 text-caption font-caption text-on-surface-variant font-medium">Студенческий хаб</span>
+</div>
+</div>
+<!-- Navigation tabs for Desktop -->
+<div class="hidden md:flex items-center space-x-2 bg-surface-container-low px-2 py-1 rounded-xl">
+<button class="px-3 py-1.5 rounded-lg text-label-md font-label-md text-primary font-semibold bg-surface-container-lowest shadow-sm transition-colors">
+          Задания & Тесты
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors">
+          Дисциплины
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors">
+          AI Тьютор
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors">
+          Аналитика
+        </button>
+</div>
+<!-- Trailing: Streak, Lang Switcher & Notifications -->
+<div class="flex items-center gap-3">
+<!-- Streak Counter -->
+<div class="flex items-center gap-1.5 bg-secondary-fixed/50 px-3 py-1.5 rounded-full border border-outline-variant/30">
+<span class="text-base leading-none">🔥</span>
+<span class="font-mono text-label-sm font-label-sm text-primary font-bold">7 ДНЕЙ</span>
+</div>
+<!-- Language Selector -->
+<div class="flex items-center text-caption font-caption bg-surface-container rounded-lg p-0.5 text-on-surface-variant font-medium">
+<button class="px-2 py-0.5 rounded bg-surface-container-lowest text-primary font-bold shadow-xs">RU</button>
+<button class="px-2 py-0.5 rounded hover:text-primary transition-colors">KZ</button>
+<button class="px-2 py-0.5 rounded hover:text-primary transition-colors">EN</button>
+</div>
+<!-- Notification Trigger Badge -->
+<button class="relative p-2 rounded-xl text-primary hover:bg-surface-container transition-all active:scale-95" onclick="switchTab('tab-notifications')" title="Центр уведомлений">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-error"></span>
+</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Interactive Scenario Controller Bar (Tabs to switch between the 4 scenarios) -->
+<div class="max-w-7xl mx-auto px-space-md pt-6 pb-2 w-full">
+<div class="flex flex-wrap items-center justify-between gap-3 bg-surface-container-lowest p-2 rounded-2xl border border-outline-variant/40 custom-soft-shadow">
+<div class="flex flex-wrap gap-1.5">
+<button class="tab-btn px-4 py-2 rounded-xl text-label-md font-label-md bg-primary text-on-primary transition-all shadow-sm flex items-center gap-2" id="btn-tab-submission" onclick="switchTab('tab-submission')">
+<span class="material-symbols-outlined text-base">assignment_turned_in</span>
+<span>1. Сдача задания & Рецензия</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-xl text-label-md font-label-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all flex items-center gap-2" id="btn-tab-quiz" onclick="switchTab('tab-quiz')">
+<span class="material-symbols-outlined text-base">quiz</span>
+<span>2. Результаты теста & AI разбор</span>
+</button>
+<button class="tab-btn px-4 py-2 rounded-xl text-label-md font-label-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all flex items-center gap-2" id="btn-tab-notifications" onclick="switchTab('tab-notifications')">
+<span class="material-symbols-outlined text-base">notifications_active</span>
+<span>3. Центр уведомлений <span class="bg-error-container text-on-error-container text-[11px] px-1.5 py-0.5 rounded-full font-bold ml-1">3</span></span>
+</button>
+</div>
+<button class="px-4 py-2 rounded-xl text-label-md font-label-md bg-secondary-fixed text-on-secondary-fixed hover:bg-secondary-container transition-all flex items-center gap-2 shadow-xs active:scale-95" onclick="openOnboardingModal()">
+<span class="text-base">🦉</span>
+<span>4. Онбординг с совой «Ух»</span>
+</button>
+</div>
+</div>
+<!-- Main Workspace Canvas -->
+<main class="max-w-7xl mx-auto px-space-md py-6 w-full flex-1">
+<!-- ========================================== -->
+<!-- 1. SCENARIO A: Сдача задания (Assignment) -->
+<!-- ========================================== -->
+<section class="scenario-panel space-y-6" id="tab-submission">
+<!-- Breadcrumb & Header Information -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/40 custom-soft-shadow">
+<div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 rounded-full text-caption font-caption font-semibold bg-secondary-fixed text-on-secondary-fixed">PHP & Backend</span>
+<span class="text-outline-variant text-sm">•</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Модуль 3: Архитектура БД и Оптимизация</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- XP Pill -->
+<div class="flex items-center gap-1.5 bg-secondary-fixed/70 text-on-secondary-fixed px-3 py-1 rounded-full font-mono text-label-sm font-label-sm font-bold border border-secondary-fixed-dim">
+<span class="material-symbols-outlined text-sm text-primary">military_tech</span>
+<span>+120 XP</span>
+</div>
+<!-- Deadline Alert -->
+<div class="flex items-center gap-1.5 bg-error-container text-on-error-container px-3 py-1 rounded-full font-mono text-label-sm font-label-sm font-bold">
+<span class="material-symbols-outlined text-sm">alarm</span>
+<span>Дедлайн: Сегодня 23:59</span>
+</div>
+</div>
+</div>
+<h1 class="text-headline-md font-headline-md text-on-surface mb-2 tracking-tight">
+          Лабораторная работа №4: Оптимизация запросов Eloquent & N+1 в Laravel
+        </h1>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-4xl">
+          Реализуйте устранение проблемы N+1 при выборке постов с комментариями и профилями авторов. Предоставьте исходный код контроллера, миграций и экспорт дампа EXPLAIN запросов в виде архива или файлов.
+        </p>
+<!-- Lifecycle Stepper Indicator -->
+<div class="mt-6 pt-5 border-t border-outline-variant/20">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="text-label-sm font-label-sm text-on-surface-variant font-bold">СТАТУС ЖИЗНЕННОГО ЦИКЛА:</div>
+<div class="flex items-center gap-2 sm:gap-4 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+<!-- Step 1: Draft -->
+<div class="flex items-center gap-2 opacity-50">
+<div class="w-6 h-6 rounded-full bg-outline-variant flex items-center justify-center text-caption text-surface-container-lowest font-bold">1</div>
+<span class="text-caption font-caption text-on-surface-variant">Черновик</span>
+</div>
+<div class="w-6 h-0.5 bg-outline-variant/50"></div>
+<!-- Step 2: Submitted -->
+<div class="flex items-center gap-2 opacity-60">
+<div class="w-6 h-6 rounded-full bg-outline flex items-center justify-center text-caption text-surface-container-lowest font-bold">2</div>
+<span class="text-caption font-caption text-on-surface-variant">Отправлено</span>
+</div>
+<div class="w-6 h-0.5 bg-outline-variant/50"></div>
+<!-- Step 3: Under Review -->
+<div class="flex items-center gap-2 opacity-70">
+<div class="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-caption text-surface-container-lowest font-bold">3</div>
+<span class="text-caption font-caption text-on-surface-variant">На проверке</span>
+</div>
+<div class="w-6 h-0.5 bg-primary"></div>
+<!-- Step 4: Approved/Graded (Active) -->
+<div class="flex items-center gap-2 bg-secondary-fixed/40 px-3 py-1.5 rounded-xl border border-primary/20">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-caption text-on-primary font-bold">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-primary font-bold">Проверено (95/100)</span>
+<span class="text-[11px] text-tertiary font-mono">Принято с отличием</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left: Upload Zone & Student Comment (7 cols) -->
+<div class="lg:col-span-7 space-y-6">
+<!-- Dropzone Container -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/40 custom-soft-shadow">
+<h2 class="text-headline-sm font-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">upload_file</span>
+              Файлы задания
+            </h2>
+<!-- The Dropzone Area -->
+<div class="border-2 border-dashed border-primary/60 bg-surface-container-low/60 hover:bg-surface-container transition-all rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer group">
+<div class="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center text-primary group-hover:scale-110 transition-transform mb-3 shadow-xs">
+<span class="material-symbols-outlined text-3xl">cloud_upload</span>
+</div>
+<p class="text-body-md font-body-md font-semibold text-on-surface mb-1">
+                Перетащите файлы сюда или <span class="text-primary underline">выберите с диска</span>
+</p>
+<p class="text-caption font-caption text-on-surface-variant">
+                Поддерживаются форматы <span class="font-mono text-on-surface font-semibold">.zip, .php, .sql</span> (максимум до 25MB)
+              </p>
+</div>
+<!-- Attached Files List -->
+<div class="mt-6 space-y-3">
+<span class="text-label-sm font-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Прикреплено (2 файла)</span>
+<!-- File 1: Zip (100% complete) -->
+<div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30 flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-xl">folder_zip</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface truncate">eloquent_optimization_final.zip</span>
+<span class="bg-secondary-fixed text-primary text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">100%</span>
+</div>
+<span class="text-caption font-caption text-on-surface-variant font-mono">14.2 MB • Загружено</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-lg" title="Проверено">check_circle</span>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1" title="Удалить файл">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+<!-- File 2: SQL Dump (95% complete with Progress Bar) -->
+<div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30 space-y-2">
+<div class="flex items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-xl">database</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface truncate">benchmark_explain_queries.sql</span>
+<span class="bg-secondary-fixed-dim text-on-secondary-fixed text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">95%</span>
+</div>
+<span class="text-caption font-caption text-on-surface-variant font-mono">3.8 MB из 4.0 MB</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1" title="Отменить">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<!-- Progress track -->
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-300" style="width: 95%"></div>
+</div>
+</div>
+</div>
+<!-- Student Comment Area -->
+<div class="mt-6">
+<label class="block text-label-md font-label-md text-on-surface mb-2 font-semibold" for="student-comment">
+                Комментарий студента к работе
+              </label>
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant/50 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-xl p-3.5 text-body-sm font-body-sm text-on-surface placeholder:text-outline-variant transition-all outline-none resize-none" id="student-comment" maxlength="500" placeholder="Опишите, какие решения были применены, возникли ли сложности с полиморфными связями..." rows="3">В коде контроллера PostsController использовал eager loading with(['comments.author', 'tags']). Это снизило количество запросов с 142 до 3. В файле SQL приложен полный бенчмарк EXPLAIN ANALYZE до и после добавления составного индекса.</textarea>
+<div class="text-right mt-1.5">
+<span class="font-mono text-caption font-caption text-on-surface-variant">273 / 500 символов</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-outline-variant/20">
+<button class="px-4 py-2.5 rounded-xl border border-outline-variant/60 text-label-md font-label-md text-on-surface hover:bg-surface-container transition-colors">
+                Сохранить черновик
+              </button>
+<button class="px-6 py-2.5 rounded-xl bg-primary text-on-primary text-label-md font-label-md font-semibold hover:bg-primary-container transition-all custom-hover-shadow flex items-center gap-2 active:scale-95">
+<span class="material-symbols-outlined text-lg">send</span>
+<span>Отправить на проверку (+120 XP)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right: Teacher Review Block (5 cols) -->
+<div class="lg:col-span-5 space-y-6">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/40 custom-soft-shadow relative overflow-hidden">
+<!-- Background accent badge -->
+<div class="absolute -top-10 -right-10 w-36 h-36 bg-secondary-fixed/30 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">verified</span>
+                Рецензия куратора
+              </h2>
+<span class="bg-secondary-fixed text-primary font-mono text-caption font-caption font-bold px-2 py-0.5 rounded-full">
+                Проверено 2ч назад
+              </span>
+</div>
+<!-- Grade Card -->
+<div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant/30 flex items-center justify-between mb-5">
+<div>
+<span class="text-caption font-caption text-on-surface-variant block uppercase tracking-wide">Итоговая оценка</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-display-hero-mobile font-display-hero-mobile font-bold text-primary font-mono leading-none">95</span>
+<span class="text-body-lg font-body-lg font-mono text-on-surface-variant">/ 100</span>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-flex items-center gap-1.5 bg-primary text-on-primary px-3 py-1.5 rounded-xl font-mono text-label-sm font-label-sm font-bold shadow-sm">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span>+120 XP НАЧИСЛЕНО</span>
+</div>
+<span class="block text-caption font-caption text-tertiary mt-1">Критерии выполнены на 98%</span>
+</div>
+</div>
+<!-- Curator Info -->
+<div class="flex items-center gap-3 mb-4">
+<div class="relative w-12 h-12 rounded-full overflow-hidden border-2 border-primary-fixed shrink-0">
+<img class="w-full h-full object-cover" data-alt="Professional modern portrait of a senior backend software engineer and academic tutor wearing casual dark clothes in a bright minimal studio setting, soft purple studio glow in background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyPrv3oaH88-3luhKgydisNfV7Le29-2OOuB729xoLtVgg7OEbRDZTkhkEArNeSyEd2iyF1CKACvsc9QzrNFZgGkGQPDLV53cCl-HqoL2OagGgxOoQMGRW-y3iOyeCIAC4VU6KkA3_UCt8ggP9I7LQLGHm4gMt8vlKciSUjwnBKr6SPBw6QSCQzUAwNtabeByzsDIPPCiXyeLDM1Q6sZajk2r2q_91T6JXVXcpbMp_5GuoR65FdIu4Jg"/>
+</div>
+<div>
+<h3 class="text-body-md font-body-md font-bold text-on-surface leading-tight">Александр Волков</h3>
+<span class="text-caption font-caption text-on-surface-variant">Senior Backend Lead • Куратор курса</span>
+</div>
+</div>
+<!-- Curator Comment -->
+<div class="bg-surface p-4 rounded-xl border border-outline-variant/30 text-body-sm font-body-sm text-on-surface space-y-3 relative">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-base mt-0.5">format_quote</span>
+<p class="leading-relaxed">
+                  Отличная работа с eager loading: вызов <code class="font-mono bg-surface-container px-1 py-0.5 rounded text-primary text-xs font-semibold">with('posts.comments')</code> и глубокая подгрузка профилей реализованы безупречно! Время ответа эндпоинта сократилось с 840мс до 62мс.
+                </p>
+</div>
+<p class="text-on-surface-variant text-caption font-caption pl-6 border-l-2 border-outline-variant/40">
+                Небольшая рекомендация: для пагинации вложенных комментариев изучите <span class="text-primary font-mono">withCount</span>, чтобы не загружать сущности полностью в память сервера.
+              </p>
+</div>
+<!-- Action buttons inside curator block -->
+<div class="mt-5 flex gap-2">
+<button class="flex-1 py-2 px-3 rounded-xl border border-outline-variant/40 text-caption font-caption font-semibold text-on-surface hover:bg-surface-container transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-base">chat</span>
+                Задать вопрос куратору
+              </button>
+<button class="py-2 px-3 rounded-xl bg-surface-container text-caption font-caption font-semibold text-primary hover:bg-secondary-container transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-base">download</span>
+                Рецензия в PDF
+              </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- 2. SCENARIO B: Quiz Results & AI Breakdown -->
+<!-- ========================================== -->
+<section class="scenario-panel hidden space-y-6" id="tab-quiz">
+<!-- Quiz Results Header Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/40 custom-soft-shadow">
+<div class="flex flex-col md:flex-row items-center justify-between gap-6">
+<!-- Text and Mascot Info -->
+<div class="space-y-3 flex-1 text-center md:text-left">
+<div class="inline-flex items-center gap-2 bg-secondary-fixed/50 px-3 py-1 rounded-full text-caption font-caption text-primary font-semibold">
+<span class="material-symbols-outlined text-sm">database</span>
+<span>Модуль: Реляционные базы данных и SQL</span>
+</div>
+<h1 class="text-headline-md font-headline-md md:text-headline-lg font-bold text-on-surface tracking-tight">
+              Финальный тест по модулю: Реляционные базы данных и SQL
+            </h1>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-2xl">
+              Тестирование завершено. Ваш результат достаточен для зачета модуля и допуска к практическому экзамену.
+            </p>
+<!-- Mascot Owl Callout (Joyful mood) -->
+<div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 flex items-center gap-4 max-w-xl mx-auto md:mx-0">
+<div class="w-14 h-14 rounded-full bg-secondary-fixed flex items-center justify-center text-3xl shrink-0 shadow-xs ring-4 ring-primary-fixed">
+                🦉
+              </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-label-md font-label-md font-bold text-on-surface">Сова «Ух» (Наставник)</span>
+<span class="bg-primary text-on-primary text-[10px] font-mono px-1.5 py-0.5 rounded font-bold">Ликует!</span>
+</div>
+<p class="text-body-sm font-body-sm text-primary font-semibold mt-0.5">
+                  «Отличный результат, Акерке! Ты почти гуру SQL 🚀»
+                </p>
+</div>
+</div>
+</div>
+<!-- Score Ring & Metrics -->
+<div class="flex flex-col items-center bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30 shrink-0 w-full md:w-auto">
+<div class="relative w-36 h-36 flex items-center justify-center">
+<!-- SVG Radial Progress -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 120 120">
+<circle cx="60" cy="60" fill="transparent" r="50" stroke="#E9EDFF" stroke-width="10"></circle>
+<circle cx="60" cy="60" fill="transparent" r="50" stroke="#6C5CE7" stroke-dasharray="314.159" stroke-dashoffset="47.12" stroke-linecap="round" stroke-width="10"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="text-display-hero-mobile font-display-hero-mobile font-bold text-primary font-mono leading-none">85%</span>
+<span class="text-caption font-caption text-on-surface-variant font-mono mt-1">17 из 20 верно</span>
+</div>
+</div>
+<!-- Meta stats -->
+<div class="mt-4 flex items-center gap-4 font-mono text-caption font-caption text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>18:42 / 30:00</span>
+</div>
+<div class="text-outline-variant">•</div>
+<div class="flex items-center gap-1 text-primary font-bold">
+<span class="material-symbols-outlined text-sm">workspace_premium</span>
+<span>+85 XP</span>
+</div>
+</div>
+<!-- Streak pill -->
+<div class="mt-3 bg-secondary-fixed/60 text-on-secondary-fixed px-3 py-1 rounded-full text-caption font-caption font-bold flex items-center gap-1">
+<span>🔥 Серия 7 дней сохранена!</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons Bar -->
+<div class="flex flex-wrap items-center justify-between gap-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30">
+<div class="text-body-sm font-body-sm text-on-surface-variant">
+          Найдено <span class="font-bold text-error">3 ошибки</span>. Изучите AI-разбор для закрепления пробелов.
+        </div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-xl border border-outline-variant/60 text-label-md font-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors disabled:opacity-50" title="Доступно раз в 24 часа">
+            Повторить тест (через 24ч)
+          </button>
+<button class="px-5 py-2 rounded-xl bg-primary text-on-primary text-label-md font-label-md font-semibold hover:bg-primary-container transition-all custom-hover-shadow flex items-center gap-2 active:scale-95">
+<span class="material-symbols-outlined text-base">psychology</span>
+<span>Разобрать слабые темы с AI</span>
+</button>
+</div>
+</div>
+<!-- Detailed Question Breakdown Section -->
+<div class="space-y-4">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">fact_check</span>
+          Детальный разбор вопросов (Question Breakdown)
+        </h2>
+<!-- Question 12 (Error Case) -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 border-2 border-error/40 custom-soft-shadow space-y-4">
+<div class="flex flex-wrap items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="bg-error-container text-on-error-container text-label-sm font-label-sm font-bold px-2.5 py-1 rounded-lg">
+                Вопрос 12 • Ошибка
+              </span>
+<span class="text-caption font-caption text-on-surface-variant">Тема: Реляционные объединения (Joins)</span>
+</div>
+<span class="text-caption font-caption font-mono text-outline">Сложность: Средняя</span>
+</div>
+<h3 class="text-body-lg font-body-lg font-bold text-on-surface">
+            «Какое ключевое отличие LEFT JOIN от INNER JOIN при работе с таблицами пользователей и заказов?»
+          </h3>
+<!-- Answers Comparison Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Wrong Answer -->
+<div class="p-4 rounded-xl bg-error-container/20 border border-error/30">
+<div class="flex items-center gap-2 text-error text-label-sm font-label-sm font-bold mb-1">
+<span class="material-symbols-outlined text-base">cancel</span>
+<span>Ваш ответ (Неверно):</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface">
+                «LEFT JOIN возвращает только те строки, для которых найдено строгое совпадение в обеих таблицах.»
+              </p>
+</div>
+<!-- Correct Answer -->
+<div class="p-4 rounded-xl bg-secondary-fixed/30 border border-primary/30">
+<div class="flex items-center gap-2 text-primary text-label-sm font-label-sm font-bold mb-1">
+<span class="material-symbols-outlined text-base">check_circle</span>
+<span>Правильный ответ:</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface">
+                «LEFT JOIN возвращает абсолютно ВСЕ записи из левой таблицы, дополняя их NULL из правой таблицы, если совпадения нет.»
+              </p>
+</div>
+</div>
+<!-- Expandable AI Explanation Synthesizer -->
+<div class="ai-synthesizer-border rounded-xl p-5 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl animate-pulse">auto_awesome</span>
+<span class="text-label-md font-label-md font-bold text-on-surface">AI-Тьютор Афина: Анализ ошибки и рекомендация</span>
+</div>
+<span class="bg-surface-container-lowest text-primary text-caption font-caption px-2 py-0.5 rounded font-mono font-semibold">Синтез правила</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface leading-relaxed">
+              Вы перепутали семантику: строгое совпадение с обеих сторон отсекает строки без связей — это поведение классического <strong class="text-primary font-semibold">INNER JOIN</strong>. Если вам нужно сохранить список всех клиентов (даже тех, кто ещё не совершил ни одной покупки), всегда используйте <strong class="text-primary font-semibold">LEFT JOIN</strong>.
+            </p>
+<!-- Code snippet comparison -->
+<div class="bg-inverse-surface text-inverse-on-surface p-3.5 rounded-lg font-mono text-caption font-caption space-y-1 overflow-x-auto">
+<div class="text-secondary-fixed-dim">-- Верная конструкция выборки всех пользователей и их покупок:</div>
+<div><span class="text-tertiary-fixed font-bold">SELECT</span> users.name, orders.total</div>
+<div><span class="text-tertiary-fixed font-bold">FROM</span> users</div>
+<div><span class="text-primary-fixed-dim font-bold">LEFT JOIN</span> orders <span class="text-tertiary-fixed font-bold">ON</span> users.id = orders.user_id;</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="text-caption font-caption text-on-surface-variant">Рекомендовано повторить: <strong>Лекция 4.2 «Анатомия JOIN запросов»</strong></span>
+<button class="text-primary hover:underline text-caption font-caption font-semibold flex items-center gap-1">
+<span>Добавить карточку в тренажер</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Question 14 (Correct Example for Balance) -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30 custom-soft-shadow">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="bg-secondary-fixed text-primary text-label-sm font-label-sm font-bold px-2.5 py-1 rounded-lg">
+              Вопрос 14 • Верно (+5 XP)
+            </span>
+<span class="material-symbols-outlined text-tertiary">check</span>
+</div>
+<h3 class="text-body-md font-body-md font-bold text-on-surface">
+            «Для чего применяется индекс B-Tree в индексировании столбцов primary key?»
+          </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+            Ваш ответ: <span class="text-on-surface font-medium">«Для обеспечения логарифмического времени поиска O(log N) и эффективной сортировки по диапазонам.»</span>
+</p>
+</div>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- 3. SCENARIO C: Notification Center        -->
+<!-- ========================================== -->
+<section class="scenario-panel hidden space-y-6" id="tab-notifications">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/40 custom-soft-shadow">
+<!-- Header -->
+<div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-3">
+<h1 class="text-headline-md font-headline-md font-bold text-on-surface tracking-tight">Уведомления</h1>
+<span class="bg-error-container text-on-error-container text-label-sm font-label-sm font-bold px-2.5 py-0.5 rounded-full">
+              3 новых
+            </span>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-primary hover:text-primary-container text-label-md font-label-md font-semibold px-3 py-1.5 rounded-lg hover:bg-surface-container transition-all flex items-center gap-1.5" onclick="markAllAsRead()">
+<span class="material-symbols-outlined text-base">done_all</span>
+<span>Прочитать все</span>
+</button>
+<button class="text-on-surface-variant text-caption font-caption px-2 py-1 border border-outline-variant/40 rounded-lg hover:bg-surface-container" onclick="toggleEmptyState()">
+              Тест: Пустое состояние
+            </button>
+</div>
+</div>
+<!-- Filter Tabs -->
+<div class="flex flex-wrap gap-2 mt-4">
+<button class="px-3.5 py-1.5 rounded-xl bg-primary text-on-primary text-label-md font-label-md font-semibold">Все (12)</button>
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container-low text-on-surface-variant hover:text-primary text-label-md font-label-md font-medium transition-colors">Оценки (4)</button>
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container-low text-on-surface-variant hover:text-primary text-label-md font-label-md font-medium transition-colors">Дедлайны (2)</button>
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container-low text-on-surface-variant hover:text-primary text-label-md font-label-md font-medium transition-colors">AI ментор (3)</button>
+<button class="px-3.5 py-1.5 rounded-xl bg-surface-container-low text-on-surface-variant hover:text-primary text-label-md font-label-md font-medium transition-colors">Достижения (3)</button>
+</div>
+<!-- Notifications List -->
+<div class="mt-6 space-y-3" id="notifications-list">
+<!-- Item 1: Grade Review (Unread) -->
+<div class="p-4 rounded-xl bg-secondary-fixed/20 border-l-4 border-l-primary border-t border-r border-b border-outline-variant/30 flex items-start justify-between gap-4 transition-all hover:bg-secondary-fixed/30">
+<div class="flex items-start gap-3.5">
+<div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-xl">grade</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-caption font-caption font-bold text-primary uppercase">Оценка работы</span>
+<span class="text-[11px] font-mono text-outline">• 15 минут назад</span>
+<span class="w-2 h-2 rounded-full bg-error"></span>
+</div>
+<h2 class="text-body-md font-body-md font-bold text-on-surface">Преподаватель проверил Лаб. №4: 95/100</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                  Александр Волков оставил развернутую рецензию и начислил вам <strong>+120 XP</strong> в рейтинг потока.
+                </p>
+</div>
+</div>
+<button class="text-primary hover:underline text-label-sm font-label-sm font-semibold shrink-0" onclick="switchTab('tab-submission')">
+              Смотреть
+            </button>
+</div>
+<!-- Item 2: Deadline Warning (Unread) -->
+<div class="p-4 rounded-xl bg-error-container/20 border-l-4 border-l-error border-t border-r border-b border-outline-variant/30 flex items-start justify-between gap-4 transition-all hover:bg-error-container/30">
+<div class="flex items-start gap-3.5">
+<div class="w-10 h-10 rounded-xl bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">hourglass_empty</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-caption font-caption font-bold text-error uppercase">Горящий дедлайн</span>
+<span class="text-[11px] font-mono text-outline">• 1 час назад</span>
+<span class="w-2 h-2 rounded-full bg-error"></span>
+</div>
+<h2 class="text-body-md font-body-md font-bold text-on-surface">До сдачи теста по MVC осталось 4 часа</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                  Поторопитесь пройти контрольные вопросы до закрытия сессии сегодня в 23:59.
+                </p>
+</div>
+</div>
+<button class="text-error hover:underline text-label-sm font-label-sm font-semibold shrink-0">
+              Перейти к тесту
+            </button>
+</div>
+<!-- Item 3: AI Tutor Card (Unread) -->
+<div class="p-4 rounded-xl bg-surface-container-low border-l-4 border-l-tertiary-container border-t border-r border-b border-outline-variant/30 flex items-start justify-between gap-4 transition-all hover:bg-surface-container">
+<div class="flex items-start gap-3.5">
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">psychology</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-caption font-caption font-bold text-tertiary uppercase">AI Ментор Афина</span>
+<span class="text-[11px] font-mono text-outline">• 3 часа назад</span>
+<span class="w-2 h-2 rounded-full bg-error"></span>
+</div>
+<h2 class="text-body-md font-body-md font-bold text-on-surface">Афина нашла пробелы в теме SQL индексов</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                  Сформирован персональный тренировочный набор из 3 интерактивных карточек для закрепления материала.
+                </p>
+</div>
+</div>
+<button class="text-tertiary hover:underline text-label-sm font-label-sm font-semibold shrink-0" onclick="switchTab('tab-quiz')">
+              Тренироваться
+            </button>
+</div>
+<!-- Item 4: Achievement Unlocked (Read) -->
+<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-start justify-between gap-4 opacity-80 hover:opacity-100 transition-all">
+<div class="flex items-start gap-3.5">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">military_tech</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-caption font-caption font-bold text-on-surface-variant uppercase">Достижение разблокировано</span>
+<span class="text-[11px] font-mono text-outline">• Вчера в 19:20</span>
+</div>
+<h2 class="text-body-md font-body-md font-bold text-on-surface">Разблокирован бейдж «Недельный спринт» (+50 XP)</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+                  Вы занимались 7 дней подряд без пропусков. Ваша серия защищена!
+                </p>
+</div>
+</div>
+<span class="text-caption font-caption font-mono text-primary font-bold shrink-0">+50 XP</span>
+</div>
+</div>
+<!-- Empty State Container (Hidden by default, toggleable) -->
+<div class="hidden py-16 flex-col items-center justify-center text-center space-y-4" id="notifications-empty">
+<div class="w-24 h-24 rounded-full bg-secondary-fixed flex items-center justify-center text-5xl shadow-inner ring-8 ring-primary-fixed">
+            🎧🦉
+          </div>
+<div class="space-y-1 max-w-sm">
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface">Все уведомления прочитаны!</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Сова «Ух» отдыхает в наушниках и слушает подкаст по базам данных. Вы полностью в графике!
+            </p>
+</div>
+<button class="mt-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-md font-label-md font-semibold" onclick="switchTab('tab-submission')">
+            Вернуться к учебе
+          </button>
+</div>
+</div>
+</section>
+</main>
+<!-- ========================================== -->
+<!-- 4. SCENARIO D: Interactive Onboarding Modal -->
+<!-- ========================================== -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/60 backdrop-blur-sm hidden items-center justify-center p-4" id="onboarding-modal">
+<div class="bg-surface-container-lowest rounded-2xl max-w-2xl w-full border border-outline-variant/40 custom-modal-shadow overflow-hidden flex flex-col relative animate-in fade-in zoom-in-95 duration-200">
+<!-- Top Progress Bar -->
+<div class="w-full bg-surface-container-high h-2">
+<div class="bg-primary h-full transition-all duration-300" id="onboarding-progress-bar" style="width: 25%"></div>
+</div>
+<!-- Modal Header -->
+<div class="p-6 pb-2 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm font-mono text-primary font-bold uppercase tracking-wider" id="onboarding-step-indicator">
+            ШАГ 1 ИЗ 4
+          </span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors" onclick="closeOnboardingModal()">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<!-- Modal Body (Dynamic Steps) -->
+<div class="p-6 md:p-8 pt-2">
+<!-- STEP 1: Main Goal -->
+<div class="onboard-step space-y-6" id="onboard-step-1">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-2xl bg-secondary-fixed flex items-center justify-center text-4xl shrink-0 shadow-xs">
+              🦉
+            </div>
+<div>
+<h2 class="text-headline-md font-headline-md font-bold text-on-surface tracking-tight">Какая ваша главная цель?</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Сова «Ух» персонализирует учебный план под ваши приоритеты.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<label class="flex items-center gap-4 p-4 rounded-xl border border-outline-variant/40 hover:border-primary bg-surface hover:bg-secondary-fixed/20 cursor-pointer transition-all">
+<input checked="" class="w-5 h-5 text-primary focus:ring-primary" name="goal" type="radio" value="career"/>
+<div class="flex-1">
+<span class="text-body-md font-body-md font-bold text-on-surface block">Сменить профессию</span>
+<span class="text-caption font-caption text-on-surface-variant">Освоить стек Backend/Laravel с нуля до первого оффера</span>
+</div>
+<span class="material-symbols-outlined text-primary">work</span>
+</label>
+<label class="flex items-center gap-4 p-4 rounded-xl border border-outline-variant/40 hover:border-primary bg-surface hover:bg-secondary-fixed/20 cursor-pointer transition-all">
+<input class="w-5 h-5 text-primary focus:ring-primary" name="goal" type="radio" value="grades"/>
+<div class="flex-1">
+<span class="text-body-md font-body-md font-bold text-on-surface block">Подтянуть оценки в вузе</span>
+<span class="text-caption font-caption text-on-surface-variant">Успешно сдать лабораторные и экзамены по базам данных</span>
+</div>
+<span class="material-symbols-outlined text-primary">school</span>
+</label>
+<label class="flex items-center gap-4 p-4 rounded-xl border border-outline-variant/40 hover:border-primary bg-surface hover:bg-secondary-fixed/20 cursor-pointer transition-all">
+<input class="w-5 h-5 text-primary focus:ring-primary" name="goal" type="radio" value="ai"/>
+<div class="flex-1">
+<span class="text-body-md font-body-md font-bold text-on-surface block">Освоить AI и backend</span>
+<span class="text-caption font-caption text-on-surface-variant">Интегрировать LLM агентов в реальные архитектурные сервисы</span>
+</div>
+<span class="material-symbols-outlined text-primary">smart_toy</span>
+</label>
+</div>
+</div>
+<!-- STEP 2: Time Commitment -->
+<div class="onboard-step hidden space-y-6" id="onboard-step-2">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-2xl bg-secondary-fixed flex items-center justify-center text-4xl shrink-0 shadow-xs">
+              ⏱️
+            </div>
+<div>
+<h2 class="text-headline-md font-headline-md font-bold text-on-surface tracking-tight">Сколько времени готовы уделять?</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Регулярность важнее интенсивности. Выберите комфортный темп.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<label class="flex flex-col items-center text-center p-5 rounded-xl border border-outline-variant/40 hover:border-primary bg-surface hover:bg-secondary-fixed/20 cursor-pointer transition-all">
+<input checked="" class="mb-3 text-primary focus:ring-primary" name="time" type="radio" value="15"/>
+<span class="font-mono text-label-md font-label-md font-bold text-primary">15 мин / день</span>
+<span class="text-caption font-caption text-on-surface-variant mt-1">Лайт темп (1 модуль в 2 недели)</span>
+</label>
+<label class="flex flex-col items-center text-center p-5 rounded-xl border border-outline-variant/40 hover:border-primary bg-surface hover:bg-secondary-fixed/20 cursor-pointer transition-all">
+<input class="mb-3 text-primary focus:ring-primary" name="time" type="radio" value="30"/>
+<span class="font-mono text-label-md font-label-md font-bold text-primary">30 мин / день</span>
+<span class="text-caption font-caption text-on-surface-variant mt-1">Оптимальный (рекомендовано Ухом)</span>
+</label>
+<label class="flex flex-col items-center text-center p-5 rounded-xl border border-outline-variant/40 hover:border-primary bg-surface hover:bg-secondary-fixed/20 cursor-pointer transition-all">
+<input class="mb-3 text-primary focus:ring-primary" name="time" type="radio" value="60"/>
+<span class="font-mono text-label-md font-label-md font-bold text-primary">1 час+ / день</span>
+<span class="text-caption font-caption text-on-surface-variant mt-1">Интенсив (быстрый трек)</span>
+</label>
+</div>
+</div>
+<!-- STEP 3: Gamification & Streak Freeze -->
+<div class="onboard-step hidden space-y-6" id="onboard-step-3">
+<div class="text-center space-y-2">
+<h2 class="text-headline-md font-headline-md font-bold text-on-surface tracking-tight">Знакомство с XP и защитой серии</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Каждое выполненное действие делает вас сильнее в рейтинге студентов.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- XP Mechanics Card -->
+<div class="bg-surface p-4 rounded-xl border border-outline-variant/40 space-y-2">
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined">bolt</span>
+<span>Мастеринг XP и уровни</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">
+                За тесты и лабораторные вы получаете XP. Достигайте новых уровней (сейчас LV.8) и открывайте доступ к хакатонам.
+              </p>
+</div>
+<!-- Streak Freeze Card -->
+<div class="bg-surface p-4 rounded-xl border border-outline-variant/40 space-y-2">
+<div class="flex items-center gap-2 text-error font-bold">
+<span class="material-symbols-outlined">ac_unit</span>
+<span>Заморозка серии (Streak Freeze)</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">
+                Если вы пропустите один день из-за дедлайнов в университете, заморозка автоматически защитит вашу серию!
+              </p>
+</div>
+</div>
+<div class="bg-secondary-fixed/30 rounded-xl p-4 flex items-center gap-3">
+<span class="text-3xl">🎁</span>
+<div class="text-caption font-caption">
+<strong>Подарок новичка:</strong> Мы начислили вам <strong>1 бесплатную заморозку серии</strong> и стартовый бустер на 48 часов!
+            </div>
+</div>
+</div>
+<!-- STEP 4: Ready & Mascot Cheer -->
+<div class="onboard-step hidden text-center space-y-5 py-4" id="onboard-step-4">
+<div class="w-24 h-24 rounded-full bg-secondary-fixed mx-auto flex items-center justify-center text-6xl shadow-md ring-8 ring-secondary-fixed-dim">
+            🦉✨
+          </div>
+<div class="space-y-2">
+<h2 class="text-headline-md font-headline-md font-bold text-on-surface">Всё готово к продуктивной учёбе!</h2>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-md mx-auto">
+              «Отличный план, Акерке! Я буду подсказывать в сложных темах и напоминать о важном.»
+            </p>
+</div>
+<div class="inline-flex items-center gap-2 bg-secondary-fixed text-primary px-4 py-2 rounded-full font-mono text-label-md font-label-md font-bold">
+<span>+50 XP ЗАВЕРШЕНИЕ ОНБОРДИНГА</span>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-6 pt-4 border-t border-outline-variant/20 flex items-center justify-between">
+<button class="px-4 py-2 rounded-xl text-label-md font-label-md text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-40" disabled="" id="onboard-btn-prev" onclick="changeOnboardingStep(-1)">
+          Назад
+        </button>
+<button class="px-6 py-2.5 rounded-xl bg-primary text-on-primary text-label-md font-label-md font-semibold hover:bg-primary-container transition-all flex items-center gap-2 active:scale-95 shadow-xs" id="onboard-btn-next" onclick="changeOnboardingStep(1)">
+<span>Продолжить</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar for Mobile (Shared Component JSON) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-sm py-space-xs bg-surface-container-lowest/90 backdrop-blur-lg shadow-[0_-4px_20px_-2px_rgba(108,92,231,0.08)]">
+<!-- Item 1: Learn (Active style from JSON) -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1.5 transition-all" onclick="switchTab('tab-submission')">
+<span class="material-symbols-outlined text-xl">school</span>
+<span class="text-label-sm font-label-sm">Learn</span>
+</button>
+<!-- Item 2: Quests -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" onclick="switchTab('tab-quiz')">
+<span class="material-symbols-outlined text-xl">military_tech</span>
+<span class="text-label-sm font-label-sm">Quests</span>
+</button>
+<!-- Item 3: AI Tutor -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" onclick="switchTab('tab-quiz')">
+<span class="material-symbols-outlined text-xl">psychology</span>
+<span class="text-label-sm font-label-sm">AI Tutor</span>
+</button>
+<!-- Item 4: Analytics -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" onclick="switchTab('tab-notifications')">
+<span class="material-symbols-outlined text-xl">insights</span>
+<span class="text-label-sm font-label-sm">Analytics</span>
+</button>
+<!-- Item 5: Profile -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 hover:text-primary transition-colors" onclick="openOnboardingModal()">
+<span class="material-symbols-outlined text-xl">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</button>
+</nav>
+<!-- Interactive JavaScript Controller -->
+<script>
+    // Tab Switcher Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.scenario-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+      const activePanel = document.getElementById(tabId);
+      if (activePanel) {
+        activePanel.classList.remove('hidden');
+      }
+
+      // Update button styles
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-primary', 'text-on-primary');
+        btn.classList.add('text-on-surface-variant');
+      });
+
+      const activeBtn = document.getElementById('btn-' + tabId);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-on-surface-variant');
+        activeBtn.classList.add('bg-primary', 'text-on-primary');
+      }
+    }
+
+    // Notifications empty state toggler
+    function toggleEmptyState() {
+      const list = document.getElementById('notifications-list');
+      const empty = document.getElementById('notifications-empty');
+      if (list.classList.contains('hidden')) {
+        list.classList.remove('hidden');
+        empty.classList.add('hidden');
+      } else {
+        list.classList.add('hidden');
+        empty.classList.remove('hidden');
+      }
+    }
+
+    function markAllAsRead() {
+      const badges = document.querySelectorAll('#notifications-list .bg-error');
+      badges.forEach(b => b.remove());
+      alert('Все уведомления помечены как прочитанные! Сова Ух спокойна ✨');
+    }
+
+    // Onboarding Modal Flow
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    function openOnboardingModal() {
+      currentStep = 1;
+      updateOnboardingUI();
+      const modal = document.getElementById('onboarding-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeOnboardingModal() {
+      const modal = document.getElementById('onboarding-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function changeOnboardingStep(direction) {
+      currentStep += direction;
+      if (currentStep > totalSteps) {
+        closeOnboardingModal();
+        return;
+      }
+      updateOnboardingUI();
+    }
+
+    function updateOnboardingUI() {
+      // Hide all steps
+      for (let i = 1; i <= totalSteps; i++) {
+        const stepEl = document.getElementById(`onboard-step-${i}`);
+        if (stepEl) stepEl.classList.add('hidden');
+      }
+
+      // Show current step
+      const currentStepEl = document.getElementById(`onboard-step-${currentStep}`);
+      if (currentStepEl) currentStepEl.classList.remove('hidden');
+
+      // Update progress bar
+      const progressPercent = (currentStep / totalSteps) * 100;
+      document.getElementById('onboarding-progress-bar').style.width = `${progressPercent}%`;
+
+      // Update step indicator
+      document.getElementById('onboarding-step-indicator').innerText = `ШАГ ${currentStep} ИЗ ${totalSteps}`;
+
+      // Update prev/next button labels
+      const prevBtn = document.getElementById('onboard-btn-prev');
+      const nextBtn = document.getElementById('onboard-btn-next');
+
+      prevBtn.disabled = currentStep === 1;
+
+      if (currentStep === totalSteps) {
+        nextBtn.innerHTML = `<span>Поехали!</span> <span class="material-symbols-outlined text-sm">rocket_launch</span>`;
+      } else {
+        nextBtn.innerHTML = `<span>Продолжить</span> <span class="material-symbols-outlined text-sm">arrow_forward</span>`;
+      }
+    }
+  </script>
+</body></html>

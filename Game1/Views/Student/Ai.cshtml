@@ -1,0 +1,168 @@
+@model IEduDataService
+@{
+    ViewData["Title"] = "AI Learning Assistant";
+    ViewData["Nav"] = "ai";
+    var chat = Model.GetChat();
+    var topics = Model.GetTopicScores().Where(t => t.Score < 80).ToList();
+    string J(string s) => System.Text.Json.JsonSerializer.Serialize(s);
+}
+
+<div class="page-head">
+    <div>
+        <h1>@Html.Icon("sparkles", "icon-xl c-primary") AI Learning Assistant</h1>
+        <p>@L.T("Персональный AI-наставник: объясняет темы, анализирует ошибки и строит план обучения.", "Жеке AI-тәлімгер: тақырыптарды түсіндіреді, қателерді талдайды және оқу жоспарын құрады.", "Your personal AI mentor: explains topics, analyzes mistakes and builds a study plan.")</p>
+    </div>
+    <a class="btn btn-secondary" href="/Student/AiAnalysis">@Html.Icon("scan-search") @L.T("AI-разбор ошибок", "Қателердің AI-талдауы", "AI error analysis")</a>
+</div>
+
+<div class="ai-layout">
+    <section class="card ai-chat ai-glow">
+        <div class="ai-head">
+            <div class="ai-owl" data-owl id="aiOwl">
+                <span class="owl-bubble" role="status" aria-live="polite"></span>
+                <partial name="_Owl" model="Model.GetStudent().Level" />
+            </div>
+            <div class="grow">
+                <b>EDU AI Assistant</b>
+                <div class="list-meta"><span class="c-success">●</span> @L.T("Онлайн · знает ваш прогресс по 12 курсам", "Онлайн · 12 курс бойынша прогресіңізді біледі", "Online · knows your progress in 12 courses")</div>
+            </div>
+            <div class="segmented hide-sm">
+                <button class="active">@L.T("Чат", "Чат", "Chat")</button>
+                <button>@L.T("Объяснение", "Түсіндіру", "Explain")</button>
+                <button>@L.T("Квиз", "Квиз", "Quiz")</button>
+            </div>
+            <button class="icon-btn" aria-label="@L.T("Новый чат", "Жаңа чат", "New chat")" data-toast="@L.T("Новый диалог создан", "Жаңа диалог құрылды", "New conversation started")" data-toast-icon="message-square-plus">@Html.Icon("square-pen")</button>
+        </div>
+
+        <div class="ai-messages" id="aiMessages">
+            <div class="text-center"><span class="badge">@L.T("Сегодня", "Бүгін", "Today")</span></div>
+            @foreach (var m in chat)
+            {
+                if (m.Author == "ai")
+                {
+                    <div class="msg msg-ai">
+                        <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+                        <div><div class="msg-bubble">@m.Text</div><div class="msg-time">@m.Time</div></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="msg msg-user">
+                        <span class="avatar avatar-sm av-1">АС</span>
+                        <div><div class="msg-bubble">@m.Text</div><div class="msg-time">@m.Time</div></div>
+                    </div>
+                }
+            }
+            <div class="msg msg-ai">
+                <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
+                <div>
+                    <div class="msg-bubble">
+                        @L.T("Вот пример запроса:", "Міне, сұрау мысалы:", "Here's an example query:")
+                        <pre class="question-code" style="margin:10px 0 4px;white-space:pre">SELECT s.name, c.title
+FROM students s
+LEFT JOIN courses c ON c.id = s.course_id;</pre>
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <button class="btn btn-ghost btn-sm" data-toast="@L.T("Спасибо за отзыв!", "Пікіріңізге рахмет!", "Thanks for the feedback!")" aria-label="Like">@Html.Icon("thumbs-up", "icon-sm")</button>
+                        <button class="btn btn-ghost btn-sm" data-toast="@L.T("Скопировано", "Көшірілді", "Copied")" data-toast-icon="copy" aria-label="Copy">@Html.Icon("copy", "icon-sm")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-suggest" id="aiSuggest">
+            <button class="chip">@Html.Icon("lightbulb", "icon-sm") @L.T("Объясни тему проще", "Тақырыпты қарапайымырақ түсіндір", "Explain it more simply")</button>
+            <button class="chip">@Html.Icon("compass", "icon-sm") @L.T("Что мне изучить дальше?", "Әрі қарай не оқуым керек?", "What should I learn next?")</button>
+            <button class="chip">@Html.Icon("help-circle", "icon-sm") @L.T("Почему я ошибся?", "Неге қателестім?", "Why was I wrong?")</button>
+            <button class="chip">@Html.Icon("list-checks", "icon-sm") @L.T("Сделай мини-тест", "Шағын тест жаса", "Make a mini quiz")</button>
+        </div>
+
+        <form class="ai-input" id="aiForm">
+            <button class="icon-btn" type="button" aria-label="@L.T("Прикрепить", "Тіркеу", "Attach")">@Html.Icon("paperclip")</button>
+            <input id="aiText" placeholder="@L.T("Задайте вопрос…", "Сұрақ қойыңыз…", "Ask a question…")" autocomplete="off" aria-label="@L.T("Сообщение", "Хабарлама", "Message")" />
+            <button class="icon-btn hide-sm" type="button" aria-label="@L.T("Голос", "Дауыс", "Voice")">@Html.Icon("mic")</button>
+            <button class="btn btn-primary btn-icon" type="submit" aria-label="@L.T("Отправить", "Жіберу", "Send")">@Html.Icon("send-horizontal")</button>
+        </form>
+    </section>
+
+    <aside class="col gap-5">
+        <div class="card">
+            <div class="card-head"><div class="card-title">@Html.Icon("sparkles", "c-primary") AI @L.T("рекомендации", "ұсыныстары", "recommendations")</div></div>
+            @foreach (var r in Model.GetRecommendations())
+            {
+                <a class="ai-reco" href="@r.Href" style="color:inherit">
+                    <span class="ibox ibox-sm">@Html.Icon(r.Icon)</span>
+                    <div class="grow"><div class="list-title">@r.Title</div><div class="list-meta">@r.Text</div></div>
+                </a>
+            }
+        </div>
+        <div class="card">
+            <div class="card-head"><div class="card-title">@Html.Icon("crosshair", "c-warning") @L.T("Ваш фокус", "Сіздің фокусыңыз", "Your focus")</div><span class="text-xs subtle">@L.T("слабые темы", "әлсіз тақырыптар", "weak topics")</span></div>
+            @foreach (var t in topics)
+            {
+                <div class="mb-4">
+                    <div class="progress-row"><span class="fw-600" style="color:var(--text)">@t.Topic</span><b>@t.Score%</b></div>
+                    @Html.Progress(t.Score, t.Score < 60 ? "progress-sm progress-warning" : "progress-sm")
+                </div>
+            }
+            <a class="btn btn-secondary btn-block btn-sm" href="/Student/AiAnalysis">@L.T("Подробный разбор", "Толық талдау", "Detailed review")</a>
+        </div>
+        <div class="card card-soft">
+            <div class="flex items-center gap-3"><span class="ibox ibox-solid">@Html.Icon("calendar-check")</span><div><b>@L.T("План на сегодня", "Бүгінгі жоспар", "Today's plan")</b><div class="list-meta">3 @L.T("задачи", "тапсырма", "tasks") · ~45 @L.T("мин", "мин", "min")</div></div></div>
+            <div class="list mt-4">
+                <label class="check list-item"><input type="checkbox" checked /> SQL JOIN: @L.T("шпаргалка", "анықтамалық", "cheat sheet")</label>
+                <label class="check list-item"><input type="checkbox" data-xp="40" /> Eloquent Relationships</label>
+                <label class="check list-item"><input type="checkbox" data-xp="120" /> @L.T("Тест по MVC", "MVC тесті", "MVC quiz")</label>
+            </div>
+        </div>
+    </aside>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const box = document.getElementById("aiMessages");
+    const input = document.getElementById("aiText");
+    const replies = [
+        @Html.Raw(J(L.T("Хороший вопрос! Если коротко: JOIN соединяет строки двух таблиц по общему полю. Представьте, что вы склеиваете два списка по номеру студента. 🙂", "Жақсы сұрақ! Қысқаша айтқанда: JOIN екі кестенің жолдарын ортақ өріс бойынша біріктіреді. Екі тізімді студент нөмірі бойынша желімдеп жатқаныңызды елестетіңіз. 🙂", "Great question! In short: a JOIN combines rows from two tables by a shared column. Picture gluing two lists together by student ID. 🙂"))),
+        @Html.Raw(J(L.T("Судя по вашим результатам, следующий лучший шаг — урок «Eloquent Relationships», затем тест по MVC. Это даст примерно +160 XP.", "Нәтижелеріңізге қарағанда, келесі ең жақсы қадам — «Eloquent Relationships» сабағы, содан кейін MVC тесті. Бұл шамамен +160 XP береді.", "Based on your results, the best next step is the “Eloquent Relationships” lesson, then the MVC quiz. That's about +160 XP."))),
+        @Html.Raw(J(L.T("В вопросе 5 вы выбрали «строка с NULL», но это поведение LEFT JOIN. INNER JOIN просто исключает строки без совпадений.", "5-сұрақта сіз «NULL бар жол» дегенді таңдадыңыз, бірақ бұл LEFT JOIN әрекеті. INNER JOIN сәйкестігі жоқ жолдарды жай ғана алып тастайды.", "In question 5 you chose “a row with NULLs”, but that's LEFT JOIN behaviour. INNER JOIN simply drops rows without a match.")))
+    ];
+    let n = 0;
+    const time = () => new Date().toTimeString().slice(0, 5);
+    const scroll = () => box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
+
+    function add(author, text) {
+        const wrap = document.createElement("div");
+        wrap.className = "msg msg-" + author;
+        wrap.innerHTML = author === "ai"
+            ? `<span class="ai-avatar sm"><i data-lucide="sparkles" class="icon"></i></span><div><div class="msg-bubble"></div><div class="msg-time">${time()}</div></div>`
+            : `<span class="avatar avatar-sm av-1">АС</span><div><div class="msg-bubble"></div><div class="msg-time">${time()}</div></div>`;
+        wrap.querySelector(".msg-bubble").textContent = text;
+        box.appendChild(wrap); window.eduIcons(); scroll();
+        return wrap;
+    }
+    function ask(text) {
+        if (!text.trim()) return;
+        add("user", text);
+        const typing = document.createElement("div");
+        typing.className = "msg msg-ai";
+        typing.innerHTML = `<span class="ai-avatar sm"><i data-lucide="sparkles" class="icon"></i></span><div class="msg-bubble"><span class="typing"><i></i><i></i><i></i></span></div>`;
+        box.appendChild(typing); window.eduIcons(); scroll();
+        // Ух "thinks" while the answer is being generated
+        const owl = document.getElementById("aiOwl");
+        owl.classList.add("is-thinking");
+        window.eduOwl?.say(owl, EDU_T.thinking, 1400);
+        // Mock AI response (no real AI API at this stage)
+        setTimeout(() => {
+            typing.remove(); add("ai", replies[n++ % replies.length]);
+            owl.classList.remove("is-thinking");
+            window.eduOwl?.mood(owl, "is-happy", 900); window.eduOwl?.hop(owl);
+        }, 1800);
+    }
+    document.getElementById("aiForm").addEventListener("submit", e => { e.preventDefault(); ask(input.value); input.value = ""; });
+    document.querySelectorAll("#aiSuggest .chip").forEach(c => c.addEventListener("click", () => ask(c.textContent.trim())));
+    box.scrollTop = box.scrollHeight;
+})();
+</script>
+}

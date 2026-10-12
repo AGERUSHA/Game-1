@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = L.T("Настройки системы", "Жүйе баптаулары", "System settings");
+    ViewData["Nav"] = "a-settings";
+    ViewData["Role"] = "admin";
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Настройки системы", "Жүйе баптаулары", "System settings")</h1>
+        <p>@L.T("Общие параметры платформы, регистрация, геймификация и интеграции.", "Платформаның жалпы параметрлері, тіркелу, геймификация және интеграциялар.", "General platform options, registration, gamification and integrations.")</p>
+    </div>
+    <button class="btn btn-primary" data-toast="@L.T("Настройки сохранены", "Баптаулар сақталды", "Settings saved")" data-toast-icon="save">@Html.Icon("save") @L.T("Сохранить", "Сақтау", "Save")</button>
+</div>
+
+<div class="grid cols-2">
+    <section class="card card-lg">
+        <div class="card-title mb-4">@Html.Icon("building-2", "c-primary") @L.T("Платформа", "Платформа", "Platform")</div>
+        <div class="col gap-4">
+            <div class="field"><label class="label">@L.T("Название", "Атауы", "Name")</label><input class="input" value="EDU AI" /></div>
+            <div class="field"><label class="label">@L.T("Язык по умолчанию", "Әдепкі тіл", "Default language")</label>
+                <select class="select"><option>Қазақша (KZ)</option><option selected>Русский (RU)</option><option>English (EN)</option></select>
+            </div>
+            <div class="field"><label class="label">@L.T("Часовой пояс", "Уақыт белдеуі", "Time zone")</label><select class="select"><option>(UTC+05:00) Астана</option></select></div>
+        </div>
+    </section>
+    <section class="card card-lg">
+        <div class="card-title mb-2">@Html.Icon("user-plus", "c-primary") @L.T("Регистрация", "Тіркелу", "Registration")</div>
+        <div class="setting-row"><div><b>@L.T("Открытая регистрация", "Ашық тіркелу", "Open registration")</b><small>@L.T("Любой может создать аккаунт студента", "Кез келген адам студент аккаунтын жасай алады", "Anyone can create a student account")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+        <div class="setting-row"><div><b>@L.T("Подтверждение преподавателей", "Оқытушыларды растау", "Teacher approval")</b><small>@L.T("Админ одобряет новых преподавателей", "Әкімші жаңа оқытушыларды мақұлдайды", "Admins approve new teachers")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+        <div class="setting-row"><div><b>@L.T("Двухфакторная аутентификация", "Екі факторлы аутентификация", "Two-factor authentication")</b><small>@L.T("Обязательна для администраторов", "Әкімшілер үшін міндетті", "Required for admins")</small></div><label class="switch"><input type="checkbox" /><span></span></label></div>
+    </section>
+    <section class="card card-lg">
+        <div class="card-title mb-2">@Html.Icon("gamepad-2", "c-primary") @L.T("Геймификация", "Геймификация", "Gamification")</div>
+        <div class="setting-row"><div><b>XP @L.T("за урок", "сабақ үшін", "per lesson")</b><small>@L.T("Базовое начисление", "Негізгі есептеу", "Base reward")</small></div><input class="input input-sm" style="width:100px" value="40" /></div>
+        <div class="setting-row"><div><b>XP @L.T("за тест", "тест үшін", "per quiz")</b><small>@L.T("При результате 80%+", "80%+ нәтижеде", "For 80%+ score")</small></div><input class="input input-sm" style="width:100px" value="120" /></div>
+        <div class="setting-row"><div><b>@L.T("Рейтинг групп", "Топ рейтингі", "Group leaderboards")</b><small>@L.T("Показывать студентам рейтинг", "Студенттерге рейтингті көрсету", "Show leaderboards to students")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+    </section>
+    <section class="card card-lg">
+        <div class="card-title mb-2">@Html.Icon("plug", "c-primary") @L.T("Интеграции", "Интеграциялар", "Integrations")</div>
+        @foreach (var (icon, name, desc) in new[] {
+            ("database", "SQL Server", L.T("Хранение данных платформы", "Платформа деректерін сақтау", "Platform data storage")),
+            ("sparkles", "AI API", L.T("Рекомендации и чат-ассистент", "Ұсыныстар және чат-ассистент", "Recommendations and chat assistant")),
+            ("mail", "SMTP", L.T("Email-уведомления", "Email-хабарландырулар", "Email notifications")) })
+        {
+            <div class="setting-row">
+                <div class="flex items-center gap-3"><span class="ibox ibox-sm">@Html.Icon(icon)</span><div><b>@name</b><small>@desc</small></div></div>
+                <span class="badge">@L.T("Не подключено", "Қосылмаған", "Not connected")</span>
+            </div>
+        }
+    </section>
+</div>

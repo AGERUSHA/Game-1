@@ -1,0 +1,204 @@
+@inject IEduDataService Data
+@model Course
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Nav"] = "courses";
+    var modules = (List<CourseModule>)ViewData["Curriculum"]!;
+    string TypeIcon(string t) => t switch { "video" => "play-circle", "article" => "file-text", "test" => "clipboard-check", "assignment" => "file-code-2", _ => "circle" };
+    // Learning map: lessons laid out along a winding path (x in %, y in px)
+    var flat = modules.SelectMany((m, mi) => m.Lessons.Select((l, li) => (m, mi, l, li == 0))).ToList();
+    var curIdx = flat.FindIndex(f => f.Item3.Status == "current");
+    const int mapStep = 124, mapPad = 80;
+    var mapH = mapPad * 2 + (flat.Count - 1) * mapStep;
+    double MapX(int i) => 50 + 26 * Math.Round(Math.Sin(i * Math.PI / 2)); // zigzag: centre → right → centre → left
+    int MapY(int i) => mapPad + i * mapStep;
+    string F(double d) => d.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    string MapPath(int last)
+    {
+        var sb = new System.Text.StringBuilder($"M{F(MapX(0))} {MapY(0)}");
+        for (var i = 1; i <= last; i++)
+            sb.Append($" C{F(MapX(i - 1))} {MapY(i - 1) + mapStep / 2} {F(MapX(i))} {MapY(i) - mapStep / 2} {F(MapX(i))} {MapY(i)}");
+        return sb.ToString();
+    }
+    string TypeName(string t) => t switch
+    {
+        "video" => L.T("Видео", "Бейне", "Video"),
+        "article" => L.T("Статья", "Мақала", "Article"),
+        "test" => L.T("Тест", "Тест", "Quiz"),
+        _ => L.T("Задание", "Тапсырма", "Assignment")
+    };
+}
+
+<nav class="breadcrumbs">
+    <a href="/Student/Courses">@L.T("Курсы", "Курстар", "Courses")</a> @Html.Icon("chevron-right") <span>@Model.Title</span>
+</nav>
+
+<section class="card course-hero">
+    <div class="course-hero-body">
+        <div class="flex gap-2 wrap">
+            <span class="badge badge-primary">@Model.Category</span>
+            <span class="badge">@Html.Icon("signal") @Model.Level</span>
+            <span class="badge badge-success">@Html.Icon("award") @L.T("Сертификат", "Сертификат", "Certificate")</span>
+        </div>
+        <div>
+            <h1>@Model.Title</h1>
+            <p class="muted mt-2 text-lg">@Model.Subtitle</p>
+        </div>
+        <p class="muted" style="max-width:640px">@Model.Description</p>
+        <div class="flex items-center gap-3">
+            <span class="avatar av-3">@string.Concat(Model.Teacher.Split(' ').Select(w => w[0]))</span>
+            <div><b>@Model.Teacher</b><div class="list-meta">@L.T("Преподаватель курса", "Курс оқытушысы", "Course instructor")</div></div>
+        </div>
+        <div class="hero-stats">
+            <div><b>@Model.Lessons</b><span>@L.T("уроков", "сабақ", "lessons")</span></div>
+            <div><b>@Model.Duration</b><span>@L.T("длительность", "ұзақтығы", "duration")</span></div>
+            <div><b>@UiHelpers.Num(Model.Students)</b><span>@L.T("студентов", "студент", "students")</span></div>
+            <div><b>⭐ @Model.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</b><span>@L.T("рейтинг", "рейтинг", "rating")</span></div>
+        </div>
+        <div>
+            <div class="progress-row"><span>@Model.CompletedLessons / @Model.Lessons @L.T("уроков пройдено", "сабақ өтілді", "lessons completed")</span><b>@Model.Progress%</b></div>
+            @Html.Progress(Model.Progress, "progress-lg")
+        </div>
+        <div class="flex gap-3 wrap">
+            <a class="btn btn-primary btn-lg" href="#curriculum">@Html.Icon("play") @L.T("Продолжить обучение", "Оқуды жалғастыру", "Continue learning")</a>
+            <button class="btn btn-outline btn-lg" data-toast="@L.T("Курс добавлен в избранное", "Курс таңдаулыларға қосылды", "Course added to favorites")" data-toast-icon="heart">@Html.Icon("heart") @L.T("В избранное", "Таңдаулыға", "Favorite")</button>
+        </div>
+    </div>
+    <div class="cover cover-@Model.Cover"><span class="cover-icon">@Html.Icon(Model.Icon)</span></div>
+</section>
+
+<div class="grid cols-main-side mt-6" id="curriculum">
+    <section class="card card-lg" data-tabs-scope>
+        <div class="card-head">
+            <div><div class="card-title">@L.T("Программа курса", "Курс бағдарламасы", "Course curriculum")</div><div class="card-sub">@modules.Count @L.T("модуля", "модуль", "modules") · @modules.Sum(m => m.Lessons.Count) @L.T("уроков", "сабақ", "lessons")</div></div>
+            <div class="segmented">
+                <button type="button" class="active" data-tab="list">@Html.Icon("list", "icon-sm") @L.T("Список", "Тізім", "List")</button>
+                <button type="button" data-tab="map">@Html.Icon("map", "icon-sm") @L.T("Карта", "Карта", "Map")</button>
+            </div>
+        </div>
+
+        <div class="cur-panel active" data-tab-panel="list">
+            <div class="flex gap-3 text-xs muted wrap hide-sm mb-4">
+                <span class="flex items-center gap-1"><span class="status-dot status-completed" style="width:18px;height:18px">@Html.Icon("check", "icon-xs")</span> @L.T("Пройдено", "Өтілді", "Completed")</span>
+                <span class="flex items-center gap-1"><span class="status-dot status-current" style="width:18px;height:18px;animation:none;box-shadow:none"></span> @L.T("В процессе", "Үдерісте", "In progress")</span>
+                <span class="flex items-center gap-1"><span class="status-dot status-locked" style="width:18px;height:18px">@Html.Icon("lock", "icon-xs")</span> @L.T("Закрыто", "Жабық", "Locked")</span>
+            </div>
+
+        @for (var i = 0; i < modules.Count; i++)
+        {
+            var m = modules[i];
+            var open = m.Lessons.Any(l => l.Status == "current") || i == 0;
+            var done = m.Done == m.Lessons.Count;
+            <div class="module @(open ? "open" : "")">
+                <div class="module-head" role="button" tabindex="0" aria-expanded="@(open ? "true" : "false")">
+                    <span class="ibox ibox-sm @(done ? "ibox-success" : "")">@Html.Icon(done ? "check-check" : m.Done > 0 ? "loader" : "lock")</span>
+                    <div class="grow">
+                        <h4>@m.Title</h4>
+                        <div class="list-meta">@m.Done / @m.Lessons.Count @L.T("завершено", "аяқталды", "completed")</div>
+                    </div>
+                    <div style="width:90px" class="hide-sm">@Html.Progress(m.Done * 100 / m.Lessons.Count, done ? "progress-sm progress-success" : "progress-sm")</div>
+                    <span class="chev">@Html.Icon("chevron-down")</span>
+                </div>
+                <div class="module-body"><div>
+                    @foreach (var l in m.Lessons)
+                    {
+                        <div class="lesson is-@l.Status">
+                            <span class="status-dot status-@l.Status">
+                                @if (l.Status == "completed") { @Html.Icon("check") }
+                                else if (l.Status == "locked") { @Html.Icon("lock") }
+                                else { @Html.Icon("play") }
+                            </span>
+                            <span class="lname">@l.Title</span>
+                            @if (l.Status == "current")
+                            {
+                                <a class="btn btn-primary btn-sm ml-auto" href="#">@L.T("Продолжить", "Жалғастыру", "Continue")</a>
+                            }
+                            <span class="ltype @(l.Status == "current" ? "" : "ml-auto")" style="@(l.Status == "current" ? "margin-left:0" : "")">@Html.Icon(TypeIcon(l.Type), "icon-sm") <span class="hide-sm">@TypeName(l.Type) ·</span> @l.Duration</span>
+                        </div>
+                    }
+                </div></div>
+            </div>
+        }
+        </div>
+
+        <div class="cur-panel" data-tab-panel="map">
+            <div class="lmap" style="height:@(mapH)px">
+                <svg class="lmap-path" viewBox="0 0 100 @mapH" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="track" d="@MapPath(flat.Count - 1)" />
+                    @if (curIdx > 0) { <path class="done" d="@MapPath(curIdx)" /> }
+                </svg>
+                @for (var i = 0; i < flat.Count; i++)
+                {
+                    var (mod, mi, l, first) = flat[i];
+                    var x = MapX(i);
+                    var labelX = Math.Clamp(x, 21, 79);
+                    if (first)
+                    {
+                        <span class="badge badge-primary lmap-module" style="left:@F(x > 50 ? x - 30 : x + 30)%;top:@(MapY(i))px" title="@mod.Title">@mod.Title.Split('.')[0]</span>
+                    }
+                    if (l.Status == "current")
+                    {
+                        <div class="lmap-owl" data-owl id="mapOwl" style="left:@F(x)%;top:@(MapY(i) - 34)px">
+                            <span class="owl-bubble"></span>
+                            <partial name="_Owl" model="Data.GetStudent().Level" />
+                        </div>
+                    }
+                    var nodeToast = l.Status switch
+                    {
+                        "completed" => L.T("Урок пройден ✓ Можно повторить в любой момент", "Сабақ өтілді ✓ Кез келген уақытта қайталауға болады", "Lesson completed ✓ You can review it anytime"),
+                        "locked" => L.T("Сначала пройдите предыдущие уроки 🔒", "Алдымен алдыңғы сабақтарды өтіңіз 🔒", "Finish the previous lessons first 🔒"),
+                        _ => L.T("Урок засчитан", "Сабақ есептелді", "Lesson completed")
+                    };
+                    <button type="button" class="lmap-node is-@l.Status" style="left:@F(x)%;top:@(MapY(i))px"
+                            data-toast="@nodeToast" data-toast-icon="@(l.Status == "locked" ? "lock" : "check-circle-2")"
+                            data-xp="@(l.Status == "current" ? "40" : null)"
+                            aria-label="@l.Title">
+                        @Html.Icon(l.Status == "completed" ? "check" : l.Status == "locked" ? "lock" : TypeIcon(l.Type))
+                    </button>
+                    <div class="lmap-label @(l.Status == "locked" ? "is-locked" : "")" style="left:@F(labelX)%;top:@(MapY(i) + (l.Status == "current" ? 46 : 40))px">
+                        @l.Title<small>@TypeName(l.Type) · @l.Duration</small>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <aside class="col gap-5">
+        <div class="card">
+            <div class="card-title mb-4">@L.T("Чему вы научитесь", "Нені үйренесіз", "What you'll learn")</div>
+            <ul class="check-list" style="margin:0;list-style:none;padding:0;display:flex;flex-direction:column;gap:12px">
+                @foreach (var item in new[] {
+                    L.T("Создавать веб-приложения на Laravel", "Laravel-де веб-қосымшалар жасау", "Build web apps with Laravel"),
+                    L.T("Проектировать архитектуру MVC", "MVC архитектурасын жобалау", "Design MVC architecture"),
+                    L.T("Работать с базой данных через Eloquent", "Eloquent арқылы деректер қорымен жұмыс істеу", "Work with databases via Eloquent"),
+                    L.T("Разрабатывать REST API", "REST API әзірлеу", "Develop REST APIs") })
+                {
+                    <li class="flex gap-3 text-sm"><span class="c-success">@Html.Icon("check-circle-2")</span>@item</li>
+                }
+            </ul>
+        </div>
+        <div class="card card-soft">
+            <div class="flex items-center gap-3 mb-3"><span class="ai-avatar sm">@Html.Icon("sparkles")</span><b>AI @L.T("совет", "кеңесі", "tip")</b></div>
+            <p class="text-sm muted">@L.T("Перед уроком «Eloquent Relationships» повторите SQL JOIN — это сократит время изучения примерно на 30%.", "«Eloquent Relationships» сабағы алдында SQL JOIN-ді қайталаңыз — бұл оқу уақытын шамамен 30%-ға қысқартады.", "Review SQL JOIN before “Eloquent Relationships” — it will cut study time by about 30%.")</p>
+            <a class="btn btn-primary btn-sm mt-4" href="/Student/Ai">@L.T("Спросить AI", "AI-дан сұрау", "Ask AI")</a>
+        </div>
+        <div class="card">
+            <div class="card-title mb-4">@L.T("Награды курса", "Курс марапаттары", "Course rewards")</div>
+            <div class="list">
+                <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("zap")</span><div class="grow list-title">@L.T("За прохождение", "Өткені үшін", "For completion")</div><span class="xp-chip">+1 500 XP</span></div>
+                <div class="list-item"><span class="ibox ibox-sm ibox-success">@Html.Icon("award")</span><div class="grow list-title">@L.T("Сертификат", "Сертификат", "Certificate")</div><span class="badge badge-success">PDF</span></div>
+                <div class="list-item"><span class="ibox ibox-sm ibox-warning">@Html.Icon("trophy")</span><div class="grow list-title">«Laravel Master»</div><span class="badge">🏅</span></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+@section Scripts {
+<script>
+    // On the map, Ух points at the current lesson
+    document.querySelector('[data-tab="map"]')?.addEventListener("click", () => {
+        const owl = document.getElementById("mapOwl");
+        setTimeout(() => { owl?.scrollIntoView({ behavior: "smooth", block: "center" }); window.eduOwl?.say(owl, @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Ты здесь! Ещё немного до конца модуля 💪", "Сен осындасың! Модуль соңына аз қалды 💪", "You are here! Almost at the end of the module 💪"))), 3500); }, 150);
+    });
+</script>
+}

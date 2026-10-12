@@ -1,0 +1,81 @@
+@model List<Achievement>
+@{
+    ViewData["Title"] = L.T("Достижения", "Жетістіктер", "Achievements");
+    ViewData["Nav"] = "achievements";
+    var unlocked = Model.Count(a => a.Unlocked);
+    string Rarity(string r) => r switch
+    {
+        "rare" => L.T("Редкое", "Сирек", "Rare"),
+        "epic" => L.T("Эпическое", "Эпикалық", "Epic"),
+        "legendary" => L.T("Легендарное", "Аңыздық", "Legendary"),
+        _ => L.T("Обычное", "Қарапайым", "Common")
+    };
+    string RarityCls(string r) => r switch { "rare" => "badge-info", "epic" => "badge-primary", "legendary" => "rarity-legendary", _ => "" };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Достижения", "Жетістіктер", "Achievements")</h1>
+        <p>@L.T("Собирайте награды за успехи в обучении.", "Оқудағы табыстар үшін марапаттар жинаңыз.", "Collect rewards for your learning milestones.")</p>
+    </div>
+</div>
+
+<section class="card card-lg card-soft mb-6">
+    <div class="flex items-center gap-6 wrap">
+        @Html.Ring(unlocked * 100 / Model.Count, 110, 10, $"{unlocked}/{Model.Count}")
+        <div class="grow">
+            <h2>@L.T("Открыто", "Ашылды", "Unlocked") @unlocked @L.T("из", "/", "of") @Model.Count</h2>
+            <p class="muted mt-1">@L.T("Следующее достижение — «Снайпер»: наберите 100% в любом тесте.", "Келесі жетістік — «Мерген»: кез келген тестте 100% жинаңыз.", "Next up — “Sharpshooter”: score 100% on any quiz.")</p>
+        </div>
+        <div class="flex gap-3 wrap">
+            <div class="card text-center" style="padding:14px 20px;box-shadow:none"><div class="stat-value" style="font-size:22px">2</div><div class="text-xs subtle">@L.T("редких", "сирек", "rare")</div></div>
+            <div class="card text-center" style="padding:14px 20px;box-shadow:none"><div class="stat-value" style="font-size:22px">1</div><div class="text-xs subtle">@L.T("эпических", "эпикалық", "epic")</div></div>
+            <div class="card text-center" style="padding:14px 20px;box-shadow:none"><div class="stat-value c-primary" style="font-size:22px">+420</div><div class="text-xs subtle">XP</div></div>
+        </div>
+    </div>
+</section>
+
+<div class="tabs mb-6" data-filter-target="#achGrid">
+    <button class="tab active" data-filter="all">@L.T("Все", "Барлығы", "All") <span class="count">@Model.Count</span></button>
+    <button class="tab" data-filter="unlocked">@L.T("Получены", "Алынған", "Unlocked") <span class="count">@unlocked</span></button>
+    <button class="tab" data-filter="locked">@L.T("Не получены", "Алынбаған", "Locked") <span class="count">@(Model.Count - unlocked)</span></button>
+</div>
+
+<div class="grid stagger" id="achGrid" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr))">
+    @foreach (var a in Model)
+    {
+        <article class="card card-hover achievement @(a.Unlocked ? "" : "locked")" data-tags="all @(a.Unlocked ? "unlocked" : "locked")">
+            <span class="badge rarity @RarityCls(a.Rarity)">@Rarity(a.Rarity)</span>
+            <div class="medal">
+                @a.Emoji
+                @if (!a.Unlocked) { <span class="lock">@Html.Icon("lock")</span> }
+            </div>
+            <h4>@a.Title</h4>
+            <p>@a.Description</p>
+            @if (a.Unlocked)
+            {
+                <span class="badge badge-success">@Html.Icon("check") @a.Date</span>
+            }
+            else
+            {
+                <div class="ach-progress">
+                    <div class="progress-row"><span>@L.T("Прогресс", "Прогресс", "Progress")</span><b>@a.Progress / @a.Target</b></div>
+                    @Html.Progress(a.Progress * 100 / a.Target, "progress-sm")
+                </div>
+            }
+        </article>
+    }
+</div>
+<partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#achGrid")' />
+
+<h3 class="mt-8 mb-4 flex items-center gap-2">@Html.Icon("eye-off", "c-primary") @L.T("Секретные", "Құпия", "Secret")</h3>
+<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(210px,1fr))">
+    @* Unlocked on the client (owl.js easter egg) — state lives in localStorage for the prototype *@
+    <article class="card card-hover achievement secret locked" data-secret-ach>
+        <span class="badge rarity rarity-legendary">@L.T("Секретное", "Құпия", "Secret")</span>
+        <div class="medal"><span data-secret-medal>❓</span><span class="lock">@Html.Icon("lock")</span></div>
+        <h4 data-secret-title>???</h4>
+        <p data-secret-desc>@L.T("Подсказка: Ух очень любит внимание…", "Кеңес: Ух назар аударғанды қатты жақсы көреді…", "Hint: Hoot really loves attention…")</p>
+        <span class="badge badge-success" data-secret-foot hidden>@Html.Icon("check") </span>
+    </article>
+</div>

@@ -1,0 +1,11 @@
+@model EmptyState
+@* Empty / no-results state with Ух the owl *@
+<div class="empty-state" @(Model.For != null ? Html.Raw($"data-empty-for=\"{Model.For}\" hidden") : null) role="status">
+    <div class="empty-owl @Model.Mood" aria-hidden="true"><partial name="_Owl" model="1" /></div>
+    <h3>@Model.Title</h3>
+    <p class="muted">@Model.Text</p>
+    @if (Model.ActionText != null)
+    {
+        <a class="btn btn-primary mt-4" href="@(Model.ActionHref ?? "#")">@Html.Icon(Model.Icon) @Model.ActionText</a>
+    }
+</div>

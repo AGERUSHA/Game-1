@@ -1,0 +1,21 @@
+# Environment / secrets — never commit
+.env
+.env.*
+*.env
+secrets.json
+appsettings.*.local.json
+appsettings.Production.json
+
+# Build output / IDE
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Logs
+*.log
+
+# User-uploaded files (avatars)
+Game1/wwwroot/uploads/

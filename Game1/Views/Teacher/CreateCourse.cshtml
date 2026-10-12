@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = L.T("Создание курса", "Курс жасау", "Create course");
+    ViewData["Nav"] = "t-courses";
+    ViewData["Role"] = "teacher";
+    var covers = new[] { "violet", "indigo", "fuchsia", "blue", "plum", "deep" };
+}
+
+<nav class="breadcrumbs"><a href="/Teacher/Courses">@L.T("Мои курсы", "Менің курстарым", "My courses")</a> @Html.Icon("chevron-right") <span>@L.T("Новый курс", "Жаңа курс", "New course")</span></nav>
+<div class="page-head">
+    <div>
+        <h1>@L.T("Создание курса", "Курс жасау", "Create course")</h1>
+        <p>@L.T("Заполните основную информацию, соберите программу и опубликуйте курс.", "Негізгі ақпаратты толтырып, бағдарламаны құрып, курсты жариялаңыз.", "Fill in the basics, build the curriculum and publish your course.")</p>
+    </div>
+    <div class="flex gap-2">
+        <button class="btn btn-outline" data-toast="@L.T("Черновик сохранён", "Жоба сақталды", "Draft saved")" data-toast-icon="save">@Html.Icon("save") @L.T("Сохранить черновик", "Жобаны сақтау", "Save draft")</button>
+    </div>
+</div>
+
+<div data-tabs-scope>
+    <div class="stepper mb-6">
+        <button class="step active" data-tab="s1"><span>1</span><b>@L.T("Основное", "Негізгі", "Basics")</b></button>
+        <button class="step" data-tab="s2"><span>2</span><b>@L.T("Программа", "Бағдарлама", "Curriculum")</b></button>
+        <button class="step" data-tab="s3"><span>3</span><b>@L.T("Публикация", "Жариялау", "Publish")</b></button>
+    </div>
+
+    <div class="grid cols-main-side">
+        <div>
+            <section class="card card-lg settings-panel active" data-tab-panel="s1">
+                <div class="card-title mb-4">@L.T("Основная информация", "Негізгі ақпарат", "Basic information")</div>
+                <div class="col gap-5">
+                    <div class="field"><label class="label" for="ctitle">@L.T("Название курса", "Курс атауы", "Course title")</label><input class="input" id="ctitle" value="REST API Design" /></div>
+                    <div class="field"><label class="label" for="csub">@L.T("Краткое описание", "Қысқаша сипаттама", "Short description")</label><input class="input" id="csub" value="OpenAPI · Best practices" /></div>
+                    <div class="field"><label class="label" for="cdesc">@L.T("Описание", "Сипаттама", "Description")</label><textarea class="textarea" id="cdesc">@L.T("Проектирование понятных и масштабируемых API: ресурсы, версии, авторизация и документация.", "Түсінікті әрі масштабталатын API жобалау: ресурстар, нұсқалар, авторизация және құжаттама.", "Design clear and scalable APIs: resources, versioning, auth and documentation.")</textarea></div>
+                    <div class="grid cols-2" style="gap:16px">
+                        <div class="field"><label class="label">@L.T("Категория", "Санат", "Category")</label><select class="select"><option>@L.T("Программирование", "Бағдарламалау", "Programming")</option><option>@L.T("Базы данных", "Деректер қоры", "Databases")</option><option>Data Science</option><option>@L.T("Дизайн", "Дизайн", "Design")</option></select></div>
+                        <div class="field"><label class="label">@L.T("Уровень", "Деңгей", "Level")</label><select class="select"><option>@L.T("Начальный", "Бастапқы", "Beginner")</option><option selected>@L.T("Средний", "Орташа", "Intermediate")</option><option>@L.T("Продвинутый", "Жоғары", "Advanced")</option></select></div>
+                    </div>
+                    <div class="field">
+                        <span class="label">@L.T("Обложка", "Мұқаба", "Cover")</span>
+                        <div class="cover-picker">
+                            @for (var i = 0; i < covers.Length; i++)
+                            {
+                                <button type="button" class="cover cover-@covers[i] @(i == 3 ? "active" : "")" data-pick aria-label="@covers[i]"></button>
+                            }
+                        </div>
+                    </div>
+                    <div class="dropzone">
+                        <span class="ibox ibox-lg" style="background:var(--surface)">@Html.Icon("image-plus")</span>
+                        <p class="fw-600 mt-3">@L.T("Перетащите изображение или", "Суретті сүйреңіз немесе", "Drag an image or") <span class="c-primary">@L.T("выберите файл", "файлды таңдаңыз", "browse")</span></p>
+                        <p class="hint mt-1">PNG, JPG · @L.T("до 5 МБ", "5 МБ-қа дейін", "up to 5 MB") · 1200×675</p>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6"><button class="btn btn-primary" data-tab="s2">@L.T("Далее: программа", "Келесі: бағдарлама", "Next: curriculum") @Html.Icon("arrow-right", "icon-sm")</button></div>
+            </section>
+
+            <section class="card card-lg settings-panel" data-tab-panel="s2">
+                <div class="card-head"><div class="card-title">@L.T("Программа курса", "Курс бағдарламасы", "Curriculum")</div><button class="btn btn-secondary btn-sm" data-toast="@L.T("Модуль добавлен", "Модуль қосылды", "Module added")">@Html.Icon("plus", "icon-sm") @L.T("Модуль", "Модуль", "Module")</button></div>
+                @foreach (var (module, lessons) in new[] {
+                    (L.T("Модуль 1. Основы REST", "1-модуль. REST негіздері", "Module 1. REST fundamentals"), new[] { ("play-circle", L.T("Что такое REST", "REST дегеніміз не", "What is REST")), ("file-text", L.T("HTTP-методы и статусы", "HTTP-әдістер мен статустар", "HTTP methods & status codes")), ("clipboard-check", L.T("Тест: основы", "Тест: негіздер", "Quiz: basics")) }),
+                    (L.T("Модуль 2. Проектирование", "2-модуль. Жобалау", "Module 2. Design"), new[] { ("play-circle", L.T("Ресурсы и URL", "Ресурстар және URL", "Resources & URLs")), ("file-code-2", L.T("Практика: API блога", "Практика: блог API", "Practice: blog API")) }) })
+                {
+                    <div class="module open mb-3">
+                        <div class="module-head"><span class="grip subtle">@Html.Icon("grip-vertical")</span><h4 class="grow">@module</h4><span class="chev">@Html.Icon("chevron-down")</span></div>
+                        <div class="module-body"><div style="padding:12px 14px;border-top:1px solid var(--border)">
+                            @foreach (var (icon, title) in lessons)
+                            {
+                                <div class="builder-item">
+                                    <span class="grip">@Html.Icon("grip-vertical", "icon-sm")</span>
+                                    <span class="ibox ibox-sm">@Html.Icon(icon)</span>
+                                    <span class="grow fw-500">@title</span>
+                                    <button class="icon-btn" aria-label="Edit">@Html.Icon("pencil", "icon-sm")</button>
+                                    <button class="icon-btn" aria-label="Delete">@Html.Icon("trash-2", "icon-sm")</button>
+                                </div>
+                            }
+                            <div class="flex gap-2 mt-3 wrap">
+                                <button class="btn btn-ghost btn-sm">@Html.Icon("play-circle", "icon-sm") @L.T("Видео", "Бейне", "Video")</button>
+                                <button class="btn btn-ghost btn-sm">@Html.Icon("file-text", "icon-sm") @L.T("Статья", "Мақала", "Article")</button>
+                                <button class="btn btn-ghost btn-sm">@Html.Icon("clipboard-check", "icon-sm") @L.T("Тест", "Тест", "Quiz")</button>
+                                <button class="btn btn-ghost btn-sm">@Html.Icon("file-code-2", "icon-sm") @L.T("Задание", "Тапсырма", "Assignment")</button>
+                            </div>
+                        </div></div>
+                    </div>
+                }
+                <div class="flex justify-between mt-6"><button class="btn btn-outline" data-tab="s1">@Html.Icon("arrow-left", "icon-sm") @L.T("Назад", "Артқа", "Back")</button><button class="btn btn-primary" data-tab="s3">@L.T("Далее", "Келесі", "Next") @Html.Icon("arrow-right", "icon-sm")</button></div>
+            </section>
+
+            <section class="card card-lg settings-panel" data-tab-panel="s3">
+                <div class="card-title mb-2">@L.T("Настройки публикации", "Жариялау баптаулары", "Publishing settings")</div>
+                <div class="setting-row"><div><b>@L.T("Открытый доступ", "Ашық қолжетімділік", "Public access")</b><small>@L.T("Курс виден всем студентам платформы", "Курс платформаның барлық студенттеріне көрінеді", "Visible to all students on the platform")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+                <div class="setting-row"><div><b>@L.T("Сертификат", "Сертификат", "Certificate")</b><small>@L.T("Выдавать сертификат после завершения", "Аяқтағаннан кейін сертификат беру", "Issue a certificate on completion")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+                <div class="setting-row"><div><b>AI @L.T("ассистент", "ассистенті", "assistant")</b><small>@L.T("Разрешить AI-подсказки по материалам курса", "Курс материалдары бойынша AI-кеңестерге рұқсат беру", "Allow AI hints based on course materials")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+                <div class="setting-row"><div><b>XP @L.T("за курс", "курс үшін", "for course")</b><small>@L.T("Награда за полное прохождение", "Толық өткені үшін марапат", "Reward for full completion")</small></div><input class="input input-sm" style="width:110px" value="1500" /></div>
+                <div class="flex justify-between mt-6"><button class="btn btn-outline" data-tab="s2">@Html.Icon("arrow-left", "icon-sm") @L.T("Назад", "Артқа", "Back")</button><button class="btn btn-primary" data-toast="@L.T("Курс опубликован", "Курс жарияланды", "Course published")" data-toast-icon="rocket">@Html.Icon("rocket", "icon-sm") @L.T("Опубликовать", "Жариялау", "Publish")</button></div>
+            </section>
+        </div>
+
+        <aside class="col gap-5">
+            <div class="card">
+                <div class="card-title mb-4">@Html.Icon("eye", "c-primary") @L.T("Предпросмотр", "Алдын ала қарау", "Preview")</div>
+                <div class="card course-card" style="box-shadow:none">
+                    <div class="cover cover-blue"><span class="badge">@L.T("Программирование", "Бағдарламалау", "Programming")</span><span class="cover-icon">@Html.Icon("plug")</span></div>
+                    <div class="course-body">
+                        <h3>REST API Design</h3>
+                        <p class="desc">@L.T("Проектирование понятных и масштабируемых API.", "Түсінікті әрі масштабталатын API жобалау.", "Designing clear and scalable APIs.")</p>
+                        <div class="course-stats"><span>@Html.Icon("book-open") 5 @L.T("уроков", "сабақ", "lessons")</span><span>@Html.Icon("signal") @L.T("Средний", "Орташа", "Intermediate")</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-soft">
+                <div class="flex items-center gap-3 mb-3"><span class="ai-avatar sm">@Html.Icon("sparkles")</span><b>AI @L.T("помощник", "көмекші", "helper")</b></div>
+                <p class="text-sm muted">@L.T("AI может сгенерировать структуру модулей и вопросы для тестов по описанию курса.", "AI курс сипаттамасы бойынша модульдер құрылымын және тест сұрақтарын жасай алады.", "AI can generate a module outline and quiz questions from the course description.")</p>
+                <button class="btn btn-primary btn-sm mt-4" data-toast="@L.T("Будет доступно после подключения AI", "AI қосылғаннан кейін қолжетімді болады", "Available once AI is connected")" data-toast-icon="sparkles">@Html.Icon("wand-2", "icon-sm") @L.T("Сгенерировать", "Жасау", "Generate")</button>
+            </div>
+        </aside>
+    </div>
+</div>

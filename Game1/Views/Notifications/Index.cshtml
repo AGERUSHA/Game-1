@@ -1,0 +1,84 @@
+@model List<FeedItem>
+@{
+    ViewData["Title"] = L.T("Уведомления", "Хабарландырулар", "Notifications");
+    ViewData["Nav"] = "notifications";
+    ViewData["Role"] = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "student";
+    var unread = Model.Count(n => n.Unread);
+    int C(string cat) => Model.Count(n => n.Category == cat);
+    var days = new[]
+    {
+        ("today", L.T("Сегодня", "Бүгін", "Today")),
+        ("yesterday", L.T("Вчера", "Кеше", "Yesterday")),
+        ("earlier", L.T("Ранее", "Бұрынырақ", "Earlier")),
+    };
+    string Tone(string cat) => cat switch { "grades" => "ibox-success", "deadlines" => "ibox-error", "ai" => "ibox-primary", _ => "ibox-warning" };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Уведомления", "Хабарландырулар", "Notifications") @if (unread > 0) { <span class="badge badge-primary" data-unread-badge>@unread @L.T("новых", "жаңа", "new")</span> }</h1>
+        <p>@L.T("Оценки, дедлайны, советы AI и награды — всё в одном месте.", "Бағалар, мерзімдер, AI кеңестері және марапаттар — бәрі бір жерде.", "Grades, deadlines, AI tips and rewards in one place.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <button class="btn btn-outline" type="button" data-mark-all-read @(unread == 0 ? "disabled" : "")>@Html.Icon("check-check") @L.T("Прочитать все", "Барлығын оқу", "Mark all as read")</button>
+        <a class="btn btn-ghost btn-icon" href="/Settings" title="@L.T("Настройки уведомлений", "Хабарландыру баптаулары", "Notification settings")" aria-label="@L.T("Настройки уведомлений", "Хабарландыру баптаулары", "Notification settings")">@Html.Icon("settings")</a>
+    </div>
+</div>
+
+<section class="card card-flush">
+    <div class="tabs" style="padding:0 16px" data-filter-target="#feed">
+        <button class="tab active" data-filter="all">@L.T("Все", "Барлығы", "All") <span class="count">@Model.Count</span></button>
+        <button class="tab" data-filter="unread">@L.T("Непрочитанные", "Оқылмаған", "Unread") <span class="count" data-unread-count>@unread</span></button>
+        <button class="tab" data-filter="grades">@L.T("Оценки", "Бағалар", "Grades") <span class="count">@C("grades")</span></button>
+        <button class="tab" data-filter="deadlines">@L.T("Дедлайны", "Мерзімдер", "Deadlines") <span class="count">@C("deadlines")</span></button>
+        <button class="tab" data-filter="ai">AI <span class="count">@C("ai")</span></button>
+        <button class="tab" data-filter="achievements">@L.T("Достижения", "Жетістіктер", "Achievements") <span class="count">@C("achievements")</span></button>
+    </div>
+
+    <div id="feed">
+        @foreach (var (key, title) in days)
+        {
+            var items = Model.Where(n => n.Day == key).ToList();
+            if (items.Count == 0) { continue; }
+            var dayTags = "all " + string.Join(" ", items.Select(n => n.Category).Distinct()) + (items.Any(n => n.Unread) ? " unread" : "");
+            <div class="feed-day label-caps" data-tags="@dayTags">@title</div>
+            @foreach (var n in items)
+            {
+                <article class="feed-item @(n.Unread ? "is-unread" : "")" data-tags="all @n.Category @(n.Unread ? "unread" : "")">
+                    <span class="ibox @Tone(n.Category)">@Html.Icon(n.Icon)</span>
+                    <div class="grow">
+                        <div class="feed-meta"><b>@n.Label</b> · <span>@n.Time</span></div>
+                        <h3 class="feed-title">@n.Title</h3>
+                        <p class="muted text-sm">@n.Text</p>
+                        @if (n.Action != null || n.Xp > 0)
+                        {
+                            <div class="flex items-center gap-2 wrap mt-3">
+                                @if (n.Action != null) { <a class="btn btn-secondary btn-sm" href="@n.Href">@n.Action @Html.Icon("arrow-right", "icon-sm")</a> }
+                                @if (n.Xp > 0) { <span class="xp-chip">@Html.Icon("zap", "icon-sm") +@n.Xp XP</span> }
+                            </div>
+                        }
+                    </div>
+                    @if (n.Unread) { <span class="feed-dot" title="@L.T("Новое", "Жаңа", "New")"></span> }
+                </article>
+            }
+        }
+    </div>
+    <partial name="_EmptyState" model='new EmptyState("bell-off", L.T("Здесь пусто", "Мұнда бос", "Nothing here"), L.T("В этой категории нет уведомлений.", "Бұл санатта хабарландыру жоқ.", "No notifications in this category."), "#feed", Mood: "is-blink")' />
+</section>
+
+@section Scripts {
+<script>
+    // Visual only for now: mark everything as read on this page
+    document.querySelector("[data-mark-all-read]")?.addEventListener("click", (e) => {
+        document.querySelectorAll(".feed-item.is-unread").forEach(i => {
+            i.classList.remove("is-unread");
+            i.dataset.tags = i.dataset.tags.replace(" unread", "");
+            i.querySelector(".feed-dot")?.remove();
+        });
+        document.querySelector("[data-unread-badge]")?.remove();
+        document.querySelector("[data-unread-count]").textContent = "0";
+        e.currentTarget.disabled = true;
+        window.eduToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Все уведомления прочитаны", "Барлық хабарландырулар оқылды", "All notifications marked as read"))), "check-check");
+    });
+</script>
+}

@@ -1,0 +1,41 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("eye", L.T("Прочитайте код и выберите, что он выведет.", "Кодты оқып, не шығаратынын таңдаңыз.", "Read the code and pick what it prints.")),
+        ("timer", L.T("20 секунд на вопрос. Быстрее — больше очков.", "Сұраққа 20 секунд. Жылдамырақ — көбірек ұпай.", "20 seconds per question. Faster means more points.")),
+        ("book-open", L.T("После каждого ответа — короткий разбор.", "Әр жауаптан кейін — қысқа талдау.", "A short explanation after every answer.")),
+        ("keyboard", L.T("Клавиши 1–4 для быстрого ответа.", "Жылдам жауап үшін 1–4 пернелері.", "Keys 1–4 answer quickly.")),
+    };
+    ViewData["Options"] = new (string, string, string)[]
+    {
+        ("lang", "all", L.T("Все языки", "Барлық тілдер", "All languages")),
+        ("lang", "js", "JavaScript"),
+        ("lang", "python", "Python"),
+        ("lang", "php", "PHP"),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="out" data-game-stage hidden>
+    <p class="g-task">@L.T("Что выведет этот код?", "Бұл код не шығарады?", "What does this code print?") <span class="g-tag" data-out-lang></span></p>
+    <div class="g-code">
+        <div class="g-code-bar"><i></i><i></i><i></i><span>main</span></div>
+        <pre data-out-code></pre>
+    </div>
+    <div class="g-choices" data-out-choices></div>
+    <div class="g-explain" data-out-explain hidden></div>
+    <div class="flex justify-end mt-4"><button class="btn btn-primary" type="button" data-out-next hidden>@L.T("Дальше", "Келесі", "Next") @Html.Icon("arrow-right")</button></div>
+</section>
+
+<script>
+    window.OUT_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        right = L.T("Верно!", "Дұрыс!", "Correct!"),
+        wrong = L.T("Неверно. Правильно: {a}", "Қате. Дұрысы: {a}", "Wrong. Correct: {a}"),
+        timeout = L.T("Время вышло. Правильно: {a}", "Уақыт бітті. Дұрысы: {a}", "Time's up. Correct: {a}"),
+        correct = L.T("Верных", "Дұрыс", "Correct"),
+        score = L.T("Очки", "Ұпай", "Score"),
+        avg = L.T("Ср. время", "Орт. уақыт", "Avg. time"),
+        done = L.T("Трассировка завершена", "Трассировка аяқталды", "Tracing complete"),
+    }));
+</script>

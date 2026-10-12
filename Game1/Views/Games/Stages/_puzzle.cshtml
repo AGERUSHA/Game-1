@@ -1,0 +1,60 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("hand", L.T("Нажимайте на строки слева, чтобы собрать программу справа.", "Бағдарламаны оң жақта құрастыру үшін сол жақтағы жолдарды басыңыз.", "Tap lines on the left to build the program on the right.")),
+        ("arrow-up-down", L.T("Меняйте порядок перетаскиванием или стрелками.", "Ретін сүйреп немесе көрсеткілермен өзгертіңіз.", "Reorder by dragging or with the arrows.")),
+        ("triangle-alert", L.T("Осторожно: среди строк есть ловушки — лишние строки с типичными ошибками.", "Абайлаңыз: жолдар арасында тұзақтар бар.", "Careful: some lines are decoys with classic mistakes.")),
+        ("star", L.T("Собрали с первой проверки — максимум очков.", "Бірінші тексеруден құрастырсаңыз — ең көп ұпай.", "Solve it on the first check for full points.")),
+    };
+    ViewData["Options"] = new (string, string, string)[]
+    {
+        ("lang", "all", L.T("Все языки", "Барлық тілдер", "All languages")),
+        ("lang", "python", "Python"),
+        ("lang", "js", "JavaScript"),
+        ("lang", "php", "PHP"),
+        ("lang", "sql", "SQL"),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="pz" data-game-stage hidden>
+    <div class="flex items-center justify-between gap-2 wrap mb-3">
+        <p class="g-task mb-0" data-pz-task></p>
+        <span class="g-tag" data-pz-lang></span>
+    </div>
+    <div class="pz-grid">
+        <div class="pz-col">
+            <span class="label-caps">@L.T("Строки", "Жолдар", "Lines")</span>
+            <ul class="pz-list pz-pool" data-pz-pool></ul>
+        </div>
+        <div class="pz-col">
+            <span class="label-caps">@L.T("Ваша программа", "Сіздің бағдарламаңыз", "Your program")</span>
+            <ol class="pz-list pz-prog" data-pz-prog></ol>
+            <p class="pz-empty subtle text-sm" data-pz-empty>@L.T("Нажмите на строку слева, чтобы добавить её сюда.", "Мұнда қосу үшін сол жақтағы жолды басыңыз.", "Tap a line on the left to add it here.")</p>
+        </div>
+    </div>
+    <div class="g-explain" data-pz-msg hidden></div>
+    <div class="flex gap-2 wrap mt-4">
+        <button class="btn btn-ghost" type="button" data-pz-reset>@Html.Icon("rotate-ccw") @L.T("Сбросить", "Қалпына келтіру", "Reset")</button>
+        <button class="btn btn-outline" type="button" data-pz-hint>@Html.Icon("lightbulb") @L.T("Подсказка", "Кеңес", "Hint")</button>
+        <span class="grow"></span>
+        <button class="btn btn-primary" type="button" data-pz-check>@Html.Icon("check-circle-2") @L.T("Проверить", "Тексеру", "Check")</button>
+        <button class="btn btn-primary" type="button" data-pz-next hidden>@L.T("Следующий пазл", "Келесі пазл", "Next puzzle") @Html.Icon("arrow-right")</button>
+    </div>
+</section>
+
+<script>
+    window.PZ_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        solved = L.T("Программа собрана верно! +{p}", "Бағдарлама дұрыс құрастырылды! +{p}", "Program assembled correctly! +{p}"),
+        wrong = L.T("Зелёные строки на месте. Красные — не там или лишние.", "Жасыл жолдар орнында. Қызылдар — орнында емес немесе артық.", "Green lines are in place. Red ones are misplaced or decoys."),
+        shortProg = L.T("Не хватает строк: нужно {n}.", "Жолдар жетпейді: {n} керек.", "Some lines are missing: {n} needed."),
+        hint = L.T("Подсказка: строка №{n} — «{l}»", "Кеңес: №{n} жол — «{l}»", "Hint: line {n} is “{l}”"),
+        decoy = L.T("Ловушка", "Тұзақ", "Decoy"),
+        solvedCount = L.T("Собрано", "Құрастырылды", "Solved"),
+        checks = L.T("Проверок", "Тексеру", "Checks"),
+        score = L.T("Очки", "Ұпай", "Score"),
+        done = L.T("Все пазлы собраны!", "Барлық пазл құрастырылды!", "All puzzles solved!"),
+        up = L.T("Выше", "Жоғары", "Up"), down = L.T("Ниже", "Төмен", "Down"),
+    }));
+</script>

@@ -1,0 +1,55 @@
+@model GameInfo
+@{
+    ViewData["Rules"] = new (string, string)[]
+    {
+        ("star", L.T("Соберите все звёзды на поле.", "Алаңдағы барлық жұлдызды жинаңыз.", "Collect every star on the board.")),
+        ("arrow-up", L.T("Команды: ↑ шаг вперёд, ↺ поворот налево, ↻ направо.", "Командалар: ↑ алға қадам, ↺ солға, ↻ оңға бұрылу.", "Commands: ↑ step forward, ↺ turn left, ↻ turn right.")),
+        ("braces", L.T("ƒ1 вызывает функцию. Функция может вызывать сама себя — это цикл!", "ƒ1 функцияны шақырады. Функция өзін-өзі шақыра алады — бұл цикл!", "ƒ1 calls the function. It can call itself — that's a loop!")),
+        ("ruler", L.T("Меньше команд — больше звёзд.", "Командалар аз болса — жұлдыз көп.", "Fewer commands, more stars.")),
+    };
+}
+<partial name="_GameIntro" model="Model" />
+
+<section class="rb" data-game-stage hidden>
+    <div class="rx-levels" data-rb-levels></div>
+    <div class="rb-layout">
+        <div class="rb-board-wrap">
+            <div class="flex items-center justify-between gap-2 wrap mb-3">
+                <h2 class="h-section" data-rb-title></h2>
+                <span class="g-tag" data-rb-best></span>
+            </div>
+            <div class="rb-board" data-rb-board></div>
+            <p class="rb-status" data-rb-status role="status"></p>
+        </div>
+        <div class="rb-code">
+            <div class="rb-palette">
+                <button type="button" class="rb-cmd" data-cmd="F" title="@L.T("Шаг вперёд", "Алға қадам", "Step forward")">↑</button>
+                <button type="button" class="rb-cmd" data-cmd="L" title="@L.T("Поворот налево", "Солға бұрылу", "Turn left")">↺</button>
+                <button type="button" class="rb-cmd" data-cmd="R" title="@L.T("Поворот направо", "Оңға бұрылу", "Turn right")">↻</button>
+                <button type="button" class="rb-cmd fn" data-cmd="P" title="@L.T("Вызвать ƒ1", "ƒ1 шақыру", "Call ƒ1")">ƒ1</button>
+            </div>
+            <div class="rb-prog active" data-prog="main"><span class="label-caps">main</span><div class="rb-slots" data-slots="main"></div></div>
+            <div class="rb-prog" data-prog="f1"><span class="label-caps">ƒ1</span><div class="rb-slots" data-slots="f1"></div></div>
+            <p class="text-xs subtle">@L.T("Нажмите на строку программы, чтобы писать в неё. Нажмите на команду в слоте, чтобы удалить.", "Жазу үшін бағдарлама жолын басыңыз. Жою үшін слоттағы команданы басыңыз.", "Click a program row to write into it. Click a command in a slot to remove it.")</p>
+            <div class="flex gap-2 wrap mt-3">
+                <button class="btn btn-primary" type="button" data-rb-run>@Html.Icon("play") @L.T("Запустить", "Іске қосу", "Run")</button>
+                <button class="btn btn-outline" type="button" data-rb-reset>@Html.Icon("rotate-ccw") @L.T("Сброс", "Қалпына", "Reset")</button>
+                <button class="btn btn-ghost" type="button" data-rb-clear>@Html.Icon("trash-2") @L.T("Очистить", "Тазалау", "Clear")</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    window.RB_T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        level = L.T("Уровень", "Деңгей", "Level"),
+        best = L.T("Рекорд уровня: {n} команд", "Деңгей рекорды: {n} команда", "Level best: {n} commands"),
+        fell = L.T("Ух упал с платформы! Проверьте маршрут.", "Ух платформадан құлады! Бағытты тексеріңіз.", "Hoot fell off the platform! Check the route."),
+        missing = L.T("Программа закончилась, а звёзды остались: {n}.", "Бағдарлама аяқталды, жұлдыздар қалды: {n}.", "The program ended with stars left: {n}."),
+        loop = L.T("Слишком много шагов — похоже на бесконечный цикл.", "Қадам тым көп — шексіз цикл сияқты.", "Too many steps — looks like an infinite loop."),
+        win = L.T("Все звёзды собраны за {n} команд!", "Барлық жұлдыз {n} командамен жиналды!", "All stars collected with {n} commands!"),
+        commands = L.T("Команд", "Команда", "Commands"),
+        stars = L.T("Звёзд", "Жұлдыз", "Stars"),
+        names = new[] { L.T("Первый шаг", "Алғашқы қадам", "First step"), L.T("Поворот", "Бұрылыс", "The turn"), L.T("Звездопад", "Жұлдыз жаңбыры", "Star shower"), L.T("Сила функций", "Функциялар күші", "Power of functions"), L.T("Лестница", "Баспалдақ", "Staircase"), L.T("Квадрат", "Шаршы", "The square"), L.T("Лабиринт", "Лабиринт", "Labyrinth") },
+    }));
+</script>

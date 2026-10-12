@@ -1,0 +1,32 @@
+@* Phone-only tab bar (≤ 760px), mirrors the most used sections of the role *@
+@{
+    var nav = ViewData["Nav"] as string ?? "";
+    var me = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "student";
+    var items = me == "teacher"
+        ? new[]
+        {
+            ("t-dashboard", "/Teacher/Dashboard", "layout-dashboard", L.T("Главная", "Басты бет", "Home")),
+            ("t-review", "/Teacher/Review", "clipboard-check", L.T("Проверка", "Тексеру", "Review")),
+            ("t-students", "/Teacher/Students", "users", L.T("Студенты", "Студенттер", "Students")),
+            ("t-analytics", "/Teacher/Analytics", "bar-chart-3", L.T("Аналитика", "Аналитика", "Analytics")),
+            ("profile", "/Profile", "user-round", L.T("Профиль", "Профиль", "Profile")),
+        }
+        : new[]
+        {
+            ("dashboard", "/Student/Dashboard", "graduation-cap", L.T("Учёба", "Оқу", "Learn")),
+            ("games", "/Games", "gamepad-2", L.T("Игры", "Ойындар", "Games")),
+            ("ai", "/Student/Ai", "sparkles", "AI"),
+            ("progress", "/Student/Progress", "trending-up", L.T("Прогресс", "Прогресс", "Progress")),
+            ("profile", "/Profile", "user-round", L.T("Профиль", "Профиль", "Profile")),
+        };
+}
+@if (me != "admin")
+{
+    <nav class="bottom-nav" aria-label="@L.T("Быстрая навигация", "Жылдам навигация", "Quick navigation")">
+        @foreach (var (key, href, icon, label) in items)
+        {
+            var on = nav == key || (key == "profile" && Context.Request.Path.StartsWithSegments("/Profile"));
+            <a class="@(on ? "active" : "") @(key == "ai" ? "is-ai" : "")" href="@href" aria-current="@(on ? "page" : null)">@Html.Icon(icon)<span>@label</span></a>
+        }
+    </nav>
+}

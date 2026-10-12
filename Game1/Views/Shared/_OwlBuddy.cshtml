@@ -1,0 +1,35 @@
+@* Floating owl buddy (student pages): greets, gives tips from the student's data, sleeps in the night theme (fun.js) *@
+@inject IEduDataService Data
+@{
+    var s = Data.GetStudent();
+    var tips = new List<string>();
+
+    var next = Data.GetAssignments().Where(a => a.DaysLeft >= 0).OrderBy(a => a.DaysLeft).FirstOrDefault();
+    if (next is not null)
+        tips.Add(next.DaysLeft == 0
+            ? L.T($"Дедлайн «{next.Title}» сегодня! 📌", $"«{next.Title}» мерзімі бүгін! 📌", $"“{next.Title}” is due today! 📌")
+            : L.T($"Дедлайн «{next.Title}» через {next.DaysLeft} дн. — не откладывай 📌", $"«{next.Title}» мерзіміне {next.DaysLeft} күн қалды — кейінге қалдырма 📌", $"“{next.Title}” is due in {next.DaysLeft} d — don't put it off 📌"));
+
+    tips.Add(L.T($"До уровня {s.Level + 1} осталось {s.NextLevelXp - s.Xp} XP — это пара тестов! ⚡", $"{s.Level + 1}-деңгейге {s.NextLevelXp - s.Xp} XP қалды — бірер тест қана! ⚡", $"{s.NextLevelXp - s.Xp} XP to level {s.Level + 1} — just a couple of quizzes! ⚡"));
+
+    var weak = Data.GetTopicScores().OrderBy(t => t.Score).FirstOrDefault();
+    if (weak is not null)
+        tips.Add(L.T($"Повтори «{weak.Topic}» — там пока {weak.Score}%. Я верю в тебя!", $"«{weak.Topic}» тақырыбын қайтала — әзірге {weak.Score}%. Саған сенемін!", $"Review “{weak.Topic}” — it's at {weak.Score}% for now. I believe in you!"));
+
+    var league = Data.GetLeague();
+    var me = league.FirstOrDefault(r => r.IsMe);
+    if (me is not null && me.Rank > 3)
+    {
+        var gap = league.First(r => r.Rank == 3).WeekXp - me.WeekXp + 1;
+        tips.Add(L.T($"Ты #{me.Rank} в лиге — до зоны повышения {gap} XP 🏆", $"Сен лигада #{me.Rank} — жоғарылау аймағына дейін {gap} XP 🏆", $"You're #{me.Rank} in the league — {gap} XP to the promotion zone 🏆"));
+    }
+
+    tips.Add(L.T("Нажми ⏱ наверху — включим фокус-режим вместе 🎧", "Жоғарыдағы ⏱ басып, фокус-режимді бірге қосайық 🎧", "Tap ⏱ at the top — let's turn on focus mode together 🎧"));
+}
+<div class="owl-buddy" data-owl data-owl-buddy data-owl-click="custom" role="button" tabindex="0"
+     aria-label="@L.T("Ух — ваш помощник. Нажмите для подсказки", "Ух — сіздің көмекшіңіз. Кеңес үшін басыңыз", "Hoot, your helper. Click for a tip")"
+     data-tips="@System.Text.Json.JsonSerializer.Serialize(tips)">
+    <button class="owl-buddy-close" type="button" aria-label="@L.T("Спрятать Уха", "Ухты жасыру", "Hide Hoot")">@Html.Icon("x")</button>
+    <span class="owl-bubble above" role="status" aria-live="polite"></span>
+    <partial name="_Owl" model="s.Level" />
+</div>

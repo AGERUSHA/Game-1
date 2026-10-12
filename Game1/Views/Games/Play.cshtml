@@ -1,0 +1,84 @@
+@model GameInfo
+@{
+    Layout = "_FocusLayout";
+    ViewData["Title"] = Model.Title;
+    var god = ViewData["GameOfDay"] as bool? ?? false;
+    string J(object o) => System.Text.Json.JsonSerializer.Serialize(o);
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/games.css" asp-append-version="true" />
+}
+
+<div class="game-app cat-@Model.Category" data-game="@Model.Id">
+    <header class="game-bar">
+        <a class="btn btn-ghost btn-sm" href="/Games" aria-label="@L.T("К играм", "Ойындарға", "Back to games")">@Html.Icon("arrow-left") <span class="hide-sm">@L.T("Игры", "Ойындар", "Games")</span></a>
+        <div class="game-name">
+            <span class="game-ico">@Html.Icon(Model.Icon)</span>
+            <b class="truncate">@Model.Title</b>
+            @if (god) { <span class="badge badge-warning hide-sm">×2 XP · @L.T("игра дня", "күн ойыны", "game of the day")</span> }
+        </div>
+        <div class="game-hud">
+            <span class="hud hud-progress" data-hud="progress" hidden>@Html.Icon("list-ordered", "icon-sm") <b>0/0</b></span>
+            <span class="hud hud-timer" data-hud="timer" hidden>@Html.Icon("timer", "icon-sm") <b>0</b></span>
+            <span class="hud hud-lives" data-hud="lives" hidden></span>
+            <span class="hud hud-combo" data-hud="combo" hidden>🔥 <b>×2</b></span>
+            <span class="hud hud-score" data-hud="score" hidden>@Html.Icon("star", "icon-sm") <b>0</b></span>
+        </div>
+        <button class="icon-btn" type="button" data-game-sound title="@L.T("Звук", "Дыбыс", "Sound")" aria-label="@L.T("Звук", "Дыбыс", "Sound")"></button>
+    </header>
+
+    <main class="game-main">
+        <partial name="~/Views/Games/Stages/_@(Model.Id).cshtml" model="Model" />
+    </main>
+
+    <div class="game-owl" data-game-owl data-owl aria-hidden="true">
+        <span class="owl-bubble above"></span>
+        <partial name="_Owl" model="8" />
+    </div>
+</div>
+
+@* ---------- Shared result dialog ---------- *@
+<div class="modal-backdrop" id="gameResult">
+    <div class="modal game-result">
+        <div class="r-stars" data-r-stars></div>
+        <h2 data-r-title></h2>
+        <p class="muted" data-r-text></p>
+        <span class="badge badge-warning r-record" data-r-record hidden>🏆 @L.T("Новый рекорд!", "Жаңа рекорд!", "New record!")</span>
+        <div class="r-stats" data-r-stats></div>
+        <div class="r-xp">
+            <div class="flex items-center justify-between"><span class="label-caps">@L.T("Награда", "Марапат", "Reward")</span><b class="r-xp-total" data-r-xp>+0</b></div>
+            <ul class="r-lines" data-r-lines></ul>
+            <p class="text-xs c-warning mt-2" data-r-cap hidden>@L.T("Дневной лимит XP из игр достигнут — дальше играем ради удовольствия!", "Ойындардан күндік XP шегіне жеттіңіз — енді рахатқа ойнаймыз!", "Daily game XP limit reached — keep playing just for fun!")</p>
+            <div class="r-today"><span class="text-xs subtle">@L.T("XP из игр сегодня", "Бүгін ойындардан XP", "Game XP today")</span><span class="text-xs fw-600" data-r-today></span></div>
+            <div class="r-bar"><i data-r-todaybar style="width:0"></i></div>
+        </div>
+        <div class="r-review" data-r-review hidden>
+            <span class="label-caps">@L.T("Разбор ошибок", "Қателерді талдау", "Mistake review")</span>
+            <ul></ul>
+        </div>
+        <div class="flex gap-2 wrap justify-center mt-6">
+            <a class="btn btn-outline" href="/Games">@Html.Icon("layout-grid") @L.T("Другая игра", "Басқа ойын", "Another game")</a>
+            <button class="btn btn-primary" type="button" data-game-again>@Html.Icon("rotate-ccw") @L.T("Ещё раз", "Тағы бір рет", "Play again")</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    window.GAME_OF_DAY = @(god ? "true" : "false");
+    window.GAME_T = @Html.Raw(J(new {
+        xpBase = L.T("Очки за игру", "Ойын ұпайы", "Round points"),
+        xpPerfect = L.T("Без ошибок +50%", "Қатесіз +50%", "Perfect +50%"),
+        xpFirstWin = L.T("Первая победа дня", "Күннің алғашқы жеңісі", "First win today"),
+        xpGameOfDay = L.T("Игра дня ×2", "Күн ойыны ×2", "Game of the day ×2"),
+        xpRepeat = L.T("Повтор: {p}% XP", "Қайталау: {p}% XP", "Repeat: {p}% XP"),
+        xpCap = L.T("Дневной лимит", "Күндік шек", "Daily cap"),
+        win = L.T("Отличная игра!", "Керемет ойын!", "Great game!"),
+        lose = L.T("В следующий раз получится!", "Келесі жолы шығады!", "You'll get it next time!"),
+        cheers = new[] { L.T("Точно!", "Дәл!", "Spot on!"), L.T("Так держать!", "Осылай жалғастыр!", "Keep it up!"), L.T("Ух ты, быстро!", "Ой, жылдам!", "Whoa, fast!"), L.T("Красиво!", "Әдемі!", "Nice one!"), L.T("Сеньорский уровень!", "Сеньор деңгейі!", "Senior-level!") },
+        oops = new[] { L.T("Почти! Смотри внимательнее", "Сәл қалды! Мұқият қара", "Almost! Look closer"), L.T("Ничего, это опыт", "Оқасы жоқ, бұл тәжірибе", "No worries, that's experience"), L.T("Хитрый случай!", "Қулық жағдай!", "Tricky one!") },
+    }));
+</script>
+<script src="~/js/games.js" asp-append-version="true"></script>
+<script src="~/js/games/@(Model.Id).js" asp-append-version="true"></script>
+}

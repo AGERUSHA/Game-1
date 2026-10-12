@@ -1,0 +1,13 @@
+@* Distraction-free layout for taking a test *@
+<!DOCTYPE html>
+<html lang="@L.Current">
+<head>
+    <partial name="_Head" />
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    @RenderBody()
+    <partial name="_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

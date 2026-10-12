@@ -1,0 +1,16 @@
+@* Language dropdown: 🌐 RU ▾ *@
+<div class="dropdown">
+    <button class="lang-btn" type="button" data-dropdown aria-haspopup="true" aria-expanded="false" aria-label="@L.T("Язык", "Тіл", "Language")">
+        @Html.Icon("globe")
+        <span class="lang-label">@L.Code</span>
+        @Html.Icon("chevron-down", "icon-xs")
+    </button>
+    <div class="menu lang-menu" role="menu">
+        @foreach (var lang in LangService.Languages)
+        {
+            <button class="menu-item @(L.Current == lang.Value ? "active" : "")" data-lang="@lang.Value" role="menuitem">
+                <span class="flag">@lang.Flag</span> @lang.Name <span class="code">@lang.Code</span>
+            </button>
+        }
+    </div>
+</div>

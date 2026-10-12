@@ -1,0 +1,13 @@
+@* Public layout (landing). Navbar and footer live in the page itself. *@
+<!DOCTYPE html>
+<html lang="@L.Current">
+<head>
+    <partial name="_Head" />
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+</head>
+<body class="pub">
+    @RenderBody()
+    <partial name="_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

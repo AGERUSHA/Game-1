@@ -1,0 +1,93 @@
+@model List<AdminUser>
+@{
+    ViewData["Title"] = L.T("Пользователи", "Пайдаланушылар", "Users");
+    ViewData["Nav"] = "a-users";
+    ViewData["Role"] = "admin";
+    int C(string role) => Model.Count(u => u.Role == role);
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Пользователи", "Пайдаланушылар", "Users")</h1>
+        <p>@L.T("Управление аккаунтами, ролями и доступом.", "Аккаунттарды, рөлдерді және қолжетімділікті басқару.", "Manage accounts, roles and access.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <a class="btn btn-outline" href="/Admin/Import">@Html.Icon("upload") @L.T("Импорт", "Импорт", "Import")</a>
+        <button class="btn btn-primary" data-modal-open="#userModal">@Html.Icon("user-plus") @L.T("Добавить", "Қосу", "Add user")</button>
+    </div>
+</div>
+
+<partial name="_FormError" />
+
+<section class="card card-flush">
+    <div class="tabs" style="padding:0 16px" data-filter-target="#usersTable">
+        <button class="tab active" data-filter="all">@L.T("Все", "Барлығы", "All") <span class="count">@Model.Count</span></button>
+        <button class="tab" data-filter="student">@L.T("Студенты", "Студенттер", "Students") <span class="count">@C("student")</span></button>
+        <button class="tab" data-filter="teacher">@L.T("Преподаватели", "Оқытушылар", "Teachers") <span class="count">@C("teacher")</span></button>
+        <button class="tab" data-filter="admin">@L.T("Администраторы", "Әкімшілер", "Admins") <span class="count">@C("admin")</span></button>
+    </div>
+    <div class="toolbar" style="padding:14px 16px;margin:0;border-bottom:1px solid var(--border)">
+        <div class="input-group search">
+            @Html.Icon("search")
+            <input class="input input-sm" type="search" placeholder="@L.T("Поиск пользователя…", "Пайдаланушыны іздеу…", "Search users…")" data-search-target="#usersTable" />
+        </div>
+        <select class="select select-sm" style="width:auto" data-select-filter="#usersTable" aria-label="@L.T("Статус", "Мәртебе", "Status")">
+            <option value="all">@L.T("Любой статус", "Кез келген мәртебе", "Any status")</option>
+            <option value="active">@L.T("Активные", "Белсенді", "Active")</option>
+            <option value="pending">@L.T("Ожидают", "Күтуде", "Pending")</option>
+            <option value="blocked">@L.T("Заблокированные", "Бұғатталған", "Blocked")</option>
+        </select>
+    </div>
+    <div class="table-wrap">
+        <table class="table table-stack" id="usersTable">
+            <thead>
+                <tr>
+                    <th>@L.T("Пользователь", "Пайдаланушы", "User")</th>
+                    <th>@L.T("Роль", "Рөл", "Role")</th>
+                    <th>@L.T("Статус", "Мәртебе", "Status")</th>
+                    <th>@L.T("Регистрация", "Тіркелу", "Joined")</th>
+                    <th>@L.T("Был в сети", "Желіде болды", "Last seen")</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    <partial name="_UserRow" model="Model[i]" view-data="@(new ViewDataDictionary(ViewData) { ["Index"] = i })" />
+                }
+            </tbody>
+        </table>
+    </div>
+        <partial name="_EmptyState" model='new EmptyState("search-x", L.T("Ничего не найдено", "Ештеңе табылмады", "Nothing found"), L.T("Попробуйте изменить запрос или фильтр.", "Сұрауды немесе сүзгіні өзгертіп көріңіз.", "Try a different query or filter."), "#usersTable")' />
+</section>
+
+<div class="modal-backdrop" id="userModal">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-5"><h2>@L.T("Пользователь", "Пайдаланушы", "User")</h2><button class="icon-btn" data-modal-close aria-label="Close">@Html.Icon("x")</button></div>
+        <form class="col gap-4" method="post" asp-action="CreateUser">
+            <div class="grid cols-2" style="gap:12px">
+                <div class="field"><label class="label" for="nu-fn">@L.T("Имя", "Аты", "First name")</label><input class="input" id="nu-fn" name="FirstName" required maxlength="100" /></div>
+                <div class="field"><label class="label" for="nu-ln">@L.T("Фамилия", "Тегі", "Last name")</label><input class="input" id="nu-ln" name="LastName" required maxlength="100" /></div>
+            </div>
+            <div class="field"><label class="label" for="nu-email">Email</label><input class="input" id="nu-email" name="Email" type="email" required placeholder="name@edu.ai" autocomplete="off" /></div>
+            <div class="field"><label class="label" for="nu-pw">@L.T("Пароль", "Құпиясөз", "Password")</label>
+                <div class="input-group">
+                    @Html.Icon("lock")
+                    <input class="input" id="nu-pw" name="Password" type="password" required minlength="8" placeholder="@L.T("Минимум 8 символов", "Кемінде 8 таңба", "At least 8 characters")" autocomplete="new-password" />
+                    <button class="icon-btn input-action" type="button" data-pw-toggle aria-label="@L.T("Показать пароль", "Құпиясөзді көрсету", "Show password")">@Html.Icon("eye")</button>
+                </div>
+            </div>
+            <div class="field"><label class="label" for="nu-role">@L.T("Роль", "Рөл", "Role")</label>
+                <select class="select" id="nu-role" name="Role">
+                    <option value="student">@L.T("Студент", "Студент", "Student")</option>
+                    <option value="teacher">@L.T("Преподаватель", "Оқытушы", "Teacher")</option>
+                    <option value="admin">@L.T("Администратор", "Әкімші", "Administrator")</option>
+                </select>
+            </div>
+            <div class="flex gap-3 justify-end mt-2">
+                <button class="btn btn-ghost" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button>
+                <button class="btn btn-primary" type="submit">@L.T("Сохранить", "Сақтау", "Save")</button>
+            </div>
+        </form>
+    </div>
+</div>

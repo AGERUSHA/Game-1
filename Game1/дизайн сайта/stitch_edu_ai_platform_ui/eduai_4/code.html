@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI Design System &amp; Component Reference Guide</title>
+<!-- Typography & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "background": "#f9f9ff",
+            "surface-container": "#e9edff",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-container": "#edfaff",
+            "surface-container-high": "#e1e8fd",
+            "on-surface-variant": "#474554",
+            "on-tertiary": "#ffffff",
+            "inverse-on-surface": "#edf0ff",
+            "on-secondary-fixed-variant": "#474363",
+            "inverse-surface": "#293040",
+            "secondary-fixed-dim": "#c8c2e9",
+            "on-primary-container": "#faf6ff",
+            "tertiary": "#006274",
+            "tertiary-fixed": "#acedff",
+            "primary-container": "#6c5ce7",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed": "#1b1735",
+            "inverse-primary": "#c6bfff",
+            "on-background": "#141b2b",
+            "on-tertiary-fixed-variant": "#004e5c",
+            "secondary-fixed": "#e5deff",
+            "on-primary": "#ffffff",
+            "tertiary-container": "#007d92",
+            "on-surface": "#141b2b",
+            "on-primary-fixed-variant": "#4029ba",
+            "surface-container-low": "#f1f3ff",
+            "on-tertiary-fixed": "#001f26",
+            "on-secondary-container": "#605b7d",
+            "surface-bright": "#f9f9ff",
+            "on-error-container": "#93000a",
+            "surface-dim": "#d3daef",
+            "tertiary-fixed-dim": "#4cd7f6",
+            "primary": "#5341cd",
+            "surface-variant": "#dce2f7",
+            "outline-variant": "#c8c4d7",
+            "surface-tint": "#5847d2",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#160066",
+            "secondary": "#5f5a7c",
+            "primary-fixed-dim": "#c6bfff",
+            "outline": "#787586",
+            "error-container": "#ffdad6",
+            "surface-container-highest": "#dce2f7",
+            "primary-fixed": "#e4dfff",
+            "surface": "#f9f9ff",
+            "on-error": "#ffffff",
+            "secondary-container": "#dcd5fd"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-mobile": "1rem",
+            "margin": "2rem",
+            "space-md": "1rem",
+            "space-xl": "2rem",
+            "gutter": "1.5rem",
+            "space-sm": "0.5rem",
+            "gutter-mobile": "1rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"],
+            "caption": ["Inter"],
+            "label-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #c8c4d7;
+      border-radius: 9999px;
+    }
+    .grid-bg-subtle {
+      background-size: 24px 24px;
+      background-image: radial-gradient(circle, #e0e7ff 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen pb-28 selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TOP APP BAR (Shared Anchor Component) -->
+<header class="sticky top-0 z-40 flex justify-between items-center w-full px-space-md py-space-sm max-w-7xl mx-auto bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md shadow-sm">
+<div class="flex items-center gap-4">
+<!-- Leading: Avatar badge with level ring -->
+<div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-secondary-fixed p-0.5 ring-2 ring-primary ring-offset-2 ring-offset-surface">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-full border border-surface-container-lowest">Lv.8</span>
+</div>
+<!-- Headline / Brand Anchor -->
+<div class="flex items-baseline gap-2">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed tracking-tight">EduAI</span>
+<span class="text-label-sm font-label-sm text-outline px-2 py-0.5 rounded-full bg-surface-container border border-outline-variant/30 hidden sm:inline-block">Design System v2.4 (ASP.NET Razor Reference)</span>
+</div>
+</div>
+<!-- Center Navigation (Desktop Web Anchor) -->
+<nav class="hidden md:flex items-center gap-1 bg-surface-container-low px-2 py-1.5 rounded-2xl border border-outline-variant/20">
+<a class="text-primary dark:text-primary-fixed font-semibold px-3 py-1 text-label-md font-label-md rounded-lg hover:bg-surface-container transition-colors" href="#tokens">Design Tokens</a>
+<a class="text-on-surface-variant dark:text-surface-variant px-3 py-1 text-label-md font-label-md rounded-lg hover:bg-surface-container transition-colors" href="#mascot">Mascot Ух</a>
+<a class="text-on-surface-variant dark:text-surface-variant px-3 py-1 text-label-md font-label-md rounded-lg hover:bg-surface-container transition-colors" href="#components">Components</a>
+<a class="text-on-surface-variant dark:text-surface-variant px-3 py-1 text-label-md font-label-md rounded-lg hover:bg-surface-container transition-colors" href="#checklist">Readiness Checklist</a>
+</nav>
+<!-- Controls: Language, Theme switch, Trailing Notification -->
+<div class="flex items-center gap-2">
+<!-- Language Pill Switcher -->
+<div class="flex items-center p-0.5 rounded-xl bg-surface-container border border-outline-variant/30 text-[11px] font-mono font-semibold">
+<button class="px-2 py-1 rounded-lg bg-surface-container-lowest text-primary shadow-xs transition-all">RU</button>
+<button class="px-2 py-1 rounded-lg text-on-surface-variant hover:text-primary transition-all">KZ</button>
+<button class="px-2 py-1 rounded-lg text-on-surface-variant hover:text-primary transition-all">EN</button>
+</div>
+<!-- Theme Switcher Pill -->
+<button class="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors flex items-center justify-center active:scale-95" title="Toggle color scheme">
+<span class="material-symbols-outlined text-[20px]">light_mode</span>
+</button>
+<!-- Trailing Icon (Shared Component Spec) -->
+<button class="relative p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span>
+</button>
+</div>
+</header>
+<!-- MAIN CANVAS -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-16">
+<!-- HERO HEADER META BANNER -->
+<div class="relative overflow-hidden rounded-3xl bg-surface-container-lowest p-8 lg:p-12 border border-outline-variant/40 shadow-[0_4px_20px_-2px_rgba(108,92,231,0.06)] grid-bg-subtle">
+<div class="relative z-10 max-w-3xl space-y-4">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-fixed text-primary text-label-sm font-label-sm font-semibold">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+          Official Institutional UI Spec &amp; Razor Tag Helpers
+        </div>
+<h1 class="text-headline-xl font-headline-xl tracking-tight text-on-surface">
+          Design System &amp; Component Reference
+        </h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant">
+          Complete visual foundation, state matrices, cognitive gamification tokens, and production UI components engineered for the EduAI adaptive learning framework.
+        </p>
+<!-- Global Status Badges Row -->
+<div class="flex flex-wrap items-center gap-3 pt-2">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container border border-outline-variant/30 text-label-sm font-label-sm text-on-surface">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Razor Engine: <span class="font-mono text-primary font-semibold">.NET 8.0</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container border border-outline-variant/30 text-label-sm font-label-sm text-on-surface">
+<span class="material-symbols-outlined text-base text-tertiary">psychology</span>
+            Adaptive Tutor: <span class="font-mono font-semibold text-tertiary">Active (SM-2 + GPT-4o)</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container border border-outline-variant/30 text-label-sm font-label-sm text-on-surface">
+<span class="material-symbols-outlined text-base text-primary">emoji_events</span>
+            Cohort XP Multiplier: <span class="font-mono font-semibold text-primary">1.5x Peak</span>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 1: BRAND TOKENS & COLOR PALETTE -->
+<section class="space-y-8 scroll-mt-24" id="tokens">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-outline-variant/30 pb-4 gap-2">
+<div>
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-primary font-bold">Foundation 01</span>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Brand Tokens &amp; Color Palette</h2>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant font-mono">Tailwind Theme Tokens + Semantic HEX Mappings</p>
+</div>
+<!-- Violet Scale Grid -->
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<h3 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary-container"></span>
+            Primary Violet Core Scale (50 – 900)
+          </h3>
+<span class="text-label-sm font-label-sm text-outline font-mono">Primary: #5341cd / Core: #7C3AED</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2.5">
+<!-- 50 -->
+<div class="rounded-xl p-3 bg-[#F5F3FF] border border-outline-variant/20 flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-[#4C1D95]">50</span>
+<div class="text-[11px] font-mono text-[#5B21B6]">#F5F3FF</div>
+</div>
+<!-- 100 -->
+<div class="rounded-xl p-3 bg-[#EDE9FE] border border-outline-variant/20 flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-[#4C1D95]">100</span>
+<div class="text-[11px] font-mono text-[#5B21B6]">#EDE9FE</div>
+</div>
+<!-- 200 -->
+<div class="rounded-xl p-3 bg-[#DDD6FE] border border-outline-variant/20 flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-[#4C1D95]">200</span>
+<div class="text-[11px] font-mono text-[#4C1D95]">#DDD6FE</div>
+</div>
+<!-- 300 -->
+<div class="rounded-xl p-3 bg-[#C4B5FD] flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-[#3B0764]">300</span>
+<div class="text-[11px] font-mono text-[#3B0764]">#C4B5FD</div>
+</div>
+<!-- 400 -->
+<div class="rounded-xl p-3 bg-[#A78BFA] flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-white">400</span>
+<div class="text-[11px] font-mono text-white/90">#A78BFA</div>
+</div>
+<!-- 500 (Core / Token Accent) -->
+<div class="rounded-xl p-3 bg-[#8B5CF6] flex flex-col justify-between h-24 ring-2 ring-primary ring-offset-2 ring-offset-background">
+<span class="text-xs font-mono font-bold text-white">500</span>
+<div class="text-[11px] font-mono text-white font-bold">#8B5CF6</div>
+</div>
+<!-- 600 (Core 7C3AED) -->
+<div class="rounded-xl p-3 bg-[#7C3AED] flex flex-col justify-between h-24 shadow-md">
+<span class="text-xs font-mono font-bold text-white">600 (Core)</span>
+<div class="text-[11px] font-mono text-white font-bold">#7C3AED</div>
+</div>
+<!-- 700 -->
+<div class="rounded-xl p-3 bg-[#6D28D9] flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-white">700</span>
+<div class="text-[11px] font-mono text-white/90">#6D28D9</div>
+</div>
+<!-- 800 -->
+<div class="rounded-xl p-3 bg-[#5B21B6] flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-white">800</span>
+<div class="text-[11px] font-mono text-white/90">#5B21B6</div>
+</div>
+<!-- 900 -->
+<div class="rounded-xl p-3 bg-[#4C1D95] flex flex-col justify-between h-24">
+<span class="text-xs font-mono font-bold text-white">900</span>
+<div class="text-[11px] font-mono text-white/90">#4C1D95</div>
+</div>
+</div>
+</div>
+<!-- Surface Architecture & Dark Tokens Bento -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Light Surfaces -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4">
+<h4 class="text-label-md font-label-md text-on-surface font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">layers</span>
+            Light Architecture Canvas
+          </h4>
+<div class="space-y-2.5">
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#F8F7FC] border border-outline-variant/20">
+<span class="text-body-sm font-body-sm font-medium">Canvas Substrate</span>
+<code class="text-caption font-mono text-on-surface-variant">#F8F7FC</code>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#FAF9FE] border border-outline-variant/20">
+<span class="text-body-sm font-body-sm font-medium">Elevated Canvas</span>
+<code class="text-caption font-mono text-on-surface-variant">#FAF9FE</code>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 shadow-xs">
+<span class="text-body-sm font-body-sm font-medium">Card Surface Pure</span>
+<code class="text-caption font-mono text-on-surface-variant">#FFFFFF</code>
+</div>
+</div>
+</div>
+<!-- Dark Mode Spec -->
+<div class="p-6 rounded-2xl bg-[#0E0B18] text-white border border-white/10 space-y-4">
+<h4 class="text-label-md font-label-md text-white font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-[#A78BFA] text-base">dark_mode</span>
+            Dark Canvas Specification
+          </h4>
+<div class="space-y-2.5">
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#0E0B18] border border-white/15">
+<span class="text-body-sm font-body-sm font-medium text-white/90">Dark Substrate</span>
+<code class="text-caption font-mono text-[#DDD6FE]">#0E0B18</code>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#16122A] border border-white/15">
+<span class="text-body-sm font-body-sm font-medium text-white/90">Dark Surface Low</span>
+<code class="text-caption font-mono text-[#DDD6FE]">#16122A</code>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-[#231E3D] border border-white/15">
+<span class="text-body-sm font-body-sm font-medium text-white/90">Dark Elevated Container</span>
+<code class="text-caption font-mono text-[#DDD6FE]">#231E3D</code>
+</div>
+</div>
+</div>
+<!-- System Status & Chart Metrics -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4">
+<h4 class="text-label-md font-label-md text-on-surface font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-base">palette</span>
+            System Statuses &amp; Chart Metrics
+          </h4>
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-mono">
+<div class="font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#16A34A]"></span>Success</div>
+<div class="text-[11px] text-emerald-700">#16A34A</div>
+</div>
+<div class="p-2.5 rounded-xl bg-orange-50 border border-orange-200 text-orange-800 font-mono">
+<div class="font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#EA580C]"></span>Warning</div>
+<div class="text-[11px] text-orange-700">#EA580C</div>
+</div>
+<div class="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-800 font-mono">
+<div class="font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#DC2626]"></span>Error</div>
+<div class="text-[11px] text-red-700">#DC2626</div>
+</div>
+<div class="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 font-mono">
+<div class="font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#2563EB]"></span>Info</div>
+<div class="text-[11px] text-blue-700">#2563EB</div>
+</div>
+</div>
+<!-- Chart Metrics -->
+<div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between text-xs font-mono">
+<span class="text-on-surface-variant font-medium">Chart Metr:</span>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-md bg-[#7C3AED]/10 text-[#7C3AED] font-bold">#7C3AED</span>
+<span class="px-2 py-0.5 rounded-md bg-[#0E9FB0]/10 text-[#0E9FB0] font-bold">#0E9FB0</span>
+<span class="px-2 py-0.5 rounded-md bg-[#DB2777]/10 text-[#DB2777] font-bold">#DB2777</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: TYPOGRAPHY & SPATIAL GRID SCALE -->
+<section class="space-y-8">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-outline-variant/30 pb-4 gap-2">
+<div>
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-primary font-bold">Foundation 02</span>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Typography &amp; Spatial Rhythm</h2>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant font-mono">Inter (400-800), JetBrains Mono, &amp; Strict 4px Spatial Grid</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Typography Samples (8 Columns) -->
+<div class="lg:col-span-8 p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-6">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+<span class="text-label-md font-label-md text-on-surface font-semibold">Scale Hierarchy (Inter &amp; Plus Jakarta Sans)</span>
+<span class="text-label-sm font-label-sm text-outline font-mono">font-family &amp; text-* tokens</span>
+</div>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-outline-variant/10 pb-3 gap-2">
+<span class="text-headline-xl font-headline-xl text-on-surface">Headline XL (40px/48)</span>
+<span class="text-caption font-mono text-outline">text-headline-xl · font-headline-xl</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-outline-variant/10 pb-3 gap-2">
+<span class="text-headline-lg font-headline-lg text-on-surface">Headline LG (32px/40)</span>
+<span class="text-caption font-mono text-outline">text-headline-lg · font-headline-lg</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-outline-variant/10 pb-3 gap-2">
+<span class="text-headline-md font-headline-md text-on-surface">Headline MD (24px/32)</span>
+<span class="text-caption font-mono text-outline">text-headline-md · font-headline-md</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-outline-variant/10 pb-3 gap-2">
+<span class="text-body-lg font-body-lg text-on-surface">Body LG (18px/28) — Academic curriculum narratives</span>
+<span class="text-caption font-mono text-outline">text-body-lg · font-body-lg</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-outline-variant/10 pb-3 gap-2">
+<span class="text-body-md font-body-md text-on-surface-variant">Body MD (16px/24) — Standard instructional content and guidelines</span>
+<span class="text-caption font-mono text-outline">text-body-md · font-body-md</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+<div class="flex items-center gap-3">
+<span class="text-caption font-mono bg-surface-container px-2.5 py-1 rounded-md text-primary font-bold">JetBrains Mono (Code/XP):</span>
+<span class="font-mono text-sm font-semibold text-on-surface">xpCount: 4,820XP | timer: 24:59.02</span>
+</div>
+<span class="text-caption font-mono text-outline">font-mono</span>
+</div>
+</div>
+</div>
+<!-- Radius & Spatial Grid Showcase (4 Columns) -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Border Radius Scale -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4">
+<h4 class="text-label-md font-label-md font-semibold text-on-surface">Border Radius Geometry</h4>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-2.5 rounded-[8px] bg-surface-container border border-outline-variant/30 text-xs font-mono">
+<span>Rounded 8px</span>
+<code class="text-primary font-bold">rounded-[8px]</code>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-[10px] bg-surface-container border border-outline-variant/30 text-xs font-mono">
+<span>Rounded 10px</span>
+<code class="text-primary font-bold">rounded-[10px]</code>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-[14px] bg-surface-container border border-outline-variant/30 text-xs font-mono">
+<span>Rounded 14px</span>
+<code class="text-primary font-bold">rounded-[14px]</code>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-[18px] bg-surface-container border border-outline-variant/30 text-xs font-mono">
+<span>Rounded 18px</span>
+<code class="text-primary font-bold">rounded-[18px]</code>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-[24px] bg-surface-container border border-outline-variant/30 text-xs font-mono">
+<span>Rounded 24px</span>
+<code class="text-primary font-bold">rounded-[24px]</code>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-mono">
+<span>Pill Shape</span>
+<code class="font-bold">rounded-full (9999px)</code>
+</div>
+</div>
+</div>
+<!-- 4px Grid Spacing Strip -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-3">
+<h4 class="text-label-md font-label-md font-semibold text-on-surface">4px Base Cadence</h4>
+<div class="flex items-end gap-1.5 h-16 pt-2">
+<div class="w-3 bg-primary/20 rounded-t h-4 text-center font-mono text-[9px]">4</div>
+<div class="w-3 bg-primary/40 rounded-t h-6 text-center font-mono text-[9px]">8</div>
+<div class="w-4 bg-primary/60 rounded-t h-8 text-center font-mono text-[9px] text-white">12</div>
+<div class="w-5 bg-primary/80 rounded-t h-10 text-center font-mono text-[9px] text-white">16</div>
+<div class="w-6 bg-primary rounded-t h-12 text-center font-mono text-[9px] text-white">20</div>
+<div class="w-7 bg-primary rounded-t h-14 text-center font-mono text-[9px] text-white">24</div>
+<div class="w-8 bg-primary rounded-t h-16 text-center font-mono text-[9px] text-white">32</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: MASCOT 'УХ' (OWL) STATE MATRIX -->
+<section class="space-y-8 scroll-mt-24" id="mascot">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-outline-variant/30 pb-4 gap-2">
+<div>
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-primary font-bold">Cognitive Companion</span>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Mascot 'Ух' (Owl) State Matrix</h2>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant font-mono">Vector Emotive States for Feedback Loops</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+<!-- State 1: Neutral / Attentive -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 flex flex-col items-center text-center space-y-3 hover:border-primary/40 transition-all">
+<div class="w-28 h-28 flex items-center justify-center relative bg-surface-container-low rounded-2xl p-2">
+<!-- SVG Owl: Neutral -->
+<svg class="w-24 h-24 drop-shadow-sm" viewbox="0 0 100 100">
+<ellipse cx="50" cy="54" fill="#6C5CE7" rx="34" ry="36"></ellipse>
+<ellipse cx="50" cy="58" fill="#EDE9FE" rx="24" ry="26"></ellipse>
+<!-- Ears/Tufts -->
+<polygon fill="#5341CD" points="26,24 38,40 22,38"></polygon>
+<polygon fill="#5341CD" points="74,24 78,38 62,40"></polygon>
+<!-- Big Eyes Neutral -->
+<circle cx="38" cy="46" fill="#FFFFFF" r="10"></circle>
+<circle cx="62" cy="46" fill="#FFFFFF" r="10"></circle>
+<circle cx="38" cy="46" fill="#1E1B4B" r="5"></circle>
+<circle cx="62" cy="46" fill="#1E1B4B" r="5"></circle>
+<circle cx="40" cy="44" fill="#FFFFFF" r="1.5"></circle>
+<circle cx="64" cy="44" fill="#FFFFFF" r="1.5"></circle>
+<!-- Beak -->
+<polygon fill="#EA580C" points="50,52 46,59 54,59"></polygon>
+<!-- Wings folded -->
+<path d="M 18,50 Q 14,64 26,72" fill="none" stroke="#4C1D95" stroke-linecap="round" stroke-width="4"></path>
+<path d="M 82,50 Q 86,64 74,72" fill="none" stroke="#4C1D95" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+</div>
+<div>
+<h4 class="text-label-md font-label-md font-bold text-on-surface">Neutral / Ready</h4>
+<span class="text-caption font-mono text-outline">State: Idle Observer</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">Default state on course dashboards and topic transitions.</p>
+</div>
+<!-- State 2: Joyful / Triumph Lv.8 Medal -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest border-2 border-primary/30 flex flex-col items-center text-center space-y-3 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(108,92,231,0.12)]">
+<span class="absolute top-2 right-2 bg-secondary-fixed text-primary text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">XP Gain</span>
+<div class="w-28 h-28 flex items-center justify-center relative bg-surface-container-low rounded-2xl p-2">
+<!-- SVG Owl: Joyful with Lv.8 Master Medal -->
+<svg class="w-24 h-24" viewbox="0 0 100 100">
+<ellipse cx="50" cy="52" fill="#6C5CE7" rx="34" ry="36"></ellipse>
+<ellipse cx="50" cy="56" fill="#EDE9FE" rx="24" ry="26"></ellipse>
+<!-- Ears -->
+<polygon fill="#5341CD" points="24,20 38,36 20,36"></polygon>
+<polygon fill="#5341CD" points="76,20 80,36 62,36"></polygon>
+<!-- Happy Arc Eyes (^^) -->
+<path d="M 30,46 Q 38,36 46,46" fill="none" stroke="#1E1B4B" stroke-linecap="round" stroke-width="4"></path>
+<path d="M 54,46 Q 62,36 70,46" fill="none" stroke="#1E1B4B" stroke-linecap="round" stroke-width="4"></path>
+<!-- Blush -->
+<circle cx="28" cy="53" fill="#F472B6" opacity="0.6" r="4"></circle>
+<circle cx="72" cy="53" fill="#F472B6" opacity="0.6" r="4"></circle>
+<!-- Smiling Beak -->
+<polygon fill="#EA580C" points="50,50 45,56 55,56"></polygon>
+<!-- Wings up triumph -->
+<path d="M 18,56 Q 8,40 18,30" fill="none" stroke="#4C1D95" stroke-linecap="round" stroke-width="4"></path>
+<path d="M 82,56 Q 92,40 82,30" fill="none" stroke="#4C1D95" stroke-linecap="round" stroke-width="4"></path>
+<!-- Lv.8 Medal -->
+<polygon fill="#F59E0B" points="50,68 54,75 50,82 46,75"></polygon>
+<circle cx="50" cy="74" fill="#FBBF24" r="8" stroke="#D97706" stroke-width="1.5"></circle>
+<text fill="#78350F" font-family="JetBrains Mono" font-size="7" font-weight="bold" text-anchor="middle" x="50" y="77">8</text>
+</svg>
+</div>
+<div>
+<h4 class="text-label-md font-label-md font-bold text-primary">Joyful / Triumph</h4>
+<span class="text-caption font-mono text-outline">State: Lv.8 Master Medal</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">Fires on 100% quiz completion and streak retention milestones.</p>
+</div>
+<!-- State 3: Deep Focus with Glasses -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 flex flex-col items-center text-center space-y-3 hover:border-primary/40 transition-all">
+<div class="w-28 h-28 flex items-center justify-center relative bg-surface-container-low rounded-2xl p-2">
+<!-- SVG Owl: Deep Focus Glasses -->
+<svg class="w-24 h-24" viewbox="0 0 100 100">
+<ellipse cx="50" cy="54" fill="#6C5CE7" rx="34" ry="36"></ellipse>
+<ellipse cx="50" cy="58" fill="#EDE9FE" rx="24" ry="26"></ellipse>
+<!-- Ears -->
+<polygon fill="#5341CD" points="26,24 38,40 22,38"></polygon>
+<polygon fill="#5341CD" points="74,24 78,38 62,40"></polygon>
+<!-- Glasses Frame -->
+<rect fill="#006274" fill-opacity="0.15" height="16" rx="4" stroke="#006274" stroke-width="2.5" width="20" x="26" y="38"></rect>
+<rect fill="#006274" fill-opacity="0.15" height="16" rx="4" stroke="#006274" stroke-width="2.5" width="20" x="54" y="38"></rect>
+<line stroke="#006274" stroke-width="2.5" x1="46" x2="54" y1="46" y2="46"></line>
+<!-- Concentrated Pupils -->
+<circle cx="36" cy="46" fill="#1E1B4B" r="3"></circle>
+<circle cx="64" cy="46" fill="#1E1B4B" r="3"></circle>
+<!-- Small Beak -->
+<polygon fill="#EA580C" points="50,56 47,62 53,62"></polygon>
+<!-- Reading Pencil/Pen -->
+<line stroke="#F59E0B" stroke-linecap="round" stroke-width="4" x1="74" x2="88" y1="78" y2="60"></line>
+</svg>
+</div>
+<div>
+<h4 class="text-label-md font-label-md font-bold text-on-surface">Deep Focus</h4>
+<span class="text-caption font-mono text-outline">State: Scholar Specs</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">Active during active Pomodoro intervals and coding exercises.</p>
+</div>
+<!-- State 4: Shy / Hiding Eyes -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 flex flex-col items-center text-center space-y-3 hover:border-primary/40 transition-all">
+<div class="w-28 h-28 flex items-center justify-center relative bg-surface-container-low rounded-2xl p-2">
+<!-- SVG Owl: Shy / Covering Eyes -->
+<svg class="w-24 h-24" viewbox="0 0 100 100">
+<ellipse cx="50" cy="54" fill="#6C5CE7" rx="34" ry="36"></ellipse>
+<ellipse cx="50" cy="58" fill="#EDE9FE" rx="24" ry="26"></ellipse>
+<!-- Ears -->
+<polygon fill="#5341CD" points="26,26 38,40 22,38"></polygon>
+<polygon fill="#5341CD" points="74,26 78,38 62,40"></polygon>
+<!-- Shy Beak -->
+<polygon fill="#EA580C" points="50,56 47,61 53,61"></polygon>
+<!-- Wings covering eyes peek -->
+<path d="M 20,70 Q 32,36 46,44" fill="#5341CD" stroke="#4C1D95" stroke-width="2"></path>
+<path d="M 80,70 Q 68,36 54,44" fill="#5341CD" stroke="#4C1D95" stroke-width="2"></path>
+<!-- Small peeking pupil between wings -->
+<circle cx="43" cy="42" fill="#1E1B4B" r="2"></circle>
+<circle cx="57" cy="42" fill="#1E1B4B" r="2"></circle>
+<!-- Sweat drop -->
+<path d="M 72,32 C 72,30 76,28 76,32 C 76,34 72,34 72,32 Z" fill="#38BDF8"></path>
+</svg>
+</div>
+<div>
+<h4 class="text-label-md font-label-md font-bold text-on-surface">Shy / Hesitant</h4>
+<span class="text-caption font-mono text-outline">State: Wing Peek</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">Triggered on incorrect first attempts to offer gentle coaching hints.</p>
+</div>
+<!-- State 5: Sleepy / Rest Mode -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 flex flex-col items-center text-center space-y-3 hover:border-primary/40 transition-all">
+<div class="w-28 h-28 flex items-center justify-center relative bg-surface-container-low rounded-2xl p-2">
+<!-- SVG Owl: Sleepy -->
+<svg class="w-24 h-24" viewbox="0 0 100 100">
+<ellipse cx="50" cy="56" fill="#6C5CE7" rx="34" ry="34"></ellipse>
+<ellipse cx="50" cy="60" fill="#EDE9FE" rx="22" ry="24"></ellipse>
+<!-- Drooping Ears -->
+<polygon fill="#5341CD" points="26,30 38,42 20,42"></polygon>
+<polygon fill="#5341CD" points="74,30 80,42 62,42"></polygon>
+<!-- Sleeping Eye Lines (- -) -->
+<line stroke="#1E1B4B" stroke-linecap="round" stroke-width="3" x1="32" x2="44" y1="50" y2="50"></line>
+<line stroke="#1E1B4B" stroke-linecap="round" stroke-width="3" x1="56" x2="68" y1="50" y2="50"></line>
+<!-- Small Beak -->
+<polygon fill="#EA580C" points="50,56 47,60 53,60"></polygon>
+<!-- Floating Zzz -->
+<text fill="#8B5CF6" font-family="JetBrains Mono" font-size="10" font-weight="bold" x="70" y="30">z</text>
+<text fill="#A78BFA" font-family="JetBrains Mono" font-size="8" font-weight="bold" x="78" y="22">z</text>
+</svg>
+</div>
+<div>
+<h4 class="text-label-md font-label-md font-bold text-on-surface">Sleepy / Cooldown</h4>
+<span class="text-caption font-mono text-outline">State: Night Break</span>
+</div>
+<p class="text-caption font-caption text-on-surface-variant">Displays when daily learning goals are satisfied or during rest periods.</p>
+</div>
+</div>
+</section>
+<!-- SECTION 4: COMPONENT LIBRARY SHOWCASE -->
+<section class="space-y-8 scroll-mt-24" id="components">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-outline-variant/30 pb-4 gap-2">
+<div>
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-primary font-bold">Reusable Core</span>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Component Library Showcase</h2>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant font-mono">Interactive Buttons, SM-2, Pomodoro, Dropzone &amp; Modals</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Controls, Buttons, SM-2 Flashcards (7 Columns) -->
+<div class="lg:col-span-7 space-y-8">
+<!-- 1. Buttons Hierarchy -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface flex items-center justify-between">
+<span>Buttons &amp; Action Hierarchy</span>
+<span class="text-caption font-mono text-outline">TagHelpers: &lt;edu-button variant="..." /&gt;</span>
+</h3>
+<div class="flex flex-wrap items-center gap-3">
+<!-- Primary -->
+<button class="bg-[#6C5CE7] hover:bg-[#5B4BD6] text-white px-5 py-2.5 rounded-[12px] text-label-md font-label-md font-semibold transition-all shadow-[0_4px_14px_rgba(108,92,231,0.25)] active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-base">bolt</span>
+                Primary Action
+              </button>
+<!-- Secondary / Soft -->
+<button class="bg-[#F3E8FF] hover:bg-[#EDE5FF] text-[#6C5CE7] px-5 py-2.5 rounded-[12px] text-label-md font-label-md font-semibold transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-base">bookmark</span>
+                Secondary Soft
+              </button>
+<!-- Outline / Ghost -->
+<button class="bg-transparent hover:bg-surface-container text-[#1E1B4B] border border-[#E5E7EB] px-5 py-2.5 rounded-[12px] text-label-md font-label-md font-semibold transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-base">file_download</span>
+                Outline Spec
+              </button>
+<!-- Danger -->
+<button class="bg-red-50 hover:bg-red-100 text-[#DC2626] border border-red-200 px-4 py-2.5 rounded-[12px] text-label-md font-label-md font-semibold transition-all active:scale-95 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">delete</span>
+                Danger
+              </button>
+</div>
+</div>
+<!-- 2. SM-2 Flashcard Spaced Repetition Review Mechanism -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-label-md font-label-md font-bold text-on-surface">SM-2 Spaced Repetition Buttons</h3>
+<p class="text-caption font-caption text-on-surface-variant">Cognitive rating triggers for interval algorithm recalculation</p>
+</div>
+<span class="text-caption font-mono bg-secondary-fixed text-primary px-2.5 py-1 rounded-full font-bold">SM-2 Active</span>
+</div>
+<!-- Preview Flashcard Surface -->
+<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 text-center space-y-1">
+<span class="text-[11px] font-mono uppercase tracking-wider text-outline">Card 14 of 48 · Organic Chemistry</span>
+<p class="text-body-md font-body-md font-semibold text-on-surface">What is the rate-determining step in an SN1 reaction mechanism?</p>
+</div>
+<!-- The 4 SM-2 Buttons -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+<!-- Again (1) -->
+<button class="p-2.5 rounded-xl border border-red-200 bg-red-50/70 hover:bg-red-100/90 text-left transition-all active:scale-95">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-red-700">Again</span>
+<span class="text-[10px] font-mono text-red-600 bg-red-100 px-1 rounded">&lt;1m</span>
+</div>
+<div class="text-[11px] text-red-800/80 font-mono mt-0.5">Rating 1</div>
+</button>
+<!-- Hard (2) -->
+<button class="p-2.5 rounded-xl border border-orange-200 bg-orange-50/70 hover:bg-orange-100/90 text-left transition-all active:scale-95">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-orange-700">Hard</span>
+<span class="text-[10px] font-mono text-orange-600 bg-orange-100 px-1 rounded">12h</span>
+</div>
+<div class="text-[11px] text-orange-800/80 font-mono mt-0.5">Rating 2</div>
+</button>
+<!-- Good (3) -->
+<button class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/90 text-left transition-all active:scale-95">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-blue-700">Good</span>
+<span class="text-[10px] font-mono text-blue-600 bg-blue-100 px-1 rounded">2d</span>
+</div>
+<div class="text-[11px] text-blue-800/80 font-mono mt-0.5">Rating 3</div>
+</button>
+<!-- Easy (4) -->
+<button class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90 text-left transition-all active:scale-95">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-emerald-700">Easy</span>
+<span class="text-[10px] font-mono text-emerald-600 bg-emerald-100 px-1 rounded">6d</span>
+</div>
+<div class="text-[11px] text-emerald-800/80 font-mono mt-0.5">Rating 4</div>
+</button>
+</div>
+</div>
+<!-- 3. Pomodoro Counter Pill & Session Controls -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface flex items-center justify-between">
+<span>Pomodoro Counter &amp; Deep Study States</span>
+<span class="text-caption font-mono text-outline">State: Study Sprint #2</span>
+</h3>
+<div class="flex flex-wrap items-center justify-between p-4 rounded-xl bg-surface-container border border-outline-variant/30 gap-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-primary-container text-white flex items-center justify-center font-mono font-bold text-lg shadow-sm">
+<span class="material-symbols-outlined text-2xl">timer</span>
+</div>
+<div>
+<div class="text-2xl font-mono font-extrabold text-on-surface tracking-tight">24:48</div>
+<div class="text-caption font-mono text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Interval 2 of 4 (Focusing)
+                  </div>
+</div>
+</div>
+<!-- Controls -->
+<div class="flex items-center gap-2">
+<button class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-high border border-outline-variant/30 text-on-surface active:scale-95 transition-all" title="Pause Session">
+<span class="material-symbols-outlined text-lg">pause</span>
+</button>
+<button class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-high border border-outline-variant/30 text-on-surface active:scale-95 transition-all" title="Skip Session">
+<span class="material-symbols-outlined text-lg">skip_next</span>
+</button>
+<button class="px-4 py-2 rounded-xl bg-primary text-white text-label-sm font-label-sm font-semibold active:scale-95 transition-all">
+                  +5 Mins
+                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Dropzone, Modal Pattern, Badges & Toast (5 Columns) -->
+<div class="lg:col-span-5 space-y-8">
+<!-- Dropzone Uploader Spec -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-3">
+<h3 class="text-label-md font-label-md font-bold text-on-surface">Homework &amp; Code Dropzone</h3>
+<div class="border-2 border-dashed border-outline-variant/70 hover:border-primary/70 rounded-2xl p-6 text-center bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-12 h-12 mx-auto rounded-full bg-secondary-fixed text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-2xl">cloud_upload</span>
+</div>
+<p class="text-body-sm font-body-sm font-semibold text-on-surface mt-3">
+                Drop assignment files or <span class="text-primary underline">browse</span>
+</p>
+<p class="text-caption font-caption text-outline mt-1 font-mono">
+                Supports .PDF, .ZIP, .PY, .CS (Max 25MB)
+              </p>
+</div>
+</div>
+<!-- Toast Notification Preview -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-3">
+<h3 class="text-label-md font-label-md font-bold text-on-surface">Toast Feedback Pattern</h3>
+<div class="p-3.5 rounded-xl bg-white border border-outline-variant/40 shadow-lg flex items-start gap-3 relative">
+<div class="p-1.5 rounded-lg bg-emerald-100 text-emerald-700">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+</div>
+<div class="flex-1 pr-6">
+<h4 class="text-label-sm font-label-sm font-bold text-on-surface">Quiz Verified (+120 XP)</h4>
+<p class="text-caption font-caption text-on-surface-variant">Adaptive engine recalibrated your mastery curve for Chapter 4.</p>
+</div>
+<button class="absolute top-3 right-3 text-outline hover:text-on-surface">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+<!-- Modal Confirmation Pattern Preview -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-3">
+<h3 class="text-label-md font-label-md font-bold text-on-surface">Modal Dialog Pattern (Sheet/Overlay)</h3>
+<div class="p-5 rounded-2xl bg-surface border border-outline-variant/30 space-y-4 shadow-sm">
+<div class="flex items-center gap-3 text-error">
+<div class="p-2 rounded-xl bg-red-100">
+<span class="material-symbols-outlined text-xl">warning</span>
+</div>
+<div>
+<h4 class="text-label-md font-label-md font-bold text-on-surface">Finalize Exam Submission?</h4>
+<p class="text-caption font-caption text-on-surface-variant">You have 2 unanswered questions remaining.</p>
+</div>
+</div>
+<div class="flex items-center justify-end gap-2 pt-2">
+<button class="px-3.5 py-1.5 rounded-xl text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-container transition-colors">
+                  Review Questions
+                </button>
+<button class="px-4 py-1.5 rounded-xl bg-primary text-white text-label-sm font-label-sm font-semibold active:scale-95 shadow-sm transition-all">
+                  Submit Anyway
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: READINESS CHECKLIST (Задачи А, Б, В, Г) -->
+<section class="space-y-8 scroll-mt-24" id="checklist">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-outline-variant/30 pb-4 gap-2">
+<div>
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-emerald-600 font-bold">Release Verification</span>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Implementation Readiness Checklist</h2>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-label-sm font-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            100% Production Ready
+          </span>
+</div>
+</div>
+<!-- Bento Grid of Tasks A, B, C, D -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Задача А: Student Dashboard & System States -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4 hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-lg bg-primary-container text-white font-mono font-bold text-xs flex items-center justify-center">A</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Student Dashboard &amp; System States</h3>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold">DONE</span>
+</div>
+<ul class="space-y-2.5 text-body-sm font-body-sm text-on-surface-variant">
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Unified State Machine:</strong> Empty, Loading skeletons, Error boundaries, and High-XP celebration modes.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Course Mastery Rings:</strong> Dynamic SVG radial progress synchronized with user skill nodes.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Razor Partial Isolation:</strong> Zero JS framework dependencies; lightweight Web Components anchor.</span>
+</li>
+</ul>
+</div>
+<!-- Задача Б: Submissions & Interactive Tests -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4 hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-lg bg-primary-container text-white font-mono font-bold text-xs flex items-center justify-center">Б</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Submissions &amp; Interactive Tests</h3>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold">DONE</span>
+</div>
+<ul class="space-y-2.5 text-body-sm font-body-sm text-on-surface-variant">
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Multimodal Submission:</strong> Drag &amp; Dropzone supporting instant client-side validation and size auditing.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Assessment Engine:</strong> Single-choice, multi-select, and Monaco/CodeMirror code snippet execution panels.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Anti-Cheating Safeguards:</strong> Tab blur alert modals and countdown expiration triggers.</span>
+</li>
+</ul>
+</div>
+<!-- Задача В: Teacher Queue & Grading Rubric -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4 hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-lg bg-primary-container text-white font-mono font-bold text-xs flex items-center justify-center">В</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Teacher Queue &amp; Grading Rubric</h3>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold">DONE</span>
+</div>
+<ul class="space-y-2.5 text-body-sm font-body-sm text-on-surface-variant">
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Batch Queue Table:</strong> Filter by urgency, late flag, student cohort, and subject specialization.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>AI Pre-Grading Synthesis:</strong> Automated heuristic annotations with teacher confirmation override.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Inline Rubric Points:</strong> 4-tier grading matrix with instant student feedback broadcasting.</span>
+</li>
+</ul>
+</div>
+<!-- Задача Г: Flashcards, Pomodoro & Gamification -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 space-y-4 hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+<div class="flex items-center gap-2.5">
+<span class="w-7 h-7 rounded-lg bg-primary-container text-white font-mono font-bold text-xs flex items-center justify-center">Г</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Flashcards, Pomodoro &amp; Gamification</h3>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold">DONE</span>
+</div>
+<ul class="space-y-2.5 text-body-sm font-body-sm text-on-surface-variant">
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>SuperMemo-2 Algorithm:</strong> Repetition intervals calculation with 4-button rating precision.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Focus Session Tracker:</strong> Integrated 25/5 min Pomodoro timers with atmospheric ambient sounds.</span>
+</li>
+<li class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-lg flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span><strong>Mascot 'Ух' Expressions:</strong> Reactive 5-state vector avatar responding to retention streaks.</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+<!-- BOTTOM NAVIGATION BAR (Shared Anchor Component for Mobile Screens) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-sm py-space-xs bg-surface-container-lowest/90 dark:bg-inverse-surface/90 backdrop-blur-lg shadow-[0_-4px_20px_-2px_rgba(108,92,231,0.08)]">
+<!-- Tab 1: Learn -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#tokens">
+<span class="material-symbols-outlined text-xl">school</span>
+<span class="text-label-sm font-label-sm">Learn</span>
+</a>
+<!-- Tab 2: Quests -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#checklist">
+<span class="material-symbols-outlined text-xl">military_tech</span>
+<span class="text-label-sm font-label-sm">Quests</span>
+</a>
+<!-- Tab 3: AI Tutor (Active State mapped for design showcase) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1.5 transition-all active:scale-95" href="#mascot">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="text-label-sm font-label-sm">AI Tutor</span>
+</a>
+<!-- Tab 4: Analytics -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#components">
+<span class="material-symbols-outlined text-xl">insights</span>
+<span class="text-label-sm font-label-sm">Analytics</span>
+</a>
+<!-- Tab 5: Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1.5 hover:text-primary dark:hover:text-inverse-primary transition-colors active:scale-95" href="#tokens">
+<span class="material-symbols-outlined text-xl">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+    // Lightweight micro-interaction for theme preview toggle
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeBtn = document.querySelector('header button[title="Toggle color scheme"]');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+          document.documentElement.classList.toggle('dark');
+        });
+      }
+    });
+  </script>
+</body></html>

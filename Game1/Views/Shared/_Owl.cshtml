@@ -1,0 +1,100 @@
+@model int
+@*
+    Ух the owl — the platform mascot (SVG). Model = student level; accessories unlock with it:
+    3 glasses · 5 scarf · 8 medal · 12 book stack · 16 golden cap.
+    Moods are switched by classes on any ancestor (see wwwroot/css/owl.css):
+    is-blink, is-happy, is-cheer, is-sad, is-nervous, is-thinking, is-sleep, is-focus, is-shy, is-peek, is-roll.
+*@
+@{
+    var lv = Model;
+    var id = "owl" + Guid.NewGuid().ToString("N")[..8];
+    var gold = lv >= 16;
+}
+<svg class="owl" viewBox="0 0 140 128" aria-hidden="true" focusable="false">
+    <defs>
+        <linearGradient id="@(id)b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A78BFA" /><stop offset="1" stop-color="#7C3AED" /></linearGradient>
+        <clipPath id="@(id)l"><circle cx="52" cy="64" r="15" /></clipPath>
+        <clipPath id="@(id)r"><circle cx="88" cy="64" r="15" /></clipPath>
+    </defs>
+    @if (lv >= 12)
+    {
+        <g class="owl-books">
+            <rect x="-6" y="119" width="30" height="8" rx="2" fill="#0E9FB0" /><rect x="-3" y="111" width="25" height="8" rx="2" fill="#DB2777" /><rect x="-5" y="103" width="27" height="8" rx="2" fill="#F59E0B" />
+            <path d="M-2 123h22M1 115h17M-1 107h19" stroke="#fff" stroke-opacity=".55" stroke-width="1.4" />
+        </g>
+    }
+    <g fill="#F59E0B"><ellipse cx="57" cy="123" rx="7" ry="4" /><ellipse cx="83" cy="123" rx="7" ry="4" /></g>
+    <ellipse class="owl-wing" cx="30" cy="90" rx="12" ry="24" transform="rotate(14 30 90)" fill="#6D28D9" />
+    <ellipse class="owl-wing" cx="110" cy="90" rx="12" ry="24" transform="rotate(-14 110 90)" fill="#6D28D9" />
+    <ellipse cx="70" cy="84" rx="44" ry="40" fill="url(#@(id)b)" />
+    <ellipse cx="70" cy="101" rx="27" ry="21" fill="#EDE9FE" />
+    <path d="M59 96q3 3 6 0M67 96q3 3 6 0M75 96q3 3 6 0M63 104q3 3 6 0M71 104q3 3 6 0" stroke="#C4B5FD" stroke-width="2" fill="none" stroke-linecap="round" />
+    @if (lv >= 5)
+    {
+        <g class="owl-scarf">
+            <path d="M34 86Q70 102 106 86L106 94Q70 110 34 94Z" fill="#F472B6" />
+            <path d="M50 91.5l2 8M62 94l1 8.5M77 94l-1 8.5M89 91.5l-2 8" stroke="#fff" stroke-opacity=".55" stroke-width="3" />
+            <path d="M86 98l10 18-9 2-6-17z" fill="#EC4899" />
+        </g>
+    }
+    @if (lv >= 8)
+    {
+        <g class="owl-medal">
+            <path d="M64 100l6 8 6-8" fill="none" stroke="#2563EB" stroke-width="3" stroke-linejoin="round" />
+            <circle cx="70" cy="112" r="6.5" fill="#FBBF24" stroke="#F59E0B" stroke-width="1.5" />
+            <path d="M70 108.5l1.1 2.3 2.5.3-1.8 1.7.5 2.5-2.3-1.2-2.3 1.2.5-2.5-1.8-1.7 2.5-.3z" fill="#fff" />
+        </g>
+    }
+    <g class="owl-head">
+        <circle cx="52" cy="64" r="19" fill="#F5F3FF" />
+        <circle cx="88" cy="64" r="19" fill="#F5F3FF" />
+        <g class="owl-eyes">
+            <circle class="owl-eye" cx="52" cy="64" r="15" fill="#fff" />
+            <g clip-path="url(#@(id)l)">
+                <g class="owl-pupil"><circle cx="52" cy="64" r="7.5" fill="#1B1530" /><circle cx="54.5" cy="61.5" r="2.4" fill="#fff" /></g>
+                <rect class="owl-lid" x="36" y="48" width="32" height="32" fill="#8B5CF6" />
+            </g>
+            <circle class="owl-eye" cx="88" cy="64" r="15" fill="#fff" />
+            <g clip-path="url(#@(id)r)">
+                <g class="owl-pupil"><circle cx="88" cy="64" r="7.5" fill="#1B1530" /><circle cx="90.5" cy="61.5" r="2.4" fill="#fff" /></g>
+                <rect class="owl-lid" x="72" y="48" width="32" height="32" fill="#8B5CF6" />
+            </g>
+        </g>
+        <g class="owl-happy" fill="none" stroke="#1B1530" stroke-width="3.5" stroke-linecap="round"><path d="M43 67q9-10 18 0" /><path d="M79 67q9-10 18 0" /></g>
+        <g class="owl-brows" fill="none" stroke="#4C1D95" stroke-width="3" stroke-linecap="round"><path d="M40 45l14 5" /><path d="M100 45l-14 5" /></g>
+        @if (lv >= 3)
+        {
+            <g class="owl-glasses" fill="none" stroke="#1B1530" stroke-width="2.4"><circle cx="52" cy="64" r="16.5" /><circle cx="88" cy="64" r="16.5" /><path d="M68.5 62q1.5-2.5 3 0" /></g>
+        }
+        <circle cx="36" cy="80" r="4.5" fill="#F472B6" opacity=".45" />
+        <circle cx="104" cy="80" r="4.5" fill="#F472B6" opacity=".45" />
+        <path class="owl-tear" d="M44 82q-3 5 0 7q3-2 0-7z" fill="#60A5FA" />
+        <path d="M65 76h10l-5 9z" fill="#F59E0B" stroke="#F59E0B" stroke-width="3" stroke-linejoin="round" />
+        <g class="owl-pencil" transform="rotate(-18 70 84)">
+            <rect x="73" y="81" width="30" height="5" rx="1.5" fill="#FBBF24" /><path d="M103 81l7 2.5-7 2.5z" fill="#FDE68A" /><path d="M108 82.4l2 1.1-2 1.1z" fill="#1B1530" /><rect x="70" y="81" width="4" height="5" rx="1" fill="#F472B6" />
+        </g>
+        <path class="owl-sweat" d="M108 40q-6 9 0 12q6-3 0-12z" fill="#60A5FA" />
+        <g class="owl-cap">
+            <g transform="rotate(-6 70 31)">
+                <path d="M55 34v8c0 3 7 6 15 6s15-3 15-6v-8" fill="@(gold ? "#B45309" : "#2E1065")" />
+                <path d="M70 20l34 11-34 11-34-11z" fill="@(gold ? "#F59E0B" : "#1B1530")" />
+                <path d="M70 31l26 4v12" fill="none" stroke="@(gold ? "#FDE68A" : "#FBBF24")" stroke-width="2" stroke-linecap="round" />
+                <circle cx="96" cy="49" r="3" fill="@(gold ? "#FDE68A" : "#FBBF24")" />
+            </g>
+        </g>
+        <g class="owl-phones">
+            <path d="M27 70Q24 10 70 12Q116 10 113 70" fill="none" stroke="#1B1530" stroke-width="5" stroke-linecap="round" />
+            <rect x="18" y="58" width="15" height="24" rx="7" fill="#F472B6" /><rect x="107" y="58" width="15" height="24" rx="7" fill="#F472B6" />
+        </g>
+        <g class="owl-cover owl-cover-l">
+            <ellipse cx="52" cy="66" rx="20" ry="16" fill="#7C3AED" />
+            <path d="M40 70q4-6 8 0M48 72q4-6 8 0M56 70q4-6 8 0" stroke="#A78BFA" stroke-width="2" fill="none" stroke-linecap="round" />
+        </g>
+        <g class="owl-cover owl-cover-r">
+            <ellipse cx="88" cy="66" rx="20" ry="16" fill="#7C3AED" />
+            <path d="M76 70q4-6 8 0M84 72q4-6 8 0M92 70q4-6 8 0" stroke="#A78BFA" stroke-width="2" fill="none" stroke-linecap="round" />
+        </g>
+    </g>
+    <g class="owl-zzz" fill="#A78BFA" font-family="Inter, sans-serif" font-weight="800"><text x="108" y="34" font-size="14">z</text><text x="118" y="20" font-size="18">Z</text><text x="130" y="6" font-size="12">z</text></g>
+    <g class="owl-think" fill="#fff" stroke="#C4B5FD" stroke-width="1.5"><circle cx="112" cy="36" r="3" /><circle cx="120" cy="24" r="4.5" /><circle cx="131" cy="9" r="7" /></g>
+</svg>

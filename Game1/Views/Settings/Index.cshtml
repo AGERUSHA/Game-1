@@ -1,0 +1,189 @@
+@model UserProfile
+@{
+    ViewData["Title"] = L.T("Настройки", "Баптаулар", "Settings");
+    ViewData["Nav"] = "settings";
+    ViewData["Role"] = Model.Role;
+    var tab = TempData["Tab"] as string ?? "profile";
+    var hasPassword = ViewData["HasPassword"] as bool? ?? true;
+    var providers = ViewData["Providers"] as List<string> ?? [];
+    string Active(string t) => t == tab ? "active" : "";
+
+    // Current device for the "Active sessions" list
+    var ua = Context.Request.Headers.UserAgent.ToString();
+    var os = ua.Contains("Windows") ? "Windows" : ua.Contains("Android") ? "Android" : ua.Contains("iPhone") || ua.Contains("iPad") ? "iOS" : ua.Contains("Mac OS") ? "macOS" : ua.Contains("Linux") ? "Linux" : "";
+    var browser = ua.Contains("Edg/") ? "Edge" : ua.Contains("YaBrowser") ? "Yandex" : ua.Contains("OPR/") ? "Opera" : ua.Contains("Firefox/") ? "Firefox" : ua.Contains("Chrome/") ? "Chrome" : ua.Contains("Safari/") ? "Safari" : L.T("Браузер", "Браузер", "Browser");
+    var mobile = os is "Android" or "iOS";
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Настройки", "Баптаулар", "Settings")</h1>
+        <p>@L.T("Управляйте профилем, языком, уведомлениями и безопасностью.", "Профильді, тілді, хабарландыруларды және қауіпсіздікті басқарыңыз.", "Manage your profile, language, notifications and security.")</p>
+    </div>
+</div>
+
+<partial name="_FormError" />
+
+<div class="grid cols-side-main" data-tabs-scope>
+    <nav class="card settings-nav" aria-label="@L.T("Разделы настроек", "Баптау бөлімдері", "Settings sections")">
+        <button class="@Active("profile")" data-tab="profile">@Html.Icon("user-round") @L.T("Профиль", "Профиль", "Profile")</button>
+        <button class="@Active("language")" data-tab="language">@Html.Icon("languages") @L.T("Язык", "Тіл", "Language")</button>
+        <button class="@Active("notifications")" data-tab="notifications">@Html.Icon("bell") @L.T("Уведомления", "Хабарландырулар", "Notifications")</button>
+        <button class="@Active("appearance")" data-tab="appearance">@Html.Icon("palette") @L.T("Оформление", "Безендіру", "Appearance")</button>
+        <button class="@Active("security")" data-tab="security">@Html.Icon("shield-check") @L.T("Безопасность", "Қауіпсіздік", "Security")</button>
+    </nav>
+
+    <div>
+        <!-- Profile -->
+        <section class="card card-lg settings-panel @Active("profile")" data-tab-panel="profile">
+            <h2>@L.T("Профиль", "Профиль", "Profile")</h2>
+            <p class="muted text-sm mt-1">@L.T("Эта информация видна преподавателям и одногруппникам.", "Бұл ақпарат оқытушылар мен топтастарға көрінеді.", "This information is visible to teachers and classmates.")</p>
+            <hr />
+            <div class="flex items-center gap-4 wrap">
+                @Html.Avatar(Model.Initials, Model.AvatarUrl, "avatar-lg av-1")
+                <div class="col gap-2">
+                    <div class="flex gap-2 wrap">
+                        <form method="post" asp-action="UploadAvatar" enctype="multipart/form-data">
+                            <label class="btn btn-secondary btn-sm" style="cursor:pointer">
+                                @Html.Icon("upload", "icon-sm") @L.T("Загрузить фото", "Фото жүктеу", "Upload photo")
+                                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" hidden onchange="this.form.submit()" />
+                            </label>
+                        </form>
+                        @if (Model.AvatarUrl != null)
+                        {
+                            <form method="post" asp-action="RemoveAvatar"><button class="btn btn-ghost btn-sm" type="submit">@L.T("Удалить", "Жою", "Remove")</button></form>
+                        }
+                    </div>
+                    <small class="subtle">JPG, PNG, WebP · @L.T("до 2 МБ", "2 МБ-қа дейін", "up to 2 MB")</small>
+                </div>
+            </div>
+            <form method="post" asp-action="SaveProfile">
+                <div class="grid cols-2 mt-6" style="gap:16px">
+                    <div class="field"><label class="label" for="st-fn">@L.T("Имя", "Аты", "First name")</label><input class="input" id="st-fn" name="firstName" value="@Model.FirstName" required maxlength="100" autocomplete="given-name" /></div>
+                    <div class="field"><label class="label" for="st-ln">@L.T("Фамилия", "Тегі", "Last name")</label><input class="input" id="st-ln" name="lastName" value="@Model.LastName" maxlength="100" autocomplete="family-name" /></div>
+                    <div class="field"><label class="label" for="st-email">Email</label><input class="input" id="st-email" type="email" value="@Model.Email" readonly style="background:var(--surface-3)" title="@L.T("Email используется для входа и не меняется", "Email кіру үшін қолданылады және өзгермейді", "Email is your sign-in and can't be changed")" /></div>
+                    <div class="field"><label class="label" for="st-role">@L.T("Роль", "Рөл", "Role")</label><input class="input" id="st-role" value="@Model.RoleTitle" disabled style="background:var(--surface-3)" /></div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6"><button class="btn btn-ghost" type="reset">@L.T("Отмена", "Болдырмау", "Cancel")</button><button class="btn btn-primary" type="submit">@L.T("Сохранить", "Сақтау", "Save changes")</button></div>
+            </form>
+        </section>
+
+        <!-- Language -->
+        <section class="card card-lg settings-panel @Active("language")" data-tab-panel="language">
+            <h2>@L.T("Язык интерфейса", "Интерфейс тілі", "Interface language")</h2>
+            <p class="muted text-sm mt-1">@L.T("Выберите язык — интерфейс переключится сразу.", "Тілді таңдаңыз — интерфейс бірден ауысады.", "Choose a language — the interface switches instantly.")</p>
+            <hr />
+            <div class="option-cards">
+                @foreach (var lang in LangService.Languages)
+                {
+                    <button class="option-card @(L.Current == lang.Value ? "active" : "")" data-lang="@lang.Value">
+                        <span class="tick">@Html.Icon("check")</span>
+                        <span class="flag">@lang.Flag</span>
+                        <b>@lang.Name</b>
+                        <small>@lang.Code</small>
+                    </button>
+                }
+            </div>
+            <div class="setting-row mt-4">
+                <div><b>@L.T("Язык AI-ассистента", "AI-ассистент тілі", "AI assistant language")</b><small>@L.T("Совпадает с языком интерфейса", "Интерфейс тілімен сәйкес келеді", "Matches the interface language")</small></div>
+                <label class="switch"><input type="checkbox" checked /><span></span></label>
+            </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="card card-lg settings-panel @Active("notifications")" data-tab-panel="notifications">
+            <h2>@L.T("Уведомления", "Хабарландырулар", "Notifications")</h2>
+            <p class="muted text-sm mt-1">@L.T("Выберите, о чём вам сообщать.", "Сізге не туралы хабарлау керегін таңдаңыз.", "Choose what you want to hear about.")</p>
+            <hr />
+            @foreach (var (title, desc, on) in new[] {
+                (L.T("Дедлайны заданий", "Тапсырма мерзімдері", "Assignment deadlines"), L.T("За 2 дня и в день сдачи", "2 күн бұрын және тапсыру күні", "2 days before and on the due date"), true),
+                (L.T("Оценки и комментарии", "Бағалар мен пікірлер", "Grades & comments"), L.T("Когда преподаватель проверил работу", "Оқытушы жұмысты тексергенде", "When a teacher grades your work"), true),
+                (L.T("AI-рекомендации", "AI-ұсыныстар", "AI recommendations"), L.T("Персональные советы по обучению", "Оқу бойынша жеке кеңестер", "Personal learning tips"), true),
+                (L.T("Достижения и XP", "Жетістіктер және XP", "Achievements & XP"), L.T("Новые награды и уровни", "Жаңа марапаттар мен деңгейлер", "New badges and levels"), true),
+                (L.T("Email-рассылка", "Email-тарату", "Email newsletter"), L.T("Новости платформы раз в неделю", "Аптасына бір рет платформа жаңалықтары", "Weekly platform news"), false) })
+            {
+                <div class="setting-row"><div><b>@title</b><small>@desc</small></div><label class="switch"><input type="checkbox" @(on ? "checked" : "") /><span></span></label></div>
+            }
+        </section>
+
+        <!-- Appearance -->
+        <section class="card card-lg settings-panel @Active("appearance")" data-tab-panel="appearance">
+            <h2>@L.T("Оформление", "Безендіру", "Appearance")</h2>
+            <p class="muted text-sm mt-1">@L.T("Светлая, тёмная или как в системе.", "Ашық, қараңғы немесе жүйедегідей.", "Light, dark or match your system.")</p>
+            <hr />
+            <div class="option-cards">
+                <button class="option-card" data-theme-set="light"><span class="tick">@Html.Icon("check")</span><span class="theme-preview light"><i></i><i></i></span><b>@L.T("Светлая", "Ашық", "Light")</b></button>
+                <button class="option-card" data-theme-set="dark"><span class="tick">@Html.Icon("check")</span><span class="theme-preview dark"><i></i><i></i></span><b>@L.T("Тёмная", "Қараңғы", "Dark")</b></button>
+                <button class="option-card" data-theme-set="system"><span class="tick">@Html.Icon("check")</span><span class="theme-preview system"><i></i><i></i></span><b>@L.T("Системная", "Жүйелік", "System")</b></button>
+            </div>
+            <div class="setting-row mt-4"><div><b>@L.T("Анимации", "Анимациялар", "Animations")</b><small>@L.T("Плавные переходы и эффекты", "Тегіс ауысулар мен әсерлер", "Smooth transitions and effects")</small></div><label class="switch"><input type="checkbox" checked /><span></span></label></div>
+            <div class="setting-row"><div><b>@L.T("Компактный режим", "Ықшам режим", "Compact mode")</b><small>@L.T("Меньше отступов в списках", "Тізімдерде шегіністер азырақ", "Tighter spacing in lists")</small></div><label class="switch"><input type="checkbox" /><span></span></label></div>
+        </section>
+
+        <!-- Security -->
+        <section class="card card-lg settings-panel @Active("security")" data-tab-panel="security">
+            <h2>@L.T("Безопасность", "Қауіпсіздік", "Security")</h2>
+            <p class="muted text-sm mt-1">@L.T("Пароль, двухфакторная защита и активные сессии.", "Құпиясөз, екі факторлы қорғаныс және белсенді сессиялар.", "Password, two-factor protection and active sessions.")</p>
+            <hr />
+            <form method="post" asp-action="ChangePassword" class="col gap-4" style="max-width:440px">
+                <div class="card-title">@(hasPassword ? L.T("Смена пароля", "Құпиясөзді өзгерту", "Change password") : L.T("Создать пароль", "Құпиясөз жасау", "Create a password"))</div>
+                @if (hasPassword)
+                {
+                    <div class="field"><label class="label" for="pw-cur">@L.T("Текущий пароль", "Ағымдағы құпиясөз", "Current password")</label>
+                        <div class="input-group">@Html.Icon("lock")<input class="input" id="pw-cur" name="currentPassword" type="password" required autocomplete="current-password" /><button class="icon-btn input-action" type="button" data-pw-toggle aria-label="@L.T("Показать пароль", "Құпиясөзді көрсету", "Show password")">@Html.Icon("eye")</button></div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-sm muted">@L.T("Вы входите через", "Сіз мына арқылы кіресіз:", "You sign in with") @string.Join(", ", providers). @L.T("Задайте пароль, чтобы входить и по email.", "Email арқылы да кіру үшін құпиясөз орнатыңыз.", "Set a password to also sign in with your email.")</p>
+                }
+                <div class="field"><label class="label" for="pw-new">@L.T("Новый пароль", "Жаңа құпиясөз", "New password")</label>
+                    <div class="input-group">@Html.Icon("lock")<input class="input" id="pw-new" name="newPassword" type="password" required minlength="8" placeholder="@L.T("Минимум 8 символов", "Кемінде 8 таңба", "At least 8 characters")" data-pw-meter="#pwm-st" autocomplete="new-password" /><button class="icon-btn input-action" type="button" data-pw-toggle aria-label="@L.T("Показать пароль", "Құпиясөзді көрсету", "Show password")">@Html.Icon("eye")</button></div>
+                    <div class="pw-meter" id="pwm-st"><i></i><i></i><i></i><i></i></div>
+                </div>
+                <div class="field"><label class="label" for="pw-conf">@L.T("Подтверждение", "Растау", "Confirm")</label>
+                    <div class="input-group">@Html.Icon("shield-check")<input class="input" id="pw-conf" name="confirmPassword" type="password" required minlength="8" autocomplete="new-password" /></div>
+                </div>
+                <div><button class="btn btn-primary" type="submit">@Html.Icon("lock", "icon-sm") @(hasPassword ? L.T("Обновить пароль", "Құпиясөзді жаңарту", "Update password") : L.T("Создать пароль", "Құпиясөз жасау", "Create password"))</button></div>
+            </form>
+            <hr />
+            <div class="card-title mb-2">@L.T("Способы входа", "Кіру тәсілдері", "Sign-in methods")</div>
+            <div class="list">
+                <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("mail")</span><div class="grow"><div class="list-title">Email + @L.T("пароль", "құпиясөз", "password")</div><div class="list-meta">@Model.Email</div></div><span class="badge @(hasPassword ? "badge-success" : "")">@(hasPassword ? L.T("Включён", "Қосулы", "On") : L.T("Нет пароля", "Құпиясөз жоқ", "No password"))</span></div>
+                @foreach (var p in new[] { "Google", "Microsoft" })
+                {
+                    var on = providers.Contains(p);
+                    <div class="list-item"><span class="ibox ibox-sm">@Html.Icon(p == "Google" ? "chrome" : "grid-2x2")</span><div class="grow"><div class="list-title">@p</div><div class="list-meta">@(on ? L.T("Привязан", "Байланыстырылған", "Linked") : L.T("Войдите через него один раз, чтобы привязать", "Байланыстыру үшін ол арқылы бір рет кіріңіз", "Sign in with it once to link"))</div></div><span class="badge @(on ? "badge-success" : "")">@(on ? L.T("Привязан", "Байланыстырылған", "Linked") : "—")</span></div>
+                }
+            </div>
+            <div class="setting-row mt-4"><div><b>@L.T("Двухфакторная аутентификация", "Екі факторлы аутентификация", "Two-factor authentication")</b><small>@L.T("Код из приложения при входе", "Кіру кезінде қосымшадан код", "A code from your app at sign-in")</small></div><span class="badge">@L.T("Скоро", "Жақында", "Coming soon")</span></div>
+            <div class="card-title mt-6 mb-2">@L.T("Текущая сессия", "Ағымдағы сессия", "Current session")</div>
+            <div class="list">
+                <div class="list-item"><span class="ibox ibox-sm">@Html.Icon(mobile ? "smartphone" : "monitor")</span><div class="grow"><div class="list-title">@(os.Length > 0 ? os + " · " : "")@browser</div><div class="list-meta">@L.T("Это устройство", "Осы құрылғы", "This device")</div></div><span class="badge badge-success badge-dot">@L.T("Сейчас", "Қазір", "Now")</span></div>
+            </div>
+            <hr />
+            <div class="flex items-center justify-between gap-4 wrap">
+                <div><b>@L.T("Удалить аккаунт", "Аккаунтты жою", "Delete account")</b><div class="text-sm muted">@L.T("Действие необратимо — все данные будут удалены.", "Әрекет қайтымсыз — барлық деректер жойылады.", "This can't be undone — all data will be removed.")</div></div>
+                <button class="btn btn-danger" data-modal-open="#deleteModal">@Html.Icon("trash-2", "icon-sm") @L.T("Удалить", "Жою", "Delete")</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="deleteModal">
+    <div class="modal text-center">
+        <span class="ibox ibox-lg ibox-error">@Html.Icon("alert-triangle")</span>
+        <h2 class="mt-4">@L.T("Удалить аккаунт?", "Аккаунтты жою керек пе?", "Delete account?")</h2>
+        <p class="muted mt-2">@L.T("Все курсы, XP и достижения будут потеряны.", "Барлық курстар, XP және жетістіктер жоғалады.", "All courses, XP and achievements will be lost.")</p>
+        <form method="post" asp-action="DeleteAccount">
+            @if (hasPassword)
+            {
+                <div class="field mt-4 text-left"><label class="label" for="del-pw">@L.T("Введите пароль для подтверждения", "Растау үшін құпиясөзді енгізіңіз", "Enter your password to confirm")</label><input class="input" id="del-pw" name="password" type="password" required autocomplete="current-password" /></div>
+            }
+            <div class="flex gap-3 justify-center mt-6">
+                <button class="btn btn-outline" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button>
+                <button class="btn btn-danger" type="submit">@L.T("Да, удалить", "Иә, жою", "Yes, delete")</button>
+            </div>
+        </form>
+    </div>
+</div>

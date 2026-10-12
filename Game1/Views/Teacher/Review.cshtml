@@ -1,0 +1,202 @@
+@model SubmissionDetail
+@{
+    var w = Model.Info;
+    var queue = (List<Submission>)ViewData["Queue"]!;
+    ViewData["Title"] = L.T("Проверка работ", "Жұмыстарды тексеру", "Grading");
+    ViewData["Nav"] = "t-review";
+    ViewData["Role"] = "teacher";
+    var pending = queue.Count(q => q.Status is "new" or "review");
+    (string Cls, string Label) Kind(string k) => k switch
+    {
+        "course" => ("badge-info", L.T("Курсовая", "Курстық", "Coursework")),
+        "test" => ("badge-warning", L.T("Тест", "Тест", "Test")),
+        _ => ("badge-primary", L.T("Лабораторная", "Зертханалық", "Lab")),
+    };
+    (string Cls, string Label) Status(string st) => st switch
+    {
+        "review" => ("badge-warning", L.T("Требует проверки", "Тексеру қажет", "Needs review")),
+        "returned" => ("badge-error", L.T("На доработке", "Пысықтауда", "Returned")),
+        "graded" => ("badge-success", L.T("Оценено", "Бағаланды", "Graded")),
+        _ => ("badge-primary", L.T("Новая", "Жаңа", "New")),
+    };
+    var templates = new[]
+    {
+        L.T("Чистый, читаемый код", "Таза, оқылатын код", "Clean, readable code"),
+        L.T("Отличный EXPLAIN-анализ", "Тамаша EXPLAIN-талдау", "Great EXPLAIN analysis"),
+        L.T("Добавьте индексы", "Индекстер қосыңыз", "Add indexes"),
+        L.T("Оформите README", "README рәсімдеңіз", "Write a README"),
+        L.T("Покройте тестами", "Тесттермен жабыңыз", "Add unit tests"),
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Проверка работ", "Жұмыстарды тексеру", "Grading") <span class="badge badge-primary">@pending @L.T("в очереди", "кезекте", "in queue")</span></h1>
+        <p>@L.T("Работы студентов, AI-проверка и рецензия в одном окне.", "Студенттер жұмыстары, AI-тексеру және рецензия бір терезеде.", "Student work, AI checks and your review in one place.")</p>
+    </div>
+    <div class="flex gap-2 wrap">
+        <span class="stat-pill">@Html.Icon("clock", "icon-sm") @L.T("Ср. время проверки", "Орт. тексеру уақыты", "Avg. turnaround"): <b>4.2 @L.T("ч", "сағ", "h")</b></span>
+        <span class="stat-pill">@Html.Icon("trending-up", "icon-sm") @L.T("Ср. балл потока", "Ағын орт. баллы", "Cohort average"): <b>84.6</b></span>
+    </div>
+</div>
+
+<div class="review-layout">
+    @* ---------- Queue ---------- *@
+    <aside class="card card-flush review-queue">
+        <div class="tabs" style="padding:0 12px" data-filter-target="#queueList">
+            <button class="tab active" data-filter="all">@L.T("Все", "Барлығы", "All") <span class="count">@queue.Count</span></button>
+            <button class="tab" data-filter="lab">@L.T("Лаб.", "Зертх.", "Labs")</button>
+            <button class="tab" data-filter="course">@L.T("Курсовые", "Курстық", "Coursework")</button>
+            <button class="tab" data-filter="test">@L.T("Тесты", "Тесттер", "Tests")</button>
+        </div>
+        <div id="queueList">
+            @foreach (var q in queue)
+            {
+                var st = Status(q.Status);
+                <a class="queue-item @(q.Id == w.Id ? "active" : "") @(q.Status == "graded" ? "is-done" : "")" href="/Teacher/Review/@q.Id" data-tags="all @q.Kind" aria-current="@(q.Id == w.Id ? "page" : null)">
+                    <span class="avatar avatar-sm av-@(q.Id % 6 + 1)">@q.Initials</span>
+                    <div class="grow" style="min-width:0">
+                        <div class="flex items-center justify-between gap-2"><b class="truncate">@q.Student</b><span class="badge @st.Cls">@st.Label</span></div>
+                        <div class="text-sm truncate">@q.Title</div>
+                        <div class="queue-meta">
+                            <span>@q.Group · @q.SubmittedAgo</span>
+                            <span class="@(q.AiMatch >= 85 ? "c-success" : q.AiMatch >= 70 ? "c-warning" : "c-error")">AI @q.AiMatch%</span>
+                        </div>
+                        @if (q.Late) { <small class="c-error fw-600">@Html.Icon("alarm-clock", "icon-sm") @L.T("Сдано с опозданием", "Кешігіп тапсырылды", "Submitted late")</small> }
+                    </div>
+                </a>
+            }
+        </div>
+        <partial name="_EmptyState" model='new EmptyState("inbox", L.T("Очередь пуста", "Кезек бос", "Queue is empty"), L.T("Все работы этого типа проверены.", "Бұл түрдегі барлық жұмыс тексерілді.", "Every work of this type is graded."), "#queueList", Mood: "is-happy")' />
+    </aside>
+
+    @* ---------- Work ---------- *@
+    <div class="col gap-6" style="min-width:0">
+        <section class="card card-lg">
+            <div class="flex items-center gap-2 wrap">
+                <span class="badge">@w.Group</span>
+                <span class="badge @Kind(w.Kind).Cls">@Kind(w.Kind).Label</span>
+                <span class="text-sm subtle">@w.Course · @L.T("сдано", "тапсырылды", "submitted") @w.SubmittedAgo</span>
+            </div>
+            <h2 class="review-title">@w.Student: @w.Title</h2>
+            <div class="flex gap-2 wrap mt-3">
+                @foreach (var f in Model.Files)
+                {
+                    <button class="file-chip" type="button" data-toast="@L.T("Файл скачивается", "Файл жүктелуде", "Downloading file")" data-toast-icon="download">@Html.Icon("paperclip", "icon-sm") @f @Html.Icon("download", "icon-sm")</button>
+                }
+                <button class="file-chip" type="button" data-toast="@L.T("Репозиторий откроется в новой вкладке", "Репозиторий жаңа қойындыда ашылады", "The repository opens in a new tab")" data-toast-icon="github">@Html.Icon("github", "icon-sm") GitHub</button>
+            </div>
+            @if (Model.StudentComment != null)
+            {
+                <blockquote class="review-quote">@Html.Icon("message-square-text", "icon-sm") @Model.StudentComment</blockquote>
+            }
+
+            <div class="ai-inspector mt-5">
+                <span class="ibox ibox-primary">@Html.Icon("scan-search")</span>
+                <div class="grow">
+                    <div class="flex items-center justify-between gap-2 wrap">
+                        <b>@L.T("AI-проверка", "AI-тексеру", "AI check")</b>
+                        <span class="badge badge-success">@L.T("Совпадение с эталоном", "Эталонмен сәйкестік", "Matches reference"): @w.AiMatch%</span>
+                    </div>
+                    <p class="text-sm muted mt-1">@Model.AiSummary</p>
+                    <div class="flex gap-3 wrap mt-2 text-sm">
+                        <span>@Html.Icon("shield-check", "icon-sm c-success") @L.T("Плагиат", "Плагиат", "Plagiarism"): <b>@Model.Plagiarism%</b></span>
+                        <span>@Html.Icon("bug-off", "icon-sm c-success") 0 @L.T("ошибок синтаксиса", "синтаксис қатесі", "syntax errors")</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-window mt-5">
+                <div class="code-bar"><i></i><i></i><i></i><span class="grow truncate">@Model.FileName</span><span class="badge">@Model.Language</span></div>
+                <pre class="code-body"><code>@{ var lines = Model.Code.Split('\n'); }@for (var n = 0; n < lines.Length; n++) {<span class="cl"><span class="ln">@(n + 1)</span>@lines[n]</span>}</code></pre>
+            </div>
+        </section>
+
+        @* ---------- Grading ---------- *@
+        <section class="card card-lg" id="grade">
+            <div class="flex items-center justify-between gap-3 wrap">
+                <h2 class="h-section">@Html.Icon("star") @L.T("Оценка и рецензия", "Баға және рецензия", "Grade & review")</h2>
+                <span class="text-sm subtle">@L.T("Шкала", "Шкала", "Scale"): 100 @L.T("баллов", "балл", "points")</span>
+            </div>
+
+            <div class="grade-row mt-5">
+                <label class="label" for="score">@L.T("Итоговый балл", "Қорытынды балл", "Final score")</label>
+                <div class="flex items-center gap-3 wrap">
+                    <input class="input score-input tabular" id="score" type="number" min="0" max="@w.MaxScore" value="95" data-score />
+                    <span class="subtle">/ @w.MaxScore</span>
+                    <span class="badge badge-success" data-grade-badge>A · @L.T("Отлично", "Өте жақсы", "Excellent")</span>
+                    <span class="xp-chip">+120 XP @L.T("студенту", "студентке", "to student")</span>
+                </div>
+                <input class="score-range" type="range" min="0" max="@w.MaxScore" value="95" data-score-range aria-label="@L.T("Балл", "Балл", "Score")" />
+                <div class="score-scale"><span>0 · F</span><span>50 · FX</span><span>75 · B</span><span>90+ · A</span></div>
+            </div>
+
+            <div class="mt-5">
+                <span class="label-caps">@L.T("Быстрые шаблоны", "Жылдам үлгілер", "Quick templates")</span>
+                <div class="chips mt-2">
+                    @foreach (var t in templates) { <button class="chip" type="button" data-template="@t">+ @t</button> }
+                </div>
+            </div>
+
+            <div class="field mt-4">
+                <div class="editor-bar">
+                    <button class="icon-btn" type="button" aria-label="Bold">@Html.Icon("bold")</button>
+                    <button class="icon-btn" type="button" aria-label="Italic">@Html.Icon("italic")</button>
+                    <button class="icon-btn" type="button" aria-label="Code">@Html.Icon("code")</button>
+                    <button class="icon-btn" type="button" aria-label="List">@Html.Icon("list")</button>
+                    <span class="grow"></span>
+                    <button class="btn btn-ghost btn-sm" type="button" data-ai-review>@Html.Icon("sparkles", "icon-sm") @L.T("Черновик от AI", "AI жобасы", "AI draft")</button>
+                </div>
+                <textarea class="textarea editor-area" id="reviewText" rows="5" maxlength="2000" data-counter="#reviewCount" aria-label="@L.T("Рецензия", "Рецензия", "Review")">@L.T("Отличное решение: проблема N+1 полностью устранена через жадную загрузку. Курсорная пагинация — взрослый подход к экономии памяти.", "Тамаша шешім: N+1 мәселесі толық жойылды. Курсорлық пагинация — жадты үнемдеудің ересек тәсілі.", "Great solution: the N+1 problem is fully fixed with eager loading. Cursor pagination is a mature way to save memory.")</textarea>
+                <small class="subtle text-right tabular" id="reviewCount"></small>
+            </div>
+
+            <div class="flex gap-2 wrap mt-5 grade-actions">
+                <button class="btn btn-danger-soft" type="button" data-modal-open="#returnModal">@Html.Icon("rotate-ccw") @L.T("Вернуть на доработку", "Пысықтауға қайтару", "Return for rework")</button>
+                <span class="grow"></span>
+                <button class="btn btn-outline" type="button" data-toast="@L.T("Черновик рецензии сохранён", "Рецензия жобасы сақталды", "Review draft saved")" data-toast-icon="save">@Html.Icon("save") @L.T("Черновик", "Жоба", "Draft")</button>
+                <button class="btn btn-primary" type="button" data-toast="@L.T("Оценка утверждена, студент получил уведомление", "Баға бекітілді, студентке хабарлама жіберілді", "Grade approved, the student was notified")" data-toast-icon="check-circle-2">@Html.Icon("check-circle-2") @L.T("Утвердить оценку", "Бағаны бекіту", "Approve grade")</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="returnModal">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-5"><h2>@L.T("Вернуть на доработку", "Пысықтауға қайтару", "Return for rework")</h2><button class="icon-btn" type="button" data-modal-close aria-label="@L.T("Закрыть", "Жабу", "Close")">@Html.Icon("x")</button></div>
+        <div class="field"><label class="label" for="returnReason">@L.T("Что исправить", "Нені түзету керек", "What to fix")</label><textarea class="textarea" id="returnReason" rows="4" placeholder="@L.T("Например: добавьте тесты для 404 и 422", "Мысалы: 404 және 422 үшін тест қосыңыз", "e.g. add tests for 404 and 422")"></textarea></div>
+        <div class="field mt-4"><label class="label" for="returnDays">@L.T("Новый срок", "Жаңа мерзім", "New deadline")</label><select class="select" id="returnDays"><option>@L.T("3 дня", "3 күн", "3 days")</option><option selected>@L.T("5 дней", "5 күн", "5 days")</option><option>@L.T("1 неделя", "1 апта", "1 week")</option></select></div>
+        <div class="flex gap-3 justify-end mt-6">
+            <button class="btn btn-ghost" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button>
+            <button class="btn btn-danger" type="button" data-modal-close data-toast="@L.T("Работа возвращена студенту", "Жұмыс студентке қайтарылды", "Work returned to the student")" data-toast-icon="rotate-ccw">@L.T("Вернуть", "Қайтару", "Return")</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const score = document.querySelector("[data-score]"), range = document.querySelector("[data-score-range]"), badge = document.querySelector("[data-grade-badge]");
+    const G = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new[] {
+        new[] { "90", "A", L.T("Отлично", "Өте жақсы", "Excellent"), "badge-success" },
+        new[] { "75", "B", L.T("Хорошо", "Жақсы", "Good"), "badge-primary" },
+        new[] { "50", "C", L.T("Удовлетворительно", "Қанағаттанарлық", "Satisfactory"), "badge-warning" },
+        new[] { "0", "F", L.T("Не зачтено", "Сынақтан өтпеді", "Fail"), "badge-error" } }));
+    function sync(v) {
+        v = Math.max(0, Math.min(+range.max, +v || 0)); score.value = range.value = v;
+        const g = G.find(x => v >= +x[0]); badge.className = "badge " + g[3]; badge.textContent = `${g[1]} · ${g[2]}`;
+    }
+    score.addEventListener("input", () => sync(score.value)); range.addEventListener("input", () => sync(range.value));
+    const text = document.getElementById("reviewText");
+    const bump = () => text.dispatchEvent(new Event("input", { bubbles: true }));
+    document.addEventListener("click", e => {
+        const t = e.target.closest("[data-template]");
+        if (t) { text.value = (text.value.trim() + " " + t.dataset.template + ".").trim(); bump(); }
+        if (e.target.closest("[data-ai-review]")) {
+            text.value = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AiSummary)) + " " + text.value; bump();
+            window.eduToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("AI добавил черновик — проверьте перед отправкой", "AI жоба қосты — жібермес бұрын тексеріңіз", "AI added a draft — check it before sending"))), "sparkles");
+        }
+    });
+})();
+</script>
+}

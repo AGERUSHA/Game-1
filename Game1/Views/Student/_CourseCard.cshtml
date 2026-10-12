@@ -1,0 +1,43 @@
+@model Course
+@{
+    var tags = Model.Progress switch { 100 => "done", > 0 => "active", _ => "new" };
+    var catIndex = ViewData["CatIndex"] as int? ?? 0;
+}
+<article class="card card-hover course-card" data-tags="all @tags cat-@catIndex">
+    <a class="cover cover-@Model.Cover" href="/Student/CourseDetails/@Model.Id" aria-label="@Model.Title">
+        <span class="badge">@Model.Category</span>
+        @if (Model.Progress == 100)
+        {
+            <span class="badge done">@Html.Icon("check") @L.T("Завершён", "Аяқталды", "Completed")</span>
+        }
+        <span class="cover-icon">@Html.Icon(Model.Icon)</span>
+        <span class="rating">@Html.Icon("star") @Model.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span>
+    </a>
+    <div class="course-body">
+        <div>
+            <h3>@Model.Title</h3>
+            <div class="text-sm subtle mt-1">@Model.Subtitle</div>
+        </div>
+        <p class="desc">@Model.Description</p>
+        <div class="course-teacher">
+            <span class="avatar avatar-xs av-@(Model.Id % 6 + 1)">@string.Concat(Model.Teacher.Split(' ').Select(w => w[0]))</span>
+            @Model.Teacher
+        </div>
+        <div class="course-stats">
+            <span>@Html.Icon("book-open") @Model.Lessons @L.T("уроков", "сабақ", "lessons")</span>
+            <span>@Html.Icon("clock") @Model.Duration</span>
+            <span>@Html.Icon("users") @UiHelpers.Num(Model.Students)</span>
+            <span>@Html.Icon("signal") @Model.Level</span>
+        </div>
+        <div class="course-foot">
+            <div>
+                <div class="progress-row"><span>@L.T("Прогресс", "Прогресс", "Progress")</span><b>@Model.Progress%</b></div>
+                @Html.Progress(Model.Progress, Model.Progress == 100 ? "progress-sm progress-success" : "progress-sm")
+            </div>
+            <a class="btn @(Model.Progress == 0 ? "btn-primary" : "btn-secondary") btn-block" href="/Student/CourseDetails/@Model.Id">
+                @(Model.Progress switch { 0 => L.T("Начать курс", "Курсты бастау", "Start course"), 100 => L.T("Повторить", "Қайталау", "Review"), _ => L.T("Открыть", "Ашу", "Open") })
+                @Html.Icon("arrow-right", "icon-sm")
+            </a>
+        </div>
+    </div>
+</article>

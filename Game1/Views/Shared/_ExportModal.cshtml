@@ -1,0 +1,79 @@
+@* Report export dialog: groups, period, format → "preparing" → file ready. Open with data-modal-open="#exportModal". *@
+@{
+    var groups = new[] { ("IT-2101", 62), ("IT-2102", 58), ("IT-2103", 41) };
+}
+<div class="modal-backdrop" id="exportModal">
+    <div class="modal">
+        <div class="flex items-center justify-between mb-5">
+            <h2>@Html.Icon("file-down") @L.T("Экспорт отчёта", "Есепті экспорттау", "Export report")</h2>
+            <button class="icon-btn" type="button" data-modal-close aria-label="@L.T("Закрыть", "Жабу", "Close")">@Html.Icon("x")</button>
+        </div>
+
+        <div class="col gap-4" data-export-form>
+            <div class="field">
+                <span class="label">@L.T("Группы", "Топтар", "Groups")</span>
+                <div class="chips">
+                    @foreach (var (g, n) in groups)
+                    {
+                        <label class="chip check-chip"><input type="checkbox" checked="@(g != "IT-2103")" /> @g <span class="count">@n</span></label>
+                    }
+                </div>
+            </div>
+            <div class="grid cols-2" style="gap:12px">
+                <div class="field">
+                    <label class="label" for="exPeriod">@L.T("Период", "Кезең", "Period")</label>
+                    <select class="select" id="exPeriod">
+                        <option>@L.T("Эта неделя", "Осы апта", "This week")</option>
+                        <option>@L.T("Этот месяц", "Осы ай", "This month")</option>
+                        <option selected>@L.T("Осенний семестр 2026", "2026 күзгі семестр", "Fall semester 2026")</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <span class="label">@L.T("Формат", "Пішім", "Format")</span>
+                    <div class="segmented" style="width:100%">
+                        <button class="active" type="button" data-export-format="pdf" style="flex:1">PDF</button>
+                        <button type="button" data-export-format="xlsx" style="flex:1">Excel</button>
+                    </div>
+                </div>
+            </div>
+            <label class="check"><input type="checkbox" checked /> @L.T("Включить AI-сводку по группе", "Топ бойынша AI-қорытындыны қосу", "Include an AI summary for the group")</label>
+        </div>
+
+        <div class="export-state" data-export-busy hidden>
+            <span class="spinner"></span>
+            <div><b>@L.T("Готовим отчёт…", "Есеп дайындалуда…", "Preparing the report…")</b><small class="subtle">@L.T("Собираем оценки, посещаемость и XP", "Бағаларды, қатысуды және XP жинап жатырмыз", "Collecting grades, attendance and XP")</small></div>
+        </div>
+        <div class="export-state is-ready" data-export-ready hidden>
+            <span class="ibox ibox-success">@Html.Icon("file-check-2")</span>
+            <div class="grow"><b data-export-name></b><small class="subtle">1.8 MB · @L.T("сформирован только что", "жаңа ғана жасалды", "just generated")</small></div>
+            <button class="btn btn-secondary btn-sm" type="button" data-toast="@L.T("Файл скачивается", "Файл жүктелуде", "Downloading the file")" data-toast-icon="download">@Html.Icon("download", "icon-sm") @L.T("Скачать", "Жүктеу", "Download")</button>
+        </div>
+
+        <div class="flex gap-3 justify-end mt-6 wrap">
+            <button class="btn btn-ghost" type="button" data-modal-close>@L.T("Закрыть", "Жабу", "Close")</button>
+            <button class="btn btn-outline" type="button" data-export-send hidden data-modal-close data-toast="@L.T("Отчёт отправлен в деканат", "Есеп деканатқа жіберілді", "Report sent to the dean's office")" data-toast-icon="send">@Html.Icon("send", "icon-sm") @L.T("В деканат", "Деканатқа", "To dean's office")</button>
+            <button class="btn btn-primary" type="button" data-export-go>@Html.Icon("file-down", "icon-sm") @L.T("Сформировать", "Жасау", "Generate")</button>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    const m = document.getElementById("exportModal");
+    let fmt = "pdf";
+    m.addEventListener("click", e => {
+        const f = e.target.closest("[data-export-format]");
+        if (f) { fmt = f.dataset.exportFormat; }
+        if (e.target.closest("[data-export-go]")) {
+            const q = s => m.querySelector(s);
+            q("[data-export-ready]").hidden = true; q("[data-export-busy]").hidden = false; q("[data-export-go]").disabled = true;
+            setTimeout(() => {
+                q("[data-export-busy]").hidden = true; q("[data-export-ready]").hidden = false;
+                q("[data-export-send]").hidden = false; q("[data-export-go]").disabled = false;
+                const groups = [...m.querySelectorAll(".check-chip input:checked")].map(i => i.parentElement.textContent.trim().split(/\s+/)[0]);
+                q("[data-export-name]").textContent = `report_${(groups.join("_") || "all").replace(/-/g, "")}_2026.${fmt}`;
+                window.eduIcons?.();
+            }, 1400);
+        }
+    });
+})();
+</script>

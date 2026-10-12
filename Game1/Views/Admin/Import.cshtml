@@ -1,0 +1,163 @@
+@{
+    ViewData["Title"] = L.T("Импорт пользователей", "Пайдаланушыларды импорттау", "Import users");
+    ViewData["Nav"] = "a-users";
+    ViewData["Role"] = "admin";
+    var template = "first_name,last_name,email,role,group\nАкерке,Нургали,a.nurgali@edu.kz,student,IT-2101\nДанияр,Сериков,d.serikov@edu.kz,student,IT-2102\nАлександр,Волков,a.volkov@edu.kz,teacher,\n";
+    var templateHref = "data:text/csv;charset=utf-8," + Uri.EscapeDataString("﻿" + template);
+}
+
+<nav class="breadcrumbs mb-4" aria-label="@L.T("Навигация", "Навигация", "Breadcrumbs")">
+    <a href="/Admin/Users">@L.T("Пользователи", "Пайдаланушылар", "Users")</a> @Html.Icon("chevron-right", "icon-sm") <span>@L.T("Импорт", "Импорт", "Import")</span>
+</nav>
+
+<div class="page-head">
+    <div>
+        <h1>@L.T("Массовый импорт", "Жаппай импорт", "Bulk import")</h1>
+        <p>@L.T("Загрузите список студентов или преподавателей — проверим каждую строку до импорта.", "Студенттер немесе оқытушылар тізімін жүктеңіз — импортқа дейін әр жолды тексереміз.", "Upload a list of students or teachers — every row is checked before import.")</p>
+    </div>
+    <a class="btn btn-outline" href="@templateHref" download="eduai_users_template.csv">@Html.Icon("download") @L.T("Шаблон CSV", "CSV үлгісі", "CSV template")</a>
+</div>
+
+<ol class="stepper mb-6 import-steps" aria-label="@L.T("Шаги", "Қадамдар", "Steps")">
+    <li class="step active" data-istep="1"><span>1</span>@L.T("Файл", "Файл", "File")</li>
+    <li class="step" data-istep="2"><span>2</span>@L.T("Проверка", "Тексеру", "Check")</li>
+    <li class="step" data-istep="3"><span>3</span>@L.T("Готово", "Дайын", "Done")</li>
+</ol>
+
+<div class="grid cols-main-side" style="align-items:start">
+    <div class="col gap-6">
+        <section class="card card-lg" data-import-upload>
+            <label class="dropzone asg-drop" data-csv-drop>
+                <input type="file" accept=".csv,text/csv" hidden data-csv-input />
+                <span class="ibox ibox-lg">@Html.Icon("file-spreadsheet")</span>
+                <b class="mt-3">@L.T("Перетащите CSV сюда или", "CSV-ді осында сүйреңіз немесе", "Drop a CSV here or") <u class="c-primary">@L.T("выберите на диске", "дисктен таңдаңыз", "browse")</u></b>
+                <small class="subtle">@L.T("Колонки: first_name, last_name, email, role, group · до 2 500 строк", "Бағандар: first_name, last_name, email, role, group · 2 500 жолға дейін", "Columns: first_name, last_name, email, role, group · up to 2,500 rows")</small>
+            </label>
+            <button class="btn btn-ghost btn-sm mt-3" type="button" data-csv-sample>@Html.Icon("flask-conical", "icon-sm") @L.T("Попробовать на примере", "Мысалда байқап көру", "Try with a sample file")</button>
+        </section>
+
+        <section class="card card-lg" data-import-preview hidden>
+            <div class="flex items-center gap-3 wrap">
+                <span class="ibox">@Html.Icon("file-spreadsheet")</span>
+                <div class="grow"><b data-csv-name></b><div class="text-sm subtle"><span data-csv-rows></span> @L.T("строк", "жол", "rows")</div></div>
+                <button class="icon-btn" type="button" data-csv-reset aria-label="@L.T("Убрать файл", "Файлды алып тастау", "Remove file")">@Html.Icon("x")</button>
+            </div>
+            <div class="import-summary mt-4">
+                <span class="c-success">@Html.Icon("check-circle-2", "icon-sm") <b data-csv-ok>0</b> @L.T("готовы", "дайын", "ready")</span>
+                <span class="c-warning">@Html.Icon("alert-triangle", "icon-sm") <b data-csv-warn>0</b> @L.T("предупреждений", "ескерту", "warnings")</span>
+                <span class="c-error">@Html.Icon("x-circle", "icon-sm") <b data-csv-err>0</b> @L.T("ошибок", "қате", "errors")</span>
+            </div>
+            <div class="import-bar mt-2"><i class="ok" data-bar-ok></i><i class="warn" data-bar-warn></i><i class="err" data-bar-err></i></div>
+
+            <div class="segmented mt-5" data-csv-filter>
+                <button class="active" type="button" data-show="all">@L.T("Все", "Барлығы", "All")</button>
+                <button type="button" data-show="issue">@L.T("Только проблемы", "Тек мәселелер", "Issues only")</button>
+            </div>
+            <div class="table-wrap mt-3 import-table">
+                <table class="table">
+                    <thead><tr><th>#</th><th>@L.T("Имя", "Аты", "Name")</th><th>Email</th><th>@L.T("Роль", "Рөл", "Role")</th><th>@L.T("Группа", "Топ", "Group")</th><th>@L.T("Проверка", "Тексеру", "Check")</th></tr></thead>
+                    <tbody data-csv-body></tbody>
+                </table>
+            </div>
+            <div class="flex gap-2 wrap mt-5">
+                <button class="btn btn-ghost" type="button" data-csv-reset>@L.T("Отмена", "Болдырмау", "Cancel")</button>
+                <span class="grow"></span>
+                <button class="btn btn-primary" type="button" data-csv-import>@Html.Icon("user-plus") @L.T("Импортировать", "Импорттау", "Import") <span data-csv-importn></span></button>
+            </div>
+        </section>
+
+        <section class="card card-lg" data-import-done hidden>
+            <partial name="_EmptyState" model='new EmptyState("users", L.T("Импорт завершён", "Импорт аяқталды", "Import complete"), L.T("Пользователи появятся в списке, когда импорт подключится к базе. Приглашения уйдут на их email.", "Импорт базаға қосылғанда пайдаланушылар тізімде пайда болады.", "Users will appear in the list once import is connected to the database. Invitations go to their email."), ActionText: L.T("К пользователям", "Пайдаланушыларға", "Go to users"), ActionHref: "/Admin/Users", Mood: "is-cheer")' />
+        </section>
+    </div>
+
+    <aside class="col gap-6">
+        <section class="card">
+            <div class="card-title mb-3">@Html.Icon("list-checks", "icon-sm") @L.T("Что проверяем", "Не тексереміз", "What we check")</div>
+            <ul class="req-list">
+                <li>@Html.Icon("check", "icon-sm c-success") @L.T("Обязательные поля: имя и email", "Міндетті өрістер: аты және email", "Required: name and email")</li>
+                <li>@Html.Icon("check", "icon-sm c-success") @L.T("Формат email и дубли в файле", "Email пішімі және файлдағы қайталаулар", "Email format and duplicates")</li>
+                <li>@Html.Icon("check", "icon-sm c-success") @L.T("Роль: student, teacher или admin", "Рөл: student, teacher немесе admin", "Role: student, teacher or admin")</li>
+                <li>@Html.Icon("check", "icon-sm c-success") @L.T("У студента должна быть группа", "Студенттің тобы болуы керек", "Students need a group")</li>
+            </ul>
+        </section>
+        <section class="card card-soft text-sm">
+            <b>@Html.Icon("info", "icon-sm") @L.T("Пароли", "Құпиясөздер", "Passwords")</b>
+            <p class="muted mt-2">@L.T("Пароли в файле не передаются. Каждый получит письмо со ссылкой, чтобы задать свой пароль, или войдёт через Google / Microsoft.", "Файлда құпиясөздер берілмейді. Әркім өз құпиясөзін орнату сілтемесі бар хат алады.", "No passwords go in the file. Everyone gets an email link to set their own, or signs in with Google / Microsoft.")</p>
+        </section>
+    </aside>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const T = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        ok = L.T("Готово", "Дайын", "OK"),
+        noName = L.T("Нет имени", "Аты жоқ", "Missing name"),
+        badEmail = L.T("Неверный email", "Email қате", "Invalid email"),
+        dupEmail = L.T("Email повторяется", "Email қайталанады", "Duplicate email"),
+        badRole = L.T("Роль не распознана — будет student", "Рөл танылмады — student болады", "Unknown role — will be student"),
+        noGroup = L.T("Нет группы", "Тобы жоқ", "No group"),
+        ext = L.T("Домен не университетский", "Университет домені емес", "Non-university domain"),
+    }));
+    const sample = "first_name,last_name,email,role,group\nАкерке,Нургали,a.nurgali@edu.kz,student,IT-2101\nДанияр,Сериков,d.serikov@edu.kz,student,IT-2102\nАлина,Ким,a.kim@edu.kz,student,IT-2101\nБауыржан,Тохтаров,b.tokhtarov@edu.uni.kzz,student,IT-2101\n,Ахметов,d.akhmetov@edu.kz,student,IT-2102\nМадина,Омарова,madina@gmail.com,teacher,\nСабина,Ким,a.kim@edu.kz,student,IT-2103\nТимур,Ибраев,timur.i@edu.kz,stud,IT-2101\nАйгерим,Нурланова,a.nurlanova@edu.kz,teacher,\nНурай,Абенова,n.abenova@edu.kz,student,\n";
+    const $ = s => document.querySelector(s);
+    let rows = [];
+
+    function parse(text) {
+        const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter(l => l.trim());
+        const head = lines.shift().split(",").map(h => h.trim().toLowerCase());
+        const col = n => head.indexOf(n);
+        const seen = new Set();
+        return lines.map((l, i) => {
+            const c = l.split(",").map(x => x.trim());
+            const r = { n: i + 2, first: c[col("first_name")] || "", last: c[col("last_name")] || "", email: (c[col("email")] || "").toLowerCase(), role: (c[col("role")] || "student").toLowerCase(), group: c[col("group")] || "", issues: [], level: "ok" };
+            const err = m => { r.issues.push(m); r.level = "err"; }, warn = m => { r.issues.push(m); if (r.level === "ok") r.level = "warn"; };
+            if (!r.first) err(T.noName);
+            if (!/^[^@@\s]+@@[^@@\s]+\.[a-z]{2,}$/i.test(r.email)) err(T.badEmail);
+            else if (seen.has(r.email)) err(T.dupEmail);
+            else { seen.add(r.email); if (!/\.(kz|edu)$/i.test(r.email.split("@@")[1]) || /\.kzz$/i.test(r.email)) warn(T.ext); }
+            if (!["student", "teacher", "admin"].includes(r.role)) { warn(T.badRole); r.role = "student"; }
+            if (r.role === "student" && !r.group) warn(T.noGroup);
+            return r;
+        });
+    }
+    function step(n) { document.querySelectorAll("[data-istep]").forEach(s => { const k = +s.dataset.istep; s.classList.toggle("active", k === n); s.classList.toggle("done", k < n); }); }
+    function render(name) {
+        const esc = s => s.replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+        const cnt = l => rows.filter(r => r.level === l).length;
+        $("[data-csv-name]").textContent = name; $("[data-csv-rows]").textContent = rows.length;
+        $("[data-csv-ok]").textContent = cnt("ok"); $("[data-csv-warn]").textContent = cnt("warn"); $("[data-csv-err]").textContent = cnt("err");
+        [["ok", "[data-bar-ok]"], ["warn", "[data-bar-warn]"], ["err", "[data-bar-err]"]].forEach(([l, s]) => $(s).style.width = (cnt(l) / Math.max(1, rows.length) * 100) + "%");
+        $("[data-csv-importn]").textContent = `(${rows.length - cnt("err")})`;
+        $("[data-csv-body]").innerHTML = rows.map(r => `<tr class="row-${r.level}" data-level="${r.level}">
+            <td class="subtle tabular">${r.n}</td><td>${esc((r.first + " " + r.last).trim()) || "—"}</td><td class="import-email">${esc(r.email) || "—"}</td>
+            <td>${esc(r.role)}</td><td>${esc(r.group) || "—"}</td>
+            <td>${r.issues.length ? r.issues.map(i => `<span class="badge ${r.level === "err" ? "badge-error" : "badge-warning"}">${esc(i)}</span>`).join(" ") : `<span class="badge badge-success">${T.ok}</span>`}</td></tr>`).join("");
+        $("[data-import-upload]").hidden = true; $("[data-import-preview]").hidden = false; $("[data-import-done]").hidden = true; step(2);
+    }
+    function load(file) {
+        if (!file) return;
+        const rd = new FileReader();
+        rd.onload = () => { rows = parse(String(rd.result)); render(file.name); };
+        rd.readAsText(file, "utf-8");
+    }
+    function reset() { rows = []; $("[data-import-upload]").hidden = false; $("[data-import-preview]").hidden = true; $("[data-import-done]").hidden = true; step(1); }
+
+    $("[data-csv-input]").addEventListener("change", e => { load(e.target.files[0]); e.target.value = ""; });
+    const drop = $("[data-csv-drop]");
+    ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("is-over"); }));
+    ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("is-over"); if (ev === "drop") load(e.dataTransfer.files[0]); }));
+    $("[data-csv-sample]").addEventListener("click", () => { rows = parse(sample); render("cohort_fall_2026.csv"); });
+    document.querySelectorAll("[data-csv-reset]").forEach(b => b.addEventListener("click", reset));
+    $("[data-csv-filter]").addEventListener("click", e => {
+        const b = e.target.closest("[data-show]"); if (!b) return;
+        document.querySelectorAll("[data-csv-body] tr").forEach(tr => tr.hidden = b.dataset.show === "issue" && tr.dataset.level === "ok");
+    });
+    $("[data-csv-import]").addEventListener("click", () => {
+        $("[data-import-preview]").hidden = true; $("[data-import-done]").hidden = false; step(3);
+        window.eduCelebrate?.({ xp: 0 });
+    });
+})();
+</script>
+}
