@@ -25,6 +25,11 @@
     }
 
     <partial name="_Scripts" />
+    @* Message after a redirect (enrolled, lesson done, …) — unless the page already showed it in a _FormError block. *@
+    @if (!Context.Items.ContainsKey("FlashShown") && (TempData["Success"] ?? TempData["Error"]) is string flash)
+    {
+        <script>window.eduToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(flash)), @Html.Raw(TempData["Error"] != null ? "\"alert-circle\"" : "\"check-circle-2\""));</script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

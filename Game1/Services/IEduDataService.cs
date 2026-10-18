@@ -16,10 +16,16 @@ public interface IEduDataService
     List<FeedItem> GetNotificationFeed();
 
     // ---- Student ----
+    /// <summary>Published catalog, with the signed-in student's progress.</summary>
     List<Course> GetCourses();
     Course? GetCourse(int id);
+    /// <summary>The student's most recently studied course (dashboard "Continue"), or null.</summary>
+    Course? GetContinueCourse();
+    LessonPage? GetLesson(int lessonId);
+    MaterialPage? GetMaterial(int materialId);
     List<string> GetCategories();
     List<CourseModule> GetCurriculum(int courseId);
+    /// <summary>Library of the courses the student is enrolled in.</summary>
     List<Material> GetMaterials();
     List<TestItem> GetTests();
     List<Question> GetQuestions(int testId);

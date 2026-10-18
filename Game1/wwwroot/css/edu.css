@@ -745,6 +745,8 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 20px 0; }
 .lesson.is-locked .lname { color: var(--text-3); }
 .lesson.is-current { background: var(--primary-light); }
 .lesson.is-current .lname { font-weight: 600; color: var(--primary-ink); }
+a.lname { color: inherit; text-decoration: none; }
+a.lname:hover { color: var(--primary-ink); text-decoration: underline; }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px var(--primary-100); } 50% { box-shadow: 0 0 0 7px transparent; } }
 
 /* Materials */

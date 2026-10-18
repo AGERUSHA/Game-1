@@ -2,6 +2,7 @@
 @{
     var error = ViewData["Error"] as string ?? TempData["Error"] as string;
     var success = TempData["Success"] as string;
+    if (error != null || success != null) Context.Items["FlashShown"] = true;   // the layout then skips its toast
 }
 @if (error != null)
 {

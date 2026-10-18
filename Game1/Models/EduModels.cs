@@ -20,18 +20,29 @@ public record UserProfile(
 public record Course(
     int Id, string Title, string Subtitle, string Category, string Description, string Teacher,
     int Lessons, int Progress, double Rating, int Students, string Cover, string Icon,
-    string Duration, string Level, string Status = "published", int Completion = 0)
+    string Duration, string Level, string Status = "published", int Completion = 0, bool Enrolled = true)
 {
+    /// <summary>"What you'll learn" items.</summary>
+    public string[] Outcomes { get; init; } = [];
+    /// <summary>The signed-in student's own rating (1–5), if given.</summary>
+    public int? MyRating { get; init; }
     public int CompletedLessons => (int)Math.Round(Lessons * Progress / 100.0);
 }
 
-public record Lesson(string Title, string Type, string Duration, string Status); // completed | current | locked
+public record Lesson(string Title, string Type, string Duration, string Status, int Id = 0); // completed | current | locked
 public record CourseModule(string Title, List<Lesson> Lessons)
 {
     public int Done => Lessons.Count(l => l.Status == "completed");
 }
 
-public record Material(string Title, string Type, string Course, string Meta, string Date);
+public record Material(string Title, string Type, string Course, string Meta, string Date, int Id = 0, bool Saved = false, bool Viewed = false);
+
+/// <summary>Lesson page: the lesson, where it sits in the course, and its neighbours.</summary>
+public record LessonPage(Course Course, string Module, Lesson Lesson, string Body, string? VideoEmbed,
+    int? PrevId, int? NextId, int Number, int Total);
+
+/// <summary>Material page: text / video / file of one library item.</summary>
+public record MaterialPage(Material Material, int CourseId, string Body, string? VideoEmbed, string? FileUrl);
 
 public record TestItem(int Id, string Title, string Course, int Questions, int Minutes, int? BestScore, string Status, int Attempts, string Difficulty);
 

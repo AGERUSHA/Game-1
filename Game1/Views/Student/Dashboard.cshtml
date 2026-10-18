@@ -3,7 +3,9 @@
     ViewData["Title"] = L.T("Главная", "Басты бет", "Home");
     ViewData["Nav"] = "dashboard";
     var s = Model.GetStudent();
-    var course = Model.GetCourses()[0];
+    var course = Model.GetContinueCourse();
+    var nextLesson = course == null ? null : Model.GetCurriculum(course.Id).SelectMany(m => m.Lessons).FirstOrDefault(l => l.Status == "current");
+    var continueHref = nextLesson != null ? $"/Student/Lesson/{nextLesson.Id}" : course != null ? $"/Student/CourseDetails/{course.Id}" : "/Student/Courses";
     var weekly = Model.GetWeeklyActivity();
     var deadlines = Model.GetAssignments().Where(a => a.DaysLeft >= 0).Take(3).ToList();
     var quests = Model.GetDailyQuests();
@@ -20,7 +22,7 @@
             <span class="ibox">@Html.Icon("flame")</span>
             <div><b><span data-streak-count>@s.Streak</span> @L.T("дней", "күн", "days")</b><small>@L.T("серия обучения", "оқу сериясы", "learning streak")</small></div>
         </div>
-        <a class="btn btn-primary" href="/Student/CourseDetails/1">@Html.Icon("play") @L.T("Продолжить", "Жалғастыру", "Continue")</a>
+        <a class="btn btn-primary" href="@continueHref">@Html.Icon("play") @(course == null ? L.T("Выбрать курс", "Курс таңдау", "Pick a course") : L.T("Продолжить", "Жалғастыру", "Continue"))</a>
     </div>
 </section>
 
@@ -52,9 +54,20 @@
 <div class="grid cols-main-side mt-6">
     <div class="card card-lg">
         <div class="card-head">
-            <div><div class="card-title">@L.T("Продолжить обучение", "Оқуды жалғастыру", "Continue learning")</div><div class="card-sub">@L.T("Вы остановились на уроке «Eloquent Relationships»", "Сіз «Eloquent Relationships» сабағында тоқтадыңыз", "You stopped at “Eloquent Relationships”")</div></div>
+            <div><div class="card-title">@L.T("Продолжить обучение", "Оқуды жалғастыру", "Continue learning")</div>
+                @if (nextLesson != null)
+                {
+                    <div class="card-sub">@L.T($"Следующий урок: «{nextLesson.Title}»", $"Келесі сабақ: «{nextLesson.Title}»", $"Next lesson: “{nextLesson.Title}”")</div>
+                }
+            </div>
             <a class="card-link" href="/Student/Courses">@L.T("Все курсы", "Барлық курстар", "All courses") @Html.Icon("arrow-right", "icon-sm")</a>
         </div>
+        @if (course == null)
+        {
+            <partial name="_EmptyState" model='new EmptyState("library", L.T("Вы ещё не записались на курс", "Сіз әлі курсқа жазылмадыңыз", "You haven’t enrolled in a course yet"), L.T("Выберите курс в каталоге — прогресс появится здесь.", "Каталогтан курс таңдаңыз — прогресс осында шығады.", "Pick a course in the catalog and your progress will show up here."), null, L.T("Открыть каталог", "Каталогты ашу", "Open the catalog"), "/Student/Courses", "is-happy")' />
+        }
+        else
+        {
         <div class="continue-card">
             <div class="cover cover-@course.Cover"><span class="cover-icon">@Html.Icon(course.Icon)</span></div>
             <div class="col gap-4">
@@ -66,7 +79,7 @@
                 <div class="continue-meta">
                     <span>@Html.Icon("book-open") @course.Lessons @L.T("уроков", "сабақ", "lessons")</span>
                     <span>@Html.Icon("clock") @course.Duration</span>
-                    <span>@Html.Icon("star") @course.Rating</span>
+                    <span>@Html.Icon("star") @(course.Rating > 0 ? course.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) : "—")</span>
                 </div>
                 <div>
                     <div class="flex items-end justify-between mb-2">
@@ -76,11 +89,12 @@
                     @Html.Progress(course.Progress, "progress-lg")
                 </div>
                 <div class="flex gap-3 wrap">
-                    <a class="btn btn-primary" href="/Student/CourseDetails/1">@Html.Icon("play") @L.T("Продолжить", "Жалғастыру", "Continue")</a>
+                    <a class="btn btn-primary" href="@continueHref">@Html.Icon("play") @(nextLesson != null ? L.T("Продолжить", "Жалғастыру", "Continue") : L.T("Открыть курс", "Курсты ашу", "Open course"))</a>
                     <a class="btn btn-secondary" href="/Student/Materials">@Html.Icon("book-open-text") @L.T("Материалы", "Материалдар", "Materials")</a>
                 </div>
             </div>
         </div>
+        }
     </div>
 
     <div class="card">

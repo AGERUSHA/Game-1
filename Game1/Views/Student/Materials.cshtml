@@ -25,12 +25,16 @@
         <p>@L.T("Библиотека видео, конспектов, статей и презентаций ваших курсов.", "Курстарыңыздың бейне, конспект, мақала және презентациялар кітапханасы.", "A library of videos, notes, articles and slides from your courses.")</p>
     </div>
     <div class="flex gap-3">
-        <span class="badge badge-lg">@Html.Icon("bookmark") 12 @L.T("сохранено", "сақталған", "saved")</span>
-        <span class="badge badge-lg badge-primary">@Html.Icon("book-open-text") 34 @L.T("изучено", "оқылды", "studied")</span>
+        <span class="badge badge-lg">@Html.Icon("bookmark") @Model.Count(m => m.Saved) @L.T("сохранено", "сақталған", "saved")</span>
+        <span class="badge badge-lg badge-primary">@Html.Icon("book-open-text") @Model.Count(m => m.Viewed) @L.T("изучено", "оқылды", "studied")</span>
     </div>
 </div>
 
-<div class="toolbar">
+@if (Model.Count == 0)
+{
+    <partial name="_EmptyState" model='new EmptyState("library", L.T("Здесь появятся материалы ваших курсов", "Мұнда курстарыңыздың материалдары шығады", "Materials of your courses will appear here"), L.T("Запишитесь на курс — видео, конспекты и презентации соберутся в этой библиотеке.", "Курсқа жазылыңыз — бейнелер, конспектілер мен презентациялар осы кітапханаға жиналады.", "Enroll in a course and its videos, notes and slides will gather in this library."), null, L.T("Открыть каталог", "Каталогты ашу", "Open the catalog"), "/Student/Courses")' />
+}
+<div class="toolbar" hidden="@(Model.Count == 0)">
     <div class="chips" data-filter-target="#matGrid">
         @foreach (var (key, label, icon) in filters)
         {
@@ -57,10 +61,15 @@
             }
             <div class="material-top">
                 <span class="ibox">@Html.Icon(Icon(m.Type))</span>
-                <button class="icon-btn" data-toast="@L.T("Сохранено в закладки", "Бетбелгілерге сақталды", "Saved to bookmarks")" data-toast-icon="bookmark" aria-label="Bookmark">@Html.Icon("bookmark")</button>
+                <form method="post" asp-action="SaveMaterial" asp-route-id="@m.Id">
+                    <input type="hidden" name="returnUrl" value="/Student/Materials" />
+                    <button class="icon-btn" type="submit" aria-pressed="@(m.Saved ? "true" : "false")" aria-label="@(m.Saved ? L.T("Убрать из закладок", "Бетбелгілерден алу", "Remove bookmark") : L.T("В закладки", "Бетбелгіге", "Bookmark"))"
+                            style="@(m.Saved ? "color:var(--primary)" : "")">@Html.Icon(m.Saved ? "bookmark-check" : "bookmark")</button>
+                </form>
             </div>
             <div>
                 <span class="badge mb-2">@Name(m.Type)</span>
+                @if (m.Viewed) { <span class="badge badge-success mb-2">@Html.Icon("check", "icon-xs") @L.T("Изучено", "Оқылды", "Studied")</span> }
                 <h4>@m.Title</h4>
                 <div class="text-sm muted mt-1">@m.Course</div>
             </div>
@@ -69,11 +78,7 @@
                 <span>@Html.Icon("calendar", "icon-xs") @m.Date</span>
             </div>
             <div class="flex gap-2 mt-1">
-                <a class="btn btn-secondary btn-sm grow" href="#">@Html.Icon(m.Type == "video" ? "play" : "eye", "icon-sm") @(m.Type == "video" ? L.T("Смотреть", "Көру", "Watch") : L.T("Открыть", "Ашу", "Open"))</a>
-                @if (m.Type is "pdf" or "presentation")
-                {
-                    <button class="btn btn-outline btn-sm btn-icon" data-toast="@L.T("Загрузка начата", "Жүктеу басталды", "Download started")" data-toast-icon="download" aria-label="Download">@Html.Icon("download", "icon-sm")</button>
-                }
+                <a class="btn btn-secondary btn-sm grow" href="/Student/Material/@m.Id">@Html.Icon(m.Type == "video" ? "play" : "eye", "icon-sm") @(m.Type == "video" ? L.T("Смотреть", "Көру", "Watch") : L.T("Открыть", "Ашу", "Open"))</a>
             </div>
         </article>
     }

@@ -8,6 +8,8 @@
     // Learning map: lessons laid out along a winding path (x in %, y in px)
     var flat = modules.SelectMany((m, mi) => m.Lessons.Select((l, li) => (m, mi, l, li == 0))).ToList();
     var curIdx = flat.FindIndex(f => f.Item3.Status == "current");
+    var next = flat.Select(f => f.Item3).FirstOrDefault(x => x.Status == "current");
+    var rating = Model.Rating > 0 ? Model.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) : "—";
     const int mapStep = 124, mapPad = 80;
     var mapH = mapPad * 2 + (flat.Count - 1) * mapStep;
     double MapX(int i) => 50 + 26 * Math.Round(Math.Sin(i * Math.PI / 2)); // zigzag: centre → right → centre → left
@@ -38,7 +40,6 @@
         <div class="flex gap-2 wrap">
             <span class="badge badge-primary">@Model.Category</span>
             <span class="badge">@Html.Icon("signal") @Model.Level</span>
-            <span class="badge badge-success">@Html.Icon("award") @L.T("Сертификат", "Сертификат", "Certificate")</span>
         </div>
         <div>
             <h1>@Model.Title</h1>
@@ -53,15 +54,40 @@
             <div><b>@Model.Lessons</b><span>@L.T("уроков", "сабақ", "lessons")</span></div>
             <div><b>@Model.Duration</b><span>@L.T("длительность", "ұзақтығы", "duration")</span></div>
             <div><b>@UiHelpers.Num(Model.Students)</b><span>@L.T("студентов", "студент", "students")</span></div>
-            <div><b>⭐ @Model.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</b><span>@L.T("рейтинг", "рейтинг", "rating")</span></div>
+            <div><b>⭐ @rating</b><span>@L.T("рейтинг", "рейтинг", "rating")</span></div>
         </div>
-        <div>
-            <div class="progress-row"><span>@Model.CompletedLessons / @Model.Lessons @L.T("уроков пройдено", "сабақ өтілді", "lessons completed")</span><b>@Model.Progress%</b></div>
-            @Html.Progress(Model.Progress, "progress-lg")
-        </div>
-        <div class="flex gap-3 wrap">
-            <a class="btn btn-primary btn-lg" href="#curriculum">@Html.Icon("play") @L.T("Продолжить обучение", "Оқуды жалғастыру", "Continue learning")</a>
-            <button class="btn btn-outline btn-lg" data-toast="@L.T("Курс добавлен в избранное", "Курс таңдаулыларға қосылды", "Course added to favorites")" data-toast-icon="heart">@Html.Icon("heart") @L.T("В избранное", "Таңдаулыға", "Favorite")</button>
+        @if (Model.Enrolled)
+        {
+            <div>
+                <div class="progress-row"><span>@Model.CompletedLessons / @Model.Lessons @L.T("уроков пройдено", "сабақ өтілді", "lessons completed")</span><b>@Model.Progress%</b></div>
+                @Html.Progress(Model.Progress, "progress-lg")
+            </div>
+        }
+        <div class="flex gap-3 wrap items-center">
+            @if (!Model.Enrolled)
+            {
+                <form method="post" asp-action="Enroll" asp-route-id="@Model.Id">
+                    <button class="btn btn-primary btn-lg" type="submit" disabled="@(Model.Lessons == 0)">@Html.Icon("plus") @L.T("Записаться на курс", "Курсқа жазылу", "Enroll in course")</button>
+                </form>
+            }
+            else if (next != null)
+            {
+                <a class="btn btn-primary btn-lg" href="/Student/Lesson/@next.Id">@Html.Icon("play") @(Model.Progress == 0 ? L.T("Начать обучение", "Оқуды бастау", "Start learning") : L.T("Продолжить обучение", "Оқуды жалғастыру", "Continue learning"))</a>
+            }
+            else if (flat.Count > 0)
+            {
+                <a class="btn btn-secondary btn-lg" href="/Student/Lesson/@flat[0].Item3.Id">@Html.Icon("rotate-ccw") @L.T("Повторить курс", "Курсты қайталау", "Review the course")</a>
+            }
+            @if (Model.Enrolled)
+            {
+                <form method="post" asp-action="RateCourse" asp-route-id="@Model.Id" class="flex items-center gap-1" aria-label="@L.T("Оцените курс", "Курсты бағалаңыз", "Rate this course")">
+                    <span class="text-sm muted">@(Model.MyRating == null ? L.T("Оцените курс:", "Курсты бағалаңыз:", "Rate the course:") : L.T("Ваша оценка:", "Сіздің бағаңыз:", "Your rating:"))</span>
+                    @for (var star = 1; star <= 5; star++)
+                    {
+                        <button class="icon-btn" type="submit" name="stars" value="@star" aria-label="@star / 5" style="color:@(star <= (Model.MyRating ?? 0) ? "var(--warning)" : "var(--text-3)")">@Html.Icon("star")</button>
+                    }
+                </form>
+            }
         </div>
     </div>
     <div class="cover cover-@Model.Cover"><span class="cover-icon">@Html.Icon(Model.Icon)</span></div>
@@ -77,6 +103,10 @@
             </div>
         </div>
 
+        @if (flat.Count == 0)
+        {
+            <partial name="_EmptyState" model='new EmptyState("book-dashed", L.T("Программа скоро появится", "Бағдарлама жақында шығады", "Curriculum coming soon"), L.T("Преподаватель ещё добавляет уроки.", "Оқытушы әлі сабақтарды қосып жатыр.", "The teacher is still adding lessons."))' />
+        }
         <div class="cur-panel active" data-tab-panel="list">
             <div class="flex gap-3 text-xs muted wrap hide-sm mb-4">
                 <span class="flex items-center gap-1"><span class="status-dot status-completed" style="width:18px;height:18px">@Html.Icon("check", "icon-xs")</span> @L.T("Пройдено", "Өтілді", "Completed")</span>
@@ -96,7 +126,7 @@
                         <h4>@m.Title</h4>
                         <div class="list-meta">@m.Done / @m.Lessons.Count @L.T("завершено", "аяқталды", "completed")</div>
                     </div>
-                    <div style="width:90px" class="hide-sm">@Html.Progress(m.Done * 100 / m.Lessons.Count, done ? "progress-sm progress-success" : "progress-sm")</div>
+                    <div style="width:90px" class="hide-sm">@Html.Progress(m.Lessons.Count == 0 ? 0 : m.Done * 100 / m.Lessons.Count, done ? "progress-sm progress-success" : "progress-sm")</div>
                     <span class="chev">@Html.Icon("chevron-down")</span>
                 </div>
                 <div class="module-body"><div>
@@ -108,10 +138,17 @@
                                 else if (l.Status == "locked") { @Html.Icon("lock") }
                                 else { @Html.Icon("play") }
                             </span>
-                            <span class="lname">@l.Title</span>
+                            @if (l.Status == "locked")
+                            {
+                                <span class="lname">@l.Title</span>
+                            }
+                            else
+                            {
+                                <a class="lname" href="/Student/Lesson/@l.Id">@l.Title</a>
+                            }
                             @if (l.Status == "current")
                             {
-                                <a class="btn btn-primary btn-sm ml-auto" href="#">@L.T("Продолжить", "Жалғастыру", "Continue")</a>
+                                <a class="btn btn-primary btn-sm ml-auto" href="/Student/Lesson/@l.Id">@L.T("Продолжить", "Жалғастыру", "Continue")</a>
                             }
                             <span class="ltype @(l.Status == "current" ? "" : "ml-auto")" style="@(l.Status == "current" ? "margin-left:0" : "")">@Html.Icon(TypeIcon(l.Type), "icon-sm") <span class="hide-sm">@TypeName(l.Type) ·</span> @l.Duration</span>
                         </div>
@@ -143,18 +180,20 @@
                             <partial name="_Owl" model="Data.GetStudent().Level" />
                         </div>
                     }
-                    var nodeToast = l.Status switch
+                    if (l.Status == "locked")
                     {
-                        "completed" => L.T("Урок пройден ✓ Можно повторить в любой момент", "Сабақ өтілді ✓ Кез келген уақытта қайталауға болады", "Lesson completed ✓ You can review it anytime"),
-                        "locked" => L.T("Сначала пройдите предыдущие уроки 🔒", "Алдымен алдыңғы сабақтарды өтіңіз 🔒", "Finish the previous lessons first 🔒"),
-                        _ => L.T("Урок засчитан", "Сабақ есептелді", "Lesson completed")
-                    };
-                    <button type="button" class="lmap-node is-@l.Status" style="left:@F(x)%;top:@(MapY(i))px"
-                            data-toast="@nodeToast" data-toast-icon="@(l.Status == "locked" ? "lock" : "check-circle-2")"
-                            data-xp="@(l.Status == "current" ? "40" : null)"
-                            aria-label="@l.Title">
-                        @Html.Icon(l.Status == "completed" ? "check" : l.Status == "locked" ? "lock" : TypeIcon(l.Type))
-                    </button>
+                        <button type="button" class="lmap-node is-locked" style="left:@F(x)%;top:@(MapY(i))px"
+                                data-toast="@(Model.Enrolled ? L.T("Сначала пройдите предыдущие уроки 🔒", "Алдымен алдыңғы сабақтарды өтіңіз 🔒", "Finish the previous lessons first 🔒") : L.T("Запишитесь на курс, чтобы начать 🔒", "Бастау үшін курсқа жазылыңыз 🔒", "Enroll in the course to start 🔒"))" data-toast-icon="lock"
+                                aria-label="@l.Title">
+                            @Html.Icon("lock")
+                        </button>
+                    }
+                    else
+                    {
+                        <a class="lmap-node is-@l.Status" style="left:@F(x)%;top:@(MapY(i))px" href="/Student/Lesson/@l.Id" aria-label="@l.Title">
+                            @Html.Icon(l.Status == "completed" ? "check" : TypeIcon(l.Type))
+                        </a>
+                    }
                     <div class="lmap-label @(l.Status == "locked" ? "is-locked" : "")" style="left:@F(labelX)%;top:@(MapY(i) + (l.Status == "current" ? 46 : 40))px">
                         @l.Title<small>@TypeName(l.Type) · @l.Duration</small>
                     </div>
@@ -164,14 +203,10 @@
     </section>
 
     <aside class="col gap-5">
-        <div class="card">
+        <div class="card" hidden="@(Model.Outcomes.Length == 0)">
             <div class="card-title mb-4">@L.T("Чему вы научитесь", "Нені үйренесіз", "What you'll learn")</div>
             <ul class="check-list" style="margin:0;list-style:none;padding:0;display:flex;flex-direction:column;gap:12px">
-                @foreach (var item in new[] {
-                    L.T("Создавать веб-приложения на Laravel", "Laravel-де веб-қосымшалар жасау", "Build web apps with Laravel"),
-                    L.T("Проектировать архитектуру MVC", "MVC архитектурасын жобалау", "Design MVC architecture"),
-                    L.T("Работать с базой данных через Eloquent", "Eloquent арқылы деректер қорымен жұмыс істеу", "Work with databases via Eloquent"),
-                    L.T("Разрабатывать REST API", "REST API әзірлеу", "Develop REST APIs") })
+                @foreach (var item in Model.Outcomes)
                 {
                     <li class="flex gap-3 text-sm"><span class="c-success">@Html.Icon("check-circle-2")</span>@item</li>
                 }
@@ -179,15 +214,14 @@
         </div>
         <div class="card card-soft">
             <div class="flex items-center gap-3 mb-3"><span class="ai-avatar sm">@Html.Icon("sparkles")</span><b>AI @L.T("совет", "кеңесі", "tip")</b></div>
-            <p class="text-sm muted">@L.T("Перед уроком «Eloquent Relationships» повторите SQL JOIN — это сократит время изучения примерно на 30%.", "«Eloquent Relationships» сабағы алдында SQL JOIN-ді қайталаңыз — бұл оқу уақытын шамамен 30%-ға қысқартады.", "Review SQL JOIN before “Eloquent Relationships” — it will cut study time by about 30%.")</p>
+            <p class="text-sm muted">@L.T("Непонятный момент в уроке? Спросите AI-помощника — он объяснит тему другими словами и даст пример.", "Сабақта түсініксіз жер бар ма? AI көмекшіден сұраңыз — тақырыпты басқаша түсіндіріп, мысал келтіреді.", "Stuck on something in a lesson? Ask the AI assistant to explain it differently, with an example.")</p>
             <a class="btn btn-primary btn-sm mt-4" href="/Student/Ai">@L.T("Спросить AI", "AI-дан сұрау", "Ask AI")</a>
         </div>
         <div class="card">
             <div class="card-title mb-4">@L.T("Награды курса", "Курс марапаттары", "Course rewards")</div>
             <div class="list">
-                <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("zap")</span><div class="grow list-title">@L.T("За прохождение", "Өткені үшін", "For completion")</div><span class="xp-chip">+1 500 XP</span></div>
-                <div class="list-item"><span class="ibox ibox-sm ibox-success">@Html.Icon("award")</span><div class="grow list-title">@L.T("Сертификат", "Сертификат", "Certificate")</div><span class="badge badge-success">PDF</span></div>
-                <div class="list-item"><span class="ibox ibox-sm ibox-warning">@Html.Icon("trophy")</span><div class="grow list-title">«Laravel Master»</div><span class="badge">🏅</span></div>
+                <div class="list-item"><span class="ibox ibox-sm">@Html.Icon("zap")</span><div class="grow list-title">@L.T("За каждый урок", "Әр сабақ үшін", "Per lesson")</div><span class="xp-chip">+40 XP</span></div>
+                <div class="list-item"><span class="ibox ibox-sm ibox-success">@Html.Icon("flag")</span><div class="grow list-title">@L.T("За весь курс", "Бүкіл курс үшін", "Whole course")</div><span class="xp-chip">+@UiHelpers.Num(Model.Lessons * 40) XP</span></div>
             </div>
         </div>
     </aside>

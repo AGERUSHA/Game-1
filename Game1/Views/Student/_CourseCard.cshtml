@@ -1,6 +1,7 @@
 @model Course
 @{
-    var tags = Model.Progress switch { 100 => "done", > 0 => "active", _ => "new" };
+    // "new" = not enrolled yet; "active" = enrolled (My courses), "done" = every lesson completed.
+    var tags = !Model.Enrolled ? "new" : Model.Progress == 100 ? "active done" : "active";
     var catIndex = ViewData["CatIndex"] as int? ?? 0;
 }
 <article class="card card-hover course-card" data-tags="all @tags cat-@catIndex">
@@ -11,7 +12,7 @@
             <span class="badge done">@Html.Icon("check") @L.T("Завершён", "Аяқталды", "Completed")</span>
         }
         <span class="cover-icon">@Html.Icon(Model.Icon)</span>
-        <span class="rating">@Html.Icon("star") @Model.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span>
+        <span class="rating">@Html.Icon("star") @(Model.Rating > 0 ? Model.Rating.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) : "—")</span>
     </a>
     <div class="course-body">
         <div>
@@ -30,12 +31,15 @@
             <span>@Html.Icon("signal") @Model.Level</span>
         </div>
         <div class="course-foot">
-            <div>
-                <div class="progress-row"><span>@L.T("Прогресс", "Прогресс", "Progress")</span><b>@Model.Progress%</b></div>
-                @Html.Progress(Model.Progress, Model.Progress == 100 ? "progress-sm progress-success" : "progress-sm")
-            </div>
-            <a class="btn @(Model.Progress == 0 ? "btn-primary" : "btn-secondary") btn-block" href="/Student/CourseDetails/@Model.Id">
-                @(Model.Progress switch { 0 => L.T("Начать курс", "Курсты бастау", "Start course"), 100 => L.T("Повторить", "Қайталау", "Review"), _ => L.T("Открыть", "Ашу", "Open") })
+            @if (Model.Enrolled)
+            {
+                <div>
+                    <div class="progress-row"><span>@L.T("Прогресс", "Прогресс", "Progress")</span><b>@Model.Progress%</b></div>
+                    @Html.Progress(Model.Progress, Model.Progress == 100 ? "progress-sm progress-success" : "progress-sm")
+                </div>
+            }
+            <a class="btn @(!Model.Enrolled || Model.Progress == 0 ? "btn-primary" : "btn-secondary") btn-block" href="/Student/CourseDetails/@Model.Id">
+                @(!Model.Enrolled ? L.T("Подробнее", "Толығырақ", "Details") : Model.Progress switch { 0 => L.T("Начать курс", "Курсты бастау", "Start course"), 100 => L.T("Повторить", "Қайталау", "Review"), _ => L.T("Продолжить", "Жалғастыру", "Continue") })
                 @Html.Icon("arrow-right", "icon-sm")
             </a>
         </div>

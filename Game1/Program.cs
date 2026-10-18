@@ -36,6 +36,9 @@ builder.Services.AddScoped<LangService>();
 // Users / profile from SQL Server; course content is still mock data (see SqlEduDataService).
 builder.Services.AddScoped<IEduDataService, SqlEduDataService>();
 
+// Student actions on courses: enrol, complete lessons, rate, bookmark.
+builder.Services.AddScoped<CourseStore>();
+
 // Game zone catalog (hub cards, game of the day).
 builder.Services.AddScoped<GameCatalog>();
 
@@ -131,6 +134,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+    CourseSeed.Run(db);   // demo catalog on an empty database
 
     // Admin credentials come from user-secrets / environment (SeedAdmin:Email, SeedAdmin:Password),
     // never from source code.

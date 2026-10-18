@@ -80,7 +80,7 @@ public class MockEduDataService(LangService l) : IEduDataService
 
     // ------------------------------------------------------------------ courses
 
-    public List<string> GetCategories() =>
+    public virtual List<string> GetCategories() =>
     [
         T("Все", "Барлығы", "All"),
         T("Программирование", "Бағдарламалау", "Programming"),
@@ -91,7 +91,9 @@ public class MockEduDataService(LangService l) : IEduDataService
         T("Языки", "Тілдер", "Languages")
     ];
 
-    public List<Course> GetCourses() =>
+    public virtual List<Course> GetCourses() => MockCourses();
+
+    private List<Course> MockCourses() =>
     [
         new(1, "PHP & Laravel", "Backend Development", T("Программирование", "Бағдарламалау", "Programming"),
             T("Создавайте современные веб-приложения на Laravel: маршрутизация, MVC, Eloquent ORM и REST API.",
@@ -135,9 +137,13 @@ public class MockEduDataService(LangService l) : IEduDataService
             "Sarah Collins", 20, 88, 4.7, 1890, "indigo", "languages", T("18 ч", "18 сағ", "18 h"), "B1–B2"),
     ];
 
-    public Course? GetCourse(int id) => GetCourses().FirstOrDefault(c => c.Id == id);
+    public virtual Course? GetCourse(int id) => GetCourses().FirstOrDefault(c => c.Id == id);
 
-    public List<CourseModule> GetCurriculum(int courseId) =>
+    public virtual Course? GetContinueCourse() => GetCourses().FirstOrDefault();
+    public virtual LessonPage? GetLesson(int lessonId) => null;
+    public virtual MaterialPage? GetMaterial(int materialId) => null;
+
+    public virtual List<CourseModule> GetCurriculum(int courseId) =>
     [
         new(T("Модуль 1. Введение в Laravel", "1-модуль. Laravel-ге кіріспе", "Module 1. Introduction to Laravel"),
         [
@@ -170,7 +176,7 @@ public class MockEduDataService(LangService l) : IEduDataService
 
     // ------------------------------------------------------------------ materials / tests / assignments
 
-    public List<Material> GetMaterials() =>
+    public virtual List<Material> GetMaterials() =>
     [
         new(T("Eloquent Relationships: полное руководство", "Eloquent Relationships: толық нұсқаулық", "Eloquent Relationships: complete guide"), "video", "PHP & Laravel", "19:35", T("2 дня назад", "2 күн бұрын", "2 days ago")),
         new(T("Шпаргалка по SQL JOIN", "SQL JOIN бойынша анықтамалық", "SQL JOIN cheat sheet"), "pdf", T("SQL и базы данных", "SQL және деректер қоры", "SQL & Databases"), "2.4 MB", T("3 дня назад", "3 күн бұрын", "3 days ago")),
@@ -490,7 +496,7 @@ public class MockEduDataService(LangService l) : IEduDataService
 
     public List<Course> GetTeacherCourses() =>
     [
-        GetCourses()[0] with { Completion = 68, Students = 124 },
+        MockCourses()[0] with { Completion = 68, Students = 124 },
         new(9, T("Laravel: продвинутый уровень", "Laravel: жоғары деңгей", "Advanced Laravel"), "Queues · Events · Testing", T("Программирование", "Бағдарламалау", "Programming"),
             T("Очереди, события, тестирование и деплой Laravel-приложений.", "Laravel-қосымшалардың кезектері, оқиғалары, тестілеуі және деплойы.", "Queues, events, testing and deploying Laravel apps."),
             "Айгерим Нурланова", 20, 0, 4.8, 86, "deep", "layers", T("26 ч", "26 сағ", "26 h"), T("Продвинутый", "Жоғары", "Advanced"), "published", 41),
