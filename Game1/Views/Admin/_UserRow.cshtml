@@ -16,7 +16,7 @@
         _ => ("badge-success", L.T("Активен", "Белсенді", "Active"))
     };
 }
-<tr data-tags="all @Model.Role @Model.Status">
+<tr data-tags="all @Model.Role @Model.Status @(Model.EmailConfirmed ? "" : "unconfirmed")">
     <td class="cell-main">
         <div class="cell-user">
             <span class="avatar avatar-sm av-@(i % 6 + 1)">@string.Concat(Model.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpper(w[0])))</span>
@@ -24,7 +24,13 @@
         </div>
     </td>
     <td data-label="@L.T("Роль", "Рөл", "Role")"><span class="badge @roleCls">@Html.Icon(roleIcon) @roleName</span></td>
-    <td data-label="@L.T("Статус", "Мәртебе", "Status")"><span class="badge badge-dot @stCls">@stName</span></td>
+    <td data-label="@L.T("Статус", "Мәртебе", "Status")">
+        <span class="badge badge-dot @stCls">@stName</span>
+        @if (!Model.EmailConfirmed)
+        {
+            <span class="badge badge-warning" title="@L.T("Пользователь ещё не ввёл код из письма — войти не может.", "Пайдаланушы хаттағы кодты әлі енгізбеген — кіре алмайды.", "The user hasn't entered the emailed code yet and can't sign in.")">@Html.Icon("mail-warning") @L.T("Email не подтверждён", "Email расталмаған", "Email not confirmed")</span>
+        }
+    </td>
     <td data-label="@L.T("Регистрация", "Тіркелу", "Joined")" class="muted">@Model.Joined</td>
     @if (!compact)
     {
@@ -40,6 +46,12 @@
                             <option value="admin" selected="@(Model.Role == "admin")">@L.T("Админ", "Әкімші", "Admin")</option>
                         </select>
                     </form>
+                    @if (!Model.EmailConfirmed)
+                    {
+                        <form method="post" asp-action="ConfirmEmail" asp-route-id="@Model.Id">
+                            <button class="icon-btn" type="submit" title="@L.T("Подтвердить email вручную", "Email-ді қолмен растау", "Confirm email manually")">@Html.Icon("mail-check")</button>
+                        </form>
+                    }
                     <form method="post" asp-action="ToggleBlock" asp-route-id="@Model.Id">
                         <button class="icon-btn" type="submit" title="@(Model.Status == "blocked" ? L.T("Разблокировать", "Бұғаттан шығару", "Unblock") : L.T("Заблокировать", "Бұғаттау", "Block"))">@Html.Icon(Model.Status == "blocked" ? "unlock" : "ban")</button>
                     </form>

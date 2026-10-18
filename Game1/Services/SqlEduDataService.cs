@@ -42,7 +42,7 @@ public class SqlEduDataService(LangService l, AppDbContext db, IHttpContextAcces
                 $"{u.FirstName} {u.LastName}".Trim(), u.Email, u.Role, u.Status,
                 u.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy"),
                 u.LastLoginAt is { } t ? t.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : T("Не входил", "Кірмеген", "Never"),
-                u.Id))
+                u.Id, u.EmailConfirmed))
             .ToList();
 
     public override ChartSpec GetRoleDistribution()

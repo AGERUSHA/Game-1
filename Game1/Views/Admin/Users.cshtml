@@ -25,6 +25,10 @@
         <button class="tab" data-filter="student">@L.T("Студенты", "Студенттер", "Students") <span class="count">@C("student")</span></button>
         <button class="tab" data-filter="teacher">@L.T("Преподаватели", "Оқытушылар", "Teachers") <span class="count">@C("teacher")</span></button>
         <button class="tab" data-filter="admin">@L.T("Администраторы", "Әкімшілер", "Admins") <span class="count">@C("admin")</span></button>
+        @if (Model.Any(u => !u.EmailConfirmed))
+        {
+            <button class="tab" data-filter="unconfirmed">@L.T("Не подтверждены", "Расталмаған", "Unconfirmed") <span class="count">@Model.Count(u => !u.EmailConfirmed)</span></button>
+        }
     </div>
     <div class="toolbar" style="padding:14px 16px;margin:0;border-bottom:1px solid var(--border)">
         <div class="input-group search">

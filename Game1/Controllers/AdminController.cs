@@ -70,6 +70,18 @@ public class AdminController(IEduDataService data, AppDbContext db, IPasswordHas
             : L.T("Пользователь разблокирован.", "Пайдаланушы бұғаттан шығарылды.", "User unblocked."));
     }
 
+    /// <summary>The user can't get the code (typo in the mail server, spam filter…) — the admin vouches for the address.</summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmEmail(int id)
+    {
+        var user = await db.Users.FindAsync(id);
+        if (user == null) return NotFound();
+        user.EmailConfirmed = true;
+        await db.SaveChangesAsync();
+        await db.EmailCodes.Where(c => c.UserId == id && c.Purpose == EmailCode.Confirm).ExecuteDeleteAsync();
+        return Flash(L.T($"Email {user.Email} подтверждён — пользователь может войти.", $"{user.Email} расталды — пайдаланушы кіре алады.", $"{user.Email} confirmed — the user can sign in now."));
+    }
+
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteUser(int id)
     {

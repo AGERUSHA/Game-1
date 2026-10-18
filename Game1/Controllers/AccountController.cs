@@ -67,10 +67,6 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         return RedirectToDashboard(role);
     }
 
-    /// <summary>Wrong passwords in a row before the account is locked for <see cref="LockoutTime"/>.</summary>
-    private const int MaxFailedLogins = 10;
-    private static readonly TimeSpan LockoutTime = TimeSpan.FromMinutes(10);
-
     [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
@@ -80,9 +76,9 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
         if (user == null) return LoginFailed(model);
 
-        if (user.LockoutEnd > DateTime.UtcNow)
+        if (PasswordGuard.IsLocked(user))
         {
-            var minutes = (int)Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalMinutes);
+            var minutes = PasswordGuard.MinutesLeft(user);
             ViewData["Error"] = L.T($"Слишком много неверных попыток. Подождите {minutes} мин. или восстановите пароль.",
                 $"Қате әрекеттер тым көп. {minutes} мин. күтіңіз немесе құпиясөзді қалпына келтіріңіз.",
                 $"Too many wrong attempts. Wait {minutes} min or reset your password.");
@@ -93,16 +89,11 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         var result = hasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
         if (result == PasswordVerificationResult.Failed)
         {
-            if (++user.FailedLogins >= MaxFailedLogins)
-            {
-                user.LockoutEnd = DateTime.UtcNow + LockoutTime;
-                user.FailedLogins = 0;
-            }
+            PasswordGuard.Failed(user);
             await db.SaveChangesAsync();
             return LoginFailed(model);
         }
-        user.FailedLogins = 0;
-        user.LockoutEnd = null;
+        PasswordGuard.Reset(user);
 
         if (user.Status != "active")
         {
@@ -167,8 +158,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         user.LastName = model.LastName.Trim();
         user.Role = model.Role;
         user.PasswordHash = hasher.HashPassword(user, model.Password);
-        user.FailedLogins = 0;
-        user.LockoutEnd = null;
+        PasswordGuard.Reset(user);
         await db.SaveChangesAsync();
 
         await SendCodeAsync(user, EmailCode.Confirm);
@@ -302,8 +292,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
 
         user.PasswordHash = hasher.HashPassword(user, newPassword!);   // also invalidates this link
         user.EmailConfirmed = true;   // the link / code came by email, so the address is proven
-        user.FailedLogins = 0;
-        user.LockoutEnd = null;
+        PasswordGuard.Reset(user);
         await db.SaveChangesAsync();
         await db.EmailCodes.Where(c => c.UserId == user.Id && c.Purpose == EmailCode.Reset).ExecuteDeleteAsync();
         TempData["Success"] = L.T("Пароль изменён. Войдите с новым паролем.", "Құпиясөз өзгертілді. Жаңа құпиясөзбен кіріңіз.", "Password changed. Sign in with your new password.");

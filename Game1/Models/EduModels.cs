@@ -59,7 +59,7 @@ public record StudentRow(int Id, string Name, string Email, string Group, int Co
 
 public record ReportItem(string Key, string Icon, string Title, string Description, string Updated, string[] Formats);
 
-public record AdminUser(string Name, string Email, string Role, string Status, string Joined, string LastSeen, int Id = 0);
+public record AdminUser(string Name, string Email, string Role, string Status, string Joined, string LastSeen, int Id = 0, bool EmailConfirmed = true);
 
 public record Notification(string Icon, string Title, string Time, bool Unread, string Kind);
 

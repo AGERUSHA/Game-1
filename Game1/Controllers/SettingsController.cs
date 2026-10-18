@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Game1.Controllers;
@@ -85,16 +86,19 @@ public class SettingsController(IEduDataService data, AppDbContext db, IPassword
         return Done("profile", L.T("Фото удалено.", "Фото жойылды.", "Photo removed."));
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> ChangePassword(string? currentPassword, string? newPassword, string? confirmPassword)
     {
         var user = await CurrentUserAsync();
         if (user == null) return Challenge();
 
         // Accounts created via Google / Microsoft have no password yet — they may set one without the current.
-        if (!string.IsNullOrEmpty(user.PasswordHash) &&
-            hasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword ?? "") == PasswordVerificationResult.Failed)
-            return Done("security", L.T("Текущий пароль неверный.", "Ағымдағы құпиясөз қате.", "Current password is incorrect."), error: true);
+        if (!string.IsNullOrEmpty(user.PasswordHash))
+        {
+            if (PasswordGuard.IsLocked(user)) return Locked(user);
+            if (!await CheckPasswordAsync(user, currentPassword))
+                return Done("security", L.T("Текущий пароль неверный.", "Ағымдағы құпиясөз қате.", "Current password is incorrect."), error: true);
+        }
         if ((newPassword?.Length ?? 0) < 8)
             return Done("security", L.T("Новый пароль — минимум 8 символов.", "Жаңа құпиясөз — кемінде 8 таңба.", "New password must be at least 8 characters."), error: true);
         if (newPassword != confirmPassword)
@@ -105,15 +109,18 @@ public class SettingsController(IEduDataService data, AppDbContext db, IPassword
         return Done("security", L.T("Пароль обновлён.", "Құпиясөз жаңартылды.", "Password updated."));
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> DeleteAccount(string? password)
     {
         var user = await CurrentUserAsync();
         if (user == null) return Challenge();
 
-        if (!string.IsNullOrEmpty(user.PasswordHash) &&
-            hasher.VerifyHashedPassword(user, user.PasswordHash, password ?? "") == PasswordVerificationResult.Failed)
-            return Done("security", L.T("Неверный пароль — аккаунт не удалён.", "Құпиясөз қате — аккаунт жойылмады.", "Wrong password — account not deleted."), error: true);
+        if (!string.IsNullOrEmpty(user.PasswordHash))
+        {
+            if (PasswordGuard.IsLocked(user)) return Locked(user);
+            if (!await CheckPasswordAsync(user, password))
+                return Done("security", L.T("Неверный пароль — аккаунт не удалён.", "Құпиясөз қате — аккаунт жойылмады.", "Wrong password — account not deleted."), error: true);
+        }
         if (user.Role == "admin" && await db.Users.CountAsync(u => u.Role == "admin" && u.Status == "active") <= 1)
             return Done("security", L.T("Нельзя удалить последнего администратора.", "Соңғы әкімшіні жоюға болмайды.", "The last administrator cannot be deleted."), error: true);
 
@@ -122,6 +129,21 @@ public class SettingsController(IEduDataService data, AppDbContext db, IPassword
         await db.SaveChangesAsync();
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Redirect("/");
+    }
+
+    /// <summary>Checks the password; wrong ones count towards the same lockout as the sign-in form.</summary>
+    private async Task<bool> CheckPasswordAsync(User user, string? password)
+    {
+        var ok = hasher.VerifyHashedPassword(user, user.PasswordHash, password ?? "") != PasswordVerificationResult.Failed;
+        if (ok) PasswordGuard.Reset(user); else PasswordGuard.Failed(user);
+        await db.SaveChangesAsync();
+        return ok;
+    }
+
+    private IActionResult Locked(User user)
+    {
+        var minutes = PasswordGuard.MinutesLeft(user);
+        return Done("security", L.T($"Слишком много неверных попыток. Подождите {minutes} мин.", $"Қате әрекеттер тым көп. {minutes} мин. күтіңіз.", $"Too many wrong attempts. Wait {minutes} min."), error: true);
     }
 
     private async Task<User?> CurrentUserAsync() =>
