@@ -19,6 +19,16 @@
 
 <partial name="_FormError" />
 
+@{ var waiting = Model.Count(u => u.Status == "pending"); }
+@if (waiting > 0)
+{
+    <div class="card mb-4" style="display:flex;gap:12px;align-items:center;background:var(--warning-bg);color:var(--warning-ink)">
+        <span class="ibox ibox-sm">@Html.Icon("user-check")</span>
+        <div><b>@L.T($"Преподаватели ждут одобрения: {waiting}", $"Мақұлдауды күтетін оқытушылар: {waiting}", $"Teachers waiting for approval: {waiting}")</b>
+            <div class="text-sm muted">@L.T("Проверьте, что это действительно преподаватели вуза, и нажмите «Одобрить». Блокировка = отказ.", "Бұлар шынымен ЖОО оқытушылары екенін тексеріп, «Мақұлдау» басыңыз. Бұғаттау = бас тарту.", "Check they really are faculty, then press Approve. Blocking = rejecting.")</div></div>
+    </div>
+}
+
 <section class="card card-flush">
     <div class="tabs" style="padding:0 16px" data-filter-target="#usersTable">
         <button class="tab active" data-filter="all">@L.T("Все", "Барлығы", "All") <span class="count">@Model.Count</span></button>

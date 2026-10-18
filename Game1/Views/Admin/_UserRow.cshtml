@@ -46,6 +46,12 @@
                             <option value="admin" selected="@(Model.Role == "admin")">@L.T("Админ", "Әкімші", "Admin")</option>
                         </select>
                     </form>
+                    @if (Model.Status == "pending")
+                    {
+                        <form method="post" asp-action="Approve" asp-route-id="@Model.Id">
+                            <button class="btn btn-primary btn-sm" type="submit">@Html.Icon("user-check", "icon-sm") @L.T("Одобрить", "Мақұлдау", "Approve")</button>
+                        </form>
+                    }
                     @if (!Model.EmailConfirmed)
                     {
                         <form method="post" asp-action="ConfirmEmail" asp-route-id="@Model.Id">

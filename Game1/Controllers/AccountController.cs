@@ -95,10 +95,10 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         }
         PasswordGuard.Reset(user);
 
-        if (user.Status != "active")
+        if (user.Status == "blocked")
         {
             await db.SaveChangesAsync();
-            ViewData["Error"] = L.T("Аккаунт заблокирован. Обратитесь к администратору.", "Аккаунт бұғатталған. Әкімшіге хабарласыңыз.", "Account is blocked. Contact the administrator.");
+            ViewData["Error"] = InactiveMessage(user);
             model.Password = "";
             return View(model);
         }
@@ -115,6 +115,14 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
             await db.SaveChangesAsync();
             if (!await emailCodes.SentRecentlyAsync(user, EmailCode.Confirm)) await SendCodeAsync(user, EmailCode.Confirm);
             return RedirectToAction(nameof(ConfirmEmail), new { email = user.Email, returnUrl = model.ReturnUrl });
+        }
+
+        if (user.Status != "active")   // teacher waiting for approval
+        {
+            await db.SaveChangesAsync();
+            ViewData["Error"] = InactiveMessage(user);
+            model.Password = "";
+            return View(model);
         }
 
         user.LastLoginAt = DateTime.UtcNow;
@@ -145,7 +153,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
 
         var email = model.Email.Trim().ToLowerInvariant();
         var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
-        if (user is { EmailConfirmed: true } or { Status: not "active" })
+        if (user is { EmailConfirmed: true } or { Status: "blocked" })
         {
             ViewData["Error"] = L.T("Этот email уже зарегистрирован.", "Бұл email тіркелген.", "This email is already registered.");
             return View(ClearPasswords(model));
@@ -157,6 +165,8 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         user.FirstName = model.FirstName.Trim();
         user.LastName = model.LastName.Trim();
         user.Role = model.Role;
+        // Anyone could pick "teacher" — an administrator approves the account first (Admin → Users).
+        user.Status = model.Role == "teacher" ? "pending" : "active";
         user.PasswordHash = hasher.HashPassword(user, model.Password);
         PasswordGuard.Reset(user);
         await db.SaveChangesAsync();
@@ -186,7 +196,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
             TempData["Success"] = L.T("Email уже подтверждён — войдите.", "Email расталған — кіріңіз.", "Email already confirmed — please sign in.");
             return RedirectToAction(nameof(Login));
         }
-        if (user is not { Status: "active" } || !await emailCodes.VerifyAsync(user, EmailCode.Confirm, code))
+        if (user is not { Status: "active" or "pending" } || !await emailCodes.VerifyAsync(user, EmailCode.Confirm, code))
         {
             ViewData["Email"] = addr;
             ViewData["ReturnUrl"] = returnUrl;
@@ -196,6 +206,14 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
 
         var firstVisit = user.LastLoginAt == null;
         user.EmailConfirmed = true;
+        if (user.Status == "pending")
+        {
+            await db.SaveChangesAsync();
+            TempData["Success"] = L.T("Email подтверждён. Кабинет преподавателя откроется после одобрения администратором — мы напишем на почту.",
+                "Email расталды. Оқытушы кабинеті әкімші мақұлдағаннан кейін ашылады — поштаңызға хабарлаймыз.",
+                "Email confirmed. The teacher account opens once an administrator approves it — we'll email you.");
+            return RedirectToAction(nameof(Login));
+        }
         user.LastLoginAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
         await SignInAsync(user, rememberMe: true);
@@ -209,7 +227,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     {
         var addr = email?.Trim().ToLowerInvariant() ?? "";
         var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr) : null;
-        if (user is { EmailConfirmed: false, Status: "active" } && !await emailCodes.SentRecentlyAsync(user, EmailCode.Confirm))
+        if (user is { EmailConfirmed: false, Status: "active" or "pending" } && !await emailCodes.SentRecentlyAsync(user, EmailCode.Confirm))
             await SendCodeAsync(user, EmailCode.Confirm);
         TempData["Success"] = L.T("Новый код отправлен (не чаще раза в минуту).", "Жаңа код жіберілді (минутына бір реттен жиі емес).", "A new code was sent (at most once a minute).");
         return RedirectToAction(nameof(ConfirmEmail), new { email = addr, returnUrl });
@@ -234,7 +252,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     public async Task<IActionResult> ForgotPassword(string? email)
     {
         var addr = email?.Trim().ToLowerInvariant() ?? "";
-        var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr && u.Status == "active") : null;
+        var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr && u.Status != "blocked") : null;
         if (user != null && !await emailCodes.SentRecentlyAsync(user, EmailCode.Reset))
         {
             var link = Url.Action(nameof(ResetPassword), "Account", new { token = resetTokens.Create(user) }, Request.Scheme)!;
@@ -251,7 +269,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     public async Task<IActionResult> VerifyResetCode(string? email, string? code)
     {
         var addr = email?.Trim().ToLowerInvariant() ?? "";
-        var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr && u.Status == "active") : null;
+        var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr && u.Status != "blocked") : null;
         if (user == null || !await emailCodes.VerifyAsync(user, EmailCode.Reset, code))
         {
             ViewData["Sent"] = true;
@@ -435,7 +453,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         await HttpContext.SignOutAsync(AuthSchemes.External);
         if (user.Status != "active")
         {
-            TempData["Error"] = L.T("Аккаунт заблокирован. Обратитесь к администратору.", "Аккаунт бұғатталған. Әкімшіге хабарласыңыз.", "Account is blocked. Contact the administrator.");
+            TempData["Error"] = InactiveMessage(user);
             return RedirectToAction(nameof(Login));
         }
         user.LastLoginAt = DateTime.UtcNow;
@@ -457,6 +475,13 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         User.Identity?.IsAuthenticated == true
             ? RedirectToDashboard(User.FindFirstValue(ClaimTypes.Role) ?? "student")
             : RedirectToAction(nameof(Login));
+
+    /// <summary>Why a signed-in attempt is refused: blocked, or a teacher not approved yet.</summary>
+    private string InactiveMessage(User user) => user.Status == "pending"
+        ? L.T("Аккаунт преподавателя ждёт одобрения администратора. Мы напишем на почту, когда его откроют.",
+              "Оқытушы аккаунты әкімшінің мақұлдауын күтуде. Ашылғанда поштаңызға хабарлаймыз.",
+              "Your teacher account is waiting for administrator approval. We'll email you when it's open.")
+        : L.T("Аккаунт заблокирован. Обратитесь к администратору.", "Аккаунт бұғатталған. Әкімшіге хабарласыңыз.", "Account is blocked. Contact the administrator.");
 
     private IActionResult LoginFailed(LoginViewModel model)
     {

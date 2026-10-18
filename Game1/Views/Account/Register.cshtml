@@ -14,7 +14,7 @@
             <span class="label">@L.T("Роль", "Рөл", "Role")</span>
             <div class="role-pick">
                 <label><input type="radio" name="Role" value="student" checked="@(Model.Role != "teacher")" /><span class="ibox ibox-sm">@Html.Icon("graduation-cap")</span><span>@L.T("Студент", "Студент", "Student")<small>@L.T("Учусь", "Оқимын", "I learn")</small></span></label>
-                <label><input type="radio" name="Role" value="teacher" checked="@(Model.Role == "teacher")" /><span class="ibox ibox-sm">@Html.Icon("presentation")</span><span>@L.T("Преподаватель", "Оқытушы", "Teacher")<small>@L.T("Обучаю", "Оқытамын", "I teach")</small></span></label>
+                <label><input type="radio" name="Role" value="teacher" checked="@(Model.Role == "teacher")" /><span class="ibox ibox-sm">@Html.Icon("presentation")</span><span>@L.T("Преподаватель", "Оқытушы", "Teacher")<small>@L.T("Обучаю · после одобрения админом", "Оқытамын · әкімші мақұлдағаннан кейін", "I teach · after admin approval")</small></span></label>
             </div>
         </div>
         <div class="grid cols-2" style="gap:12px">
