@@ -7,6 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
+    public DbSet<EmailCode> EmailCodes => Set<EmailCode>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -15,5 +16,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         b.Entity<ExternalLogin>().HasIndex(l => new { l.Provider, l.ProviderKey }).IsUnique();
         b.Entity<ExternalLogin>().HasIndex(l => new { l.UserId, l.Provider }).IsUnique();
         b.Entity<ExternalLogin>().HasOne(l => l.User).WithMany().OnDelete(DeleteBehavior.Cascade);
+
+        b.Entity<EmailCode>().HasIndex(c => new { c.UserId, c.Purpose }).IsUnique();
+        b.Entity<EmailCode>().HasOne(c => c.User).WithMany().OnDelete(DeleteBehavior.Cascade);
     }
 }

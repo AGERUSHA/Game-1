@@ -34,7 +34,7 @@ public class AdminController(IEduDataService data, AppDbContext db, IPasswordHas
         if (await db.Users.AnyAsync(u => u.Email == email))
             return Flash(L.T("Этот email уже зарегистрирован.", "Бұл email тіркелген.", "This email is already registered."), error: true);
 
-        var user = new User { FirstName = model.FirstName.Trim(), LastName = model.LastName.Trim(), Email = email, Role = model.Role };
+        var user = new User { FirstName = model.FirstName.Trim(), LastName = model.LastName.Trim(), Email = email, Role = model.Role, EmailConfirmed = true };
         user.PasswordHash = hasher.HashPassword(user, model.Password);
         db.Users.Add(user);
         await db.SaveChangesAsync();

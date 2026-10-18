@@ -16,7 +16,7 @@ namespace Game1.Controllers;
 /// Passwords are hashed with PasswordHasher (PBKDF2 + salt) and never stored in plain text.
 /// </summary>
 public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, LangService L, IAuthenticationSchemeProvider schemes,
-    EmailSender emailSender, PasswordResetTokens resetTokens, PasswordResetCodes resetCodes, LoginLockout lockout, ILogger<AccountController> log, IWebHostEnvironment env) : Controller
+    EmailSender emailSender, PasswordResetTokens resetTokens, EmailCodes emailCodes, ILogger<AccountController> log, IWebHostEnvironment env) : Controller
 {
     [HttpGet]
     public IActionResult Login(string? returnUrl)
@@ -59,6 +59,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         }
         user.Role = role;
         user.Status = "active";
+        user.EmailConfirmed = true;
         user.LastLoginAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
 
@@ -66,27 +67,46 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         return RedirectToDashboard(role);
     }
 
+    /// <summary>Wrong passwords in a row before the account is locked for <see cref="LockoutTime"/>.</summary>
+    private const int MaxFailedLogins = 10;
+    private static readonly TimeSpan LockoutTime = TimeSpan.FromMinutes(10);
+
     [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid) return LoginFailed(model);
 
         var email = model.Email.Trim().ToLowerInvariant();
-        if (lockout.IsLocked(email))
+        var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
+        if (user == null) return LoginFailed(model);
+
+        if (user.LockoutEnd > DateTime.UtcNow)
         {
-            ViewData["Error"] = L.T("Слишком много неверных попыток. Подождите 10 минут или восстановите пароль.", "Қате әрекеттер тым көп. 10 минут күтіңіз немесе құпиясөзді қалпына келтіріңіз.", "Too many wrong attempts. Wait 10 minutes or reset your password.");
+            var minutes = (int)Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalMinutes);
+            ViewData["Error"] = L.T($"Слишком много неверных попыток. Подождите {minutes} мин. или восстановите пароль.",
+                $"Қате әрекеттер тым көп. {minutes} мин. күтіңіз немесе құпиясөзді қалпына келтіріңіз.",
+                $"Too many wrong attempts. Wait {minutes} min or reset your password.");
             model.Password = "";
             return View(model);
         }
-        var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
-        if (user == null) { lockout.Failed(email); return LoginFailed(model); }
 
         var result = hasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
-        if (result == PasswordVerificationResult.Failed) { lockout.Failed(email); return LoginFailed(model); }
-        lockout.Reset(email);
+        if (result == PasswordVerificationResult.Failed)
+        {
+            if (++user.FailedLogins >= MaxFailedLogins)
+            {
+                user.LockoutEnd = DateTime.UtcNow + LockoutTime;
+                user.FailedLogins = 0;
+            }
+            await db.SaveChangesAsync();
+            return LoginFailed(model);
+        }
+        user.FailedLogins = 0;
+        user.LockoutEnd = null;
 
         if (user.Status != "active")
         {
+            await db.SaveChangesAsync();
             ViewData["Error"] = L.T("Аккаунт заблокирован. Обратитесь к администратору.", "Аккаунт бұғатталған. Әкімшіге хабарласыңыз.", "Account is blocked. Contact the administrator.");
             model.Password = "";
             return View(model);
@@ -97,6 +117,15 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         {
             user.PasswordHash = hasher.HashPassword(user, model.Password);
         }
+
+        // Right password, but the address was never confirmed → send a code instead of signing in.
+        if (!user.EmailConfirmed)
+        {
+            await db.SaveChangesAsync();
+            if (!await emailCodes.SentRecentlyAsync(user, EmailCode.Confirm)) await SendCodeAsync(user, EmailCode.Confirm);
+            return RedirectToAction(nameof(ConfirmEmail), new { email = user.Email, returnUrl = model.ReturnUrl });
+        }
+
         user.LastLoginAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
 
@@ -124,27 +153,76 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         }
 
         var email = model.Email.Trim().ToLowerInvariant();
-        if (await db.Users.AnyAsync(u => u.Email == email))
+        var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
+        if (user is { EmailConfirmed: true } or { Status: not "active" })
         {
             ViewData["Error"] = L.T("Этот email уже зарегистрирован.", "Бұл email тіркелген.", "This email is already registered.");
             return View(ClearPasswords(model));
         }
 
-        var user = new User
-        {
-            FirstName = model.FirstName.Trim(),
-            LastName = model.LastName.Trim(),
-            Email = email,
-            Role = model.Role,
-            LastLoginAt = DateTime.UtcNow,
-        };
+        // An unconfirmed account was never proven to belong to anyone (someone may have typed
+        // another person's address) — whoever signs up with the email now takes it over.
+        if (user == null) db.Users.Add(user = new User { Email = email });
+        user.FirstName = model.FirstName.Trim();
+        user.LastName = model.LastName.Trim();
+        user.Role = model.Role;
         user.PasswordHash = hasher.HashPassword(user, model.Password);
-
-        db.Users.Add(user);
+        user.FailedLogins = 0;
+        user.LockoutEnd = null;
         await db.SaveChangesAsync();
 
+        await SendCodeAsync(user, EmailCode.Confirm);
+        return RedirectToAction(nameof(ConfirmEmail), new { email });
+    }
+
+    // ------------------------------------------------------------ Confirm email
+
+    [HttpGet]
+    public IActionResult ConfirmEmail(string? email, string? returnUrl)
+    {
+        ViewData["Email"] = email?.Trim().ToLowerInvariant();
+        ViewData["ReturnUrl"] = returnUrl;
+        return View();
+    }
+
+    /// <summary>The 6-digit code from the sign-up email → account confirmed and signed in.</summary>
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
+    public async Task<IActionResult> ConfirmEmail(string? email, string? code, string? returnUrl)
+    {
+        var addr = email?.Trim().ToLowerInvariant() ?? "";
+        var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr) : null;
+        if (user is { EmailConfirmed: true })
+        {
+            TempData["Success"] = L.T("Email уже подтверждён — войдите.", "Email расталған — кіріңіз.", "Email already confirmed — please sign in.");
+            return RedirectToAction(nameof(Login));
+        }
+        if (user is not { Status: "active" } || !await emailCodes.VerifyAsync(user, EmailCode.Confirm, code))
+        {
+            ViewData["Email"] = addr;
+            ViewData["ReturnUrl"] = returnUrl;
+            ViewData["Error"] = L.T("Неверный или устаревший код. Проверьте письмо или отправьте новый.", "Код қате немесе ескірген. Хатты тексеріңіз немесе жаңасын жіберіңіз.", "Wrong or expired code. Check the email or send a new one.");
+            return View();
+        }
+
+        var firstVisit = user.LastLoginAt == null;
+        user.EmailConfirmed = true;
+        user.LastLoginAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
         await SignInAsync(user, rememberMe: true);
-        return user.Role == "student" ? RedirectToAction(nameof(Welcome)) : RedirectToDashboard(user.Role);
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)) return LocalRedirect(returnUrl);
+        return firstVisit && user.Role == "student" ? RedirectToAction(nameof(Welcome)) : RedirectToDashboard(user.Role);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
+    public async Task<IActionResult> ResendConfirmation(string? email, string? returnUrl)
+    {
+        var addr = email?.Trim().ToLowerInvariant() ?? "";
+        var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr) : null;
+        if (user is { EmailConfirmed: false, Status: "active" } && !await emailCodes.SentRecentlyAsync(user, EmailCode.Confirm))
+            await SendCodeAsync(user, EmailCode.Confirm);
+        TempData["Success"] = L.T("Новый код отправлен (не чаще раза в минуту).", "Жаңа код жіберілді (минутына бір реттен жиі емес).", "A new code was sent (at most once a minute).");
+        return RedirectToAction(nameof(ConfirmEmail), new { email = addr, returnUrl });
     }
 
     /// <summary>First-run onboarding for new students.</summary>
@@ -167,20 +245,10 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     {
         var addr = email?.Trim().ToLowerInvariant() ?? "";
         var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr && u.Status == "active") : null;
-        if (user != null)
+        if (user != null && !await emailCodes.SentRecentlyAsync(user, EmailCode.Reset))
         {
             var link = Url.Action(nameof(ResetPassword), "Account", new { token = resetTokens.Create(user) }, Request.Scheme)!;
-            var code = resetCodes.Create(addr, user.Id);
-            var hello = L.T("Здравствуйте", "Сәлеметсіз бе", "Hello");
-            var body = $@"<div style=""font-family:Arial,sans-serif;font-size:15px;color:#1f2937"">
-<p>{hello}, {System.Net.WebUtility.HtmlEncode(user.FirstName)}!</p>
-<p>{L.T("Ваш код для восстановления пароля EDU AI (действует 15 минут):", "EDU AI құпиясөзін қалпына келтіру кодыңыз (15 минут жарамды):", "Your EDU AI password reset code (valid for 15 minutes):")}</p>
-<p style=""font-size:32px;font-weight:700;letter-spacing:8px;margin:16px 0"">{code}</p>
-<p>{L.T("Или просто перейдите по ссылке (действует 1 час):", "Немесе сілтемеге өтіңіз (1 сағат жарамды):", "Or just open this link (valid for 1 hour):")}<br><a href=""{link}"">{link}</a></p>
-<p style=""color:#6b7280"">{L.T("Если вы не запрашивали сброс — просто проигнорируйте письмо. Никому не сообщайте этот код.", "Егер сіз қалпына келтіруді сұрамасаңыз — хатты елемеңіз. Бұл кодты ешкімге айтпаңыз.", "If you didn't request this, just ignore this email. Never share this code.")}</p>
-</div>";
-            try { await emailSender.SendAsync(user.Email, L.T("Код восстановления пароля EDU AI", "EDU AI құпиясөзін қалпына келтіру коды", "EDU AI password reset code"), body); }
-            catch (Exception ex) { log.LogError(ex, "Password reset email to {Email} failed", user.Email); }
+            await SendCodeAsync(user, EmailCode.Reset, link);
         }
         // Same answer whether or not the email exists — don't reveal who is registered.
         ViewData["Sent"] = true;
@@ -193,8 +261,8 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     public async Task<IActionResult> VerifyResetCode(string? email, string? code)
     {
         var addr = email?.Trim().ToLowerInvariant() ?? "";
-        var user = resetCodes.Verify(addr, code) is int id ? await db.Users.FindAsync(id) : null;
-        if (user == null || user.Status != "active")
+        var user = addr.Length > 0 ? await db.Users.SingleOrDefaultAsync(u => u.Email == addr && u.Status == "active") : null;
+        if (user == null || !await emailCodes.VerifyAsync(user, EmailCode.Reset, code))
         {
             ViewData["Sent"] = true;
             ViewData["Email"] = addr;
@@ -233,10 +301,49 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         }
 
         user.PasswordHash = hasher.HashPassword(user, newPassword!);   // also invalidates this link
-        lockout.Reset(user.Email);
+        user.EmailConfirmed = true;   // the link / code came by email, so the address is proven
+        user.FailedLogins = 0;
+        user.LockoutEnd = null;
         await db.SaveChangesAsync();
+        await db.EmailCodes.Where(c => c.UserId == user.Id && c.Purpose == EmailCode.Reset).ExecuteDeleteAsync();
         TempData["Success"] = L.T("Пароль изменён. Войдите с новым паролем.", "Құпиясөз өзгертілді. Жаңа құпиясөзбен кіріңіз.", "Password changed. Sign in with your new password.");
         return RedirectToAction(nameof(Login));
+    }
+
+    /// <summary>Emails a fresh 6-digit code (sign-up confirmation or password reset; the reset one also carries the link).</summary>
+    private async Task SendCodeAsync(User user, string purpose, string? link = null)
+    {
+        var code = await emailCodes.CreateAsync(user, purpose);
+        var minutes = (int)EmailCodes.Lifetime(purpose).TotalMinutes;
+        var confirm = purpose == EmailCode.Confirm;
+
+        var subject = confirm
+            ? L.T("Код подтверждения EDU AI", "EDU AI растау коды", "EDU AI confirmation code")
+            : L.T("Код восстановления пароля EDU AI", "EDU AI құпиясөзін қалпына келтіру коды", "EDU AI password reset code");
+        var hello = $"{L.T("Здравствуйте", "Сәлеметсіз бе", "Hello")}, {user.FirstName}!";
+        var intro = confirm
+            ? L.T($"Ваш код подтверждения email для EDU AI (действует {minutes} минут):", $"EDU AI-да email растау кодыңыз ({minutes} минут жарамды):", $"Your EDU AI email confirmation code (valid for {minutes} minutes):")
+            : L.T($"Ваш код для восстановления пароля EDU AI (действует {minutes} минут):", $"EDU AI құпиясөзін қалпына келтіру кодыңыз ({minutes} минут жарамды):", $"Your EDU AI password reset code (valid for {minutes} minutes):");
+        var linkLine = L.T("Или просто перейдите по ссылке (действует 1 час):", "Немесе сілтемеге өтіңіз (1 сағат жарамды):", "Or just open this link (valid for 1 hour):");
+        var ignore = (confirm
+            ? L.T("Если вы не регистрировались в EDU AI — просто проигнорируйте письмо.", "Егер сіз EDU AI-да тіркелмесеңіз — хатты елемеңіз.", "If you didn't sign up for EDU AI, just ignore this email.")
+            : L.T("Если вы не запрашивали сброс — просто проигнорируйте письмо.", "Егер сіз қалпына келтіруді сұрамасаңыз — хатты елемеңіз.", "If you didn't request this, just ignore this email."))
+            + " " + L.T("Никому не сообщайте этот код.", "Бұл кодты ешкімге айтпаңыз.", "Never share this code.");
+
+        static string E(string s) => System.Net.WebUtility.HtmlEncode(s);
+        var linkHtml = link == null ? "" : $@"<p>{E(linkLine)}<br><a href=""{E(link)}"">{E(link)}</a></p>";
+        var html = $@"<div style=""font-family:Arial,sans-serif;font-size:15px;color:#1f2937"">
+<p>{E(hello)}</p>
+<p>{E(intro)}</p>
+<p style=""font-size:32px;font-weight:700;letter-spacing:8px;margin:16px 0"">{code}</p>
+{linkHtml}
+<p style=""color:#6b7280"">{E(ignore)}</p>
+</div>";
+        var linkText = link == null ? "" : $"{linkLine}\n{link}\n\n";
+        var text = $"{hello}\n\n{intro}\n\n    {code}\n\n{linkText}{ignore}\n\n— EDU AI";
+
+        try { await emailSender.SendAsync(user.Email, subject, html, text); }
+        catch (Exception ex) { log.LogError(ex, "Email ({Purpose}) to {Email} failed", purpose, user.Email); }
     }
 
     // ------------------------------------------------------------ Google / Microsoft
@@ -280,6 +387,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
             LastName = ext.LastName,
             Email = ext.Email,
             Role = "student",
+            EmailConfirmed = true,   // the provider has verified the address
         };
         db.Users.Add(user);
         db.ExternalLogins.Add(new ExternalLogin { Provider = ext.Provider, ProviderKey = ext.Key, User = user });
@@ -311,10 +419,9 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         }
 
         if (!await db.ExternalLogins.AnyAsync(l => l.UserId == user.Id && l.Provider == ext.Provider))
-        {
             db.ExternalLogins.Add(new ExternalLogin { Provider = ext.Provider, ProviderKey = ext.Key, UserId = user.Id });
-            await db.SaveChangesAsync();
-        }
+        user.EmailConfirmed = true;   // knows the password AND owns the address at the provider
+        await db.SaveChangesAsync();
         return await FinishExternalAsync(user, model.ReturnUrl);
     }
 

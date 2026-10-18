@@ -24,6 +24,13 @@ public class User
     /// <summary>active | blocked — blocked users cannot sign in.</summary>
     [MaxLength(20)] public string Status { get; set; } = "active";
 
+    /// <summary>The owner proved the address (6-digit code, reset link, or Google / Microsoft). Unconfirmed accounts cannot sign in.</summary>
+    public bool EmailConfirmed { get; set; }
+
+    /// <summary>Wrong passwords in a row; at 10 the account is locked until <see cref="LockoutEnd"/>.</summary>
+    public int FailedLogins { get; set; }
+    public DateTime? LockoutEnd { get; set; }
+
     /// <summary>Uploaded photo, e.g. /uploads/avatars/12-ab34cd.webp (null → initials).</summary>
     [MaxLength(300)] public string? AvatarUrl { get; set; }
 
@@ -80,4 +87,23 @@ public class LinkAccountViewModel
     public string Email { get; set; } = "";
     public string? Password { get; set; }
     public string? ReturnUrl { get; set; }
+}
+
+/// <summary>
+/// One-time 6-digit code sent by email (confirm address / reset password).
+/// Only the SHA-256 hash is stored; one active code per user and purpose.
+/// </summary>
+public class EmailCode
+{
+    public const string Confirm = "confirm";
+    public const string Reset = "reset";
+
+    public int Id { get; set; }
+    public int UserId { get; set; }
+    public User User { get; set; } = null!;
+    [MaxLength(20)] public string Purpose { get; set; } = "";
+    [MaxLength(64)] public string CodeHash { get; set; } = "";
+    public int Attempts { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

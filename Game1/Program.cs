@@ -48,14 +48,13 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // "Forgot password": signed one-hour links, sent by email (SMTP from user-secrets).
 builder.Services.AddSingleton<PasswordResetTokens>();
-builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<PasswordResetCodes>();
-builder.Services.AddSingleton<LoginLockout>();
+// 6-digit codes by email: confirm the address after sign-up, reset a forgotten password.
+builder.Services.AddScoped<EmailCodes>();
 builder.Services.AddScoped<EmailSender>();
 
 // Brute-force / spam protection for sign-in, sign-up and password reset forms:
 // at most 60 submissions per minute from one IP address (a whole class behind one campus NAT fits),
-// then "429 Too many requests". Guessing one account's password is stopped separately (LoginLockout).
+// then "429 Too many requests". Guessing one account's password is stopped separately (User.FailedLogins / LockoutEnd).
 builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -140,7 +139,7 @@ using (var scope = app.Services.CreateScope())
     if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword)
         && !db.Users.Any(u => u.Role == "admin"))
     {
-        var admin = new User { FirstName = "Admin", LastName = "", Email = adminEmail, Role = "admin" };
+        var admin = new User { FirstName = "Admin", LastName = "", Email = adminEmail, Role = "admin", EmailConfirmed = true };
         admin.PasswordHash = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>().HashPassword(admin, adminPassword);
         db.Users.Add(admin);
         db.SaveChanges();

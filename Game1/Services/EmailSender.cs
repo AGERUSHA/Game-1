@@ -14,7 +14,8 @@ public class EmailSender(IConfiguration config, ILogger<EmailSender> log)
 {
     public bool IsConfigured => !string.IsNullOrEmpty(config["Smtp:Host"]) && !string.IsNullOrEmpty(config["Smtp:Password"]);
 
-    public async Task SendAsync(string to, string subject, string html)
+    /// <param name="text">Plain-text copy of the message — mail without one is more likely to land in spam.</param>
+    public async Task SendAsync(string to, string subject, string html, string? text = null)
     {
         if (!IsConfigured)
         {
@@ -34,11 +35,20 @@ public class EmailSender(IConfiguration config, ILogger<EmailSender> log)
         using var message = new MailMessage(from, new MailAddress(to))
         {
             Subject = subject,
-            Body = html,
-            IsBodyHtml = true,
             SubjectEncoding = System.Text.Encoding.UTF8,
             BodyEncoding = System.Text.Encoding.UTF8,
         };
+        if (text != null)
+        {
+            // multipart/alternative: text first, HTML last (mail apps show the last one they can render).
+            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(text, System.Text.Encoding.UTF8, "text/plain"));
+            message.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(html, System.Text.Encoding.UTF8, "text/html"));
+        }
+        else
+        {
+            message.Body = html;
+            message.IsBodyHtml = true;
+        }
         await client.SendMailAsync(message);
         log.LogInformation("Email \"{Subject}\" sent to {To}", subject, to);
     }
