@@ -263,8 +263,9 @@
     const mh = t.closest(".module-head");
     if (mh) { mh.parentElement.classList.toggle("open"); return; }
 
-    // Toast trigger (mock actions: export, save, etc.)
-    const toastBtn = t.closest("[data-toast]");
+    // Toast trigger (mock actions: export, save, etc.). An empty data-toast is ignored:
+    // Razor renders data-* attributes even when the value is null, and such a button must still submit.
+    const toastBtn = t.closest("[data-toast]:not([data-toast=''])");
     if (toastBtn) { e.preventDefault(); toast(toastBtn.dataset.toast, toastBtn.dataset.toastIcon || "check-circle-2"); }
 
     // Modal
