@@ -104,10 +104,27 @@
       }
     });
   }
+  // Chart.js is 200 KB, and most pages have no chart at all, so it is fetched
+  // only when a <canvas data-chart> is on the page. Loading starts once; later
+  // calls (theme switch, tab switch) just redraw.
+  let chartLib = null;
+  function loadChartLib() {
+    if (chartLib) return chartLib;
+    chartLib = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "/lib/chartjs/chart.umd.min.js";
+      s.onload = resolve;
+      s.onerror = () => { chartLib = null; reject(new Error("chart.js failed to load")); };
+      document.head.appendChild(s);
+    });
+    return chartLib;
+  }
   function renderCharts() {
-    if (!window.Chart) return;
     charts.splice(0).forEach(c => c.destroy());
-    $$("canvas[data-chart]").forEach(c => { try { charts.push(buildChart(c)); } catch (e) { console.warn(e); } });
+    const canvases = $$("canvas[data-chart]");
+    if (!canvases.length) return;
+    if (!window.Chart) { loadChartLib().then(renderCharts).catch(e => console.warn(e)); return; }
+    canvases.forEach(c => { try { charts.push(buildChart(c)); } catch (e) { console.warn(e); } });
   }
 
   /* ---------- On-view animations ---------- */
