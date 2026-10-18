@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Game1.Controllers;
@@ -15,7 +16,7 @@ namespace Game1.Controllers;
 /// Passwords are hashed with PasswordHasher (PBKDF2 + salt) and never stored in plain text.
 /// </summary>
 public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, LangService L, IAuthenticationSchemeProvider schemes,
-    EmailSender emailSender, PasswordResetTokens resetTokens, ILogger<AccountController> log, IWebHostEnvironment env) : Controller
+    EmailSender emailSender, PasswordResetTokens resetTokens, PasswordResetCodes resetCodes, LoginLockout lockout, ILogger<AccountController> log, IWebHostEnvironment env) : Controller
 {
     [HttpGet]
     public IActionResult Login(string? returnUrl)
@@ -30,9 +31,12 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     /// Password-less sign-in as a demo student / teacher / admin.
     /// Only in the Development environment AND only for requests from this computer (loopback).
     /// The demo accounts have no password, so nobody can sign in to them from elsewhere.
+    /// A tunnel (cloudflared, ngrok…) connects from loopback too, but adds forwarding headers — those requests are refused.
     /// </summary>
     private bool DevLoginAllowed =>
-        env.IsDevelopment() && HttpContext.Connection.RemoteIpAddress is { } ip && System.Net.IPAddress.IsLoopback(ip);
+        env.IsDevelopment() && HttpContext.Connection.RemoteIpAddress is { } ip && System.Net.IPAddress.IsLoopback(ip)
+        && !Request.Headers.ContainsKey("X-Forwarded-For") && !Request.Headers.ContainsKey("Cf-Connecting-IP")
+        && !Request.Headers.ContainsKey("X-Forwarded-Host") && !Request.Headers.ContainsKey("Forwarded");
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> DevLogin(string role)
@@ -62,17 +66,24 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         return RedirectToDashboard(role);
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid) return LoginFailed(model);
 
         var email = model.Email.Trim().ToLowerInvariant();
+        if (lockout.IsLocked(email))
+        {
+            ViewData["Error"] = L.T("Слишком много неверных попыток. Подождите 10 минут или восстановите пароль.", "Қате әрекеттер тым көп. 10 минут күтіңіз немесе құпиясөзді қалпына келтіріңіз.", "Too many wrong attempts. Wait 10 minutes or reset your password.");
+            model.Password = "";
+            return View(model);
+        }
         var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
-        if (user == null) return LoginFailed(model);
+        if (user == null) { lockout.Failed(email); return LoginFailed(model); }
 
         var result = hasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
-        if (result == PasswordVerificationResult.Failed) return LoginFailed(model);
+        if (result == PasswordVerificationResult.Failed) { lockout.Failed(email); return LoginFailed(model); }
+        lockout.Reset(email);
 
         if (user.Status != "active")
         {
@@ -99,7 +110,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     [HttpGet]
     public IActionResult Register() => View(new RegisterViewModel());
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
         if (model.Role is not ("student" or "teacher")) model.Role = "student";
@@ -151,7 +162,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     [HttpGet]
     public IActionResult ForgotPassword() => View();
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> ForgotPassword(string? email)
     {
         var addr = email?.Trim().ToLowerInvariant() ?? "";
@@ -159,18 +170,38 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         if (user != null)
         {
             var link = Url.Action(nameof(ResetPassword), "Account", new { token = resetTokens.Create(user) }, Request.Scheme)!;
+            var code = resetCodes.Create(addr, user.Id);
             var hello = L.T("Здравствуйте", "Сәлеметсіз бе", "Hello");
-            var body = $@"<p>{hello}, {System.Net.WebUtility.HtmlEncode(user.FirstName)}!</p>
-<p>{L.T("Чтобы задать новый пароль EDU AI, перейдите по ссылке (действует 1 час):", "EDU AI жаңа құпиясөзін орнату үшін сілтемеге өтіңіз (1 сағат жарамды):", "To set a new EDU AI password, open this link (valid for 1 hour):")}</p>
-<p><a href=""{link}"">{link}</a></p>
-<p>{L.T("Если вы не запрашивали сброс — просто проигнорируйте письмо.", "Егер сіз қалпына келтіруді сұрамасаңыз — хатты елемеңіз.", "If you didn't request this, just ignore this email.")}</p>";
-            try { await emailSender.SendAsync(user.Email, L.T("Сброс пароля EDU AI", "EDU AI құпиясөзін қалпына келтіру", "EDU AI password reset"), body); }
+            var body = $@"<div style=""font-family:Arial,sans-serif;font-size:15px;color:#1f2937"">
+<p>{hello}, {System.Net.WebUtility.HtmlEncode(user.FirstName)}!</p>
+<p>{L.T("Ваш код для восстановления пароля EDU AI (действует 15 минут):", "EDU AI құпиясөзін қалпына келтіру кодыңыз (15 минут жарамды):", "Your EDU AI password reset code (valid for 15 minutes):")}</p>
+<p style=""font-size:32px;font-weight:700;letter-spacing:8px;margin:16px 0"">{code}</p>
+<p>{L.T("Или просто перейдите по ссылке (действует 1 час):", "Немесе сілтемеге өтіңіз (1 сағат жарамды):", "Or just open this link (valid for 1 hour):")}<br><a href=""{link}"">{link}</a></p>
+<p style=""color:#6b7280"">{L.T("Если вы не запрашивали сброс — просто проигнорируйте письмо. Никому не сообщайте этот код.", "Егер сіз қалпына келтіруді сұрамасаңыз — хатты елемеңіз. Бұл кодты ешкімге айтпаңыз.", "If you didn't request this, just ignore this email. Never share this code.")}</p>
+</div>";
+            try { await emailSender.SendAsync(user.Email, L.T("Код восстановления пароля EDU AI", "EDU AI құпиясөзін қалпына келтіру коды", "EDU AI password reset code"), body); }
             catch (Exception ex) { log.LogError(ex, "Password reset email to {Email} failed", user.Email); }
         }
         // Same answer whether or not the email exists — don't reveal who is registered.
         ViewData["Sent"] = true;
         ViewData["Email"] = addr;
         return View();
+    }
+
+    /// <summary>The 6-digit code from the email → the same "new password" page as the link.</summary>
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
+    public async Task<IActionResult> VerifyResetCode(string? email, string? code)
+    {
+        var addr = email?.Trim().ToLowerInvariant() ?? "";
+        var user = resetCodes.Verify(addr, code) is int id ? await db.Users.FindAsync(id) : null;
+        if (user == null || user.Status != "active")
+        {
+            ViewData["Sent"] = true;
+            ViewData["Email"] = addr;
+            ViewData["Error"] = L.T("Неверный или устаревший код. Проверьте письмо или запросите новый.", "Код қате немесе ескірген. Хатты тексеріңіз немесе жаңасын сұраңыз.", "Wrong or expired code. Check the email or request a new one.");
+            return View(nameof(ForgotPassword));
+        }
+        return RedirectToAction(nameof(ResetPassword), new { token = resetTokens.Create(user) });
     }
 
     [HttpGet]
@@ -182,7 +213,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         return View();
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> ResetPassword(string? token, string? newPassword, string? confirmPassword)
     {
         ViewData["Token"] = token;
@@ -202,6 +233,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
         }
 
         user.PasswordHash = hasher.HashPassword(user, newPassword!);   // also invalidates this link
+        lockout.Reset(user.Email);
         await db.SaveChangesAsync();
         TempData["Success"] = L.T("Пароль изменён. Войдите с новым паролем.", "Құпиясөз өзгертілді. Жаңа құпиясөзбен кіріңіз.", "Password changed. Sign in with your new password.");
         return RedirectToAction(nameof(Login));
@@ -256,7 +288,7 @@ public class AccountController(AppDbContext db, IPasswordHasher<User> hasher, La
     }
 
     /// <summary>Links Google / Microsoft to an existing account after its password is confirmed.</summary>
-    [HttpPost, ValidateAntiForgeryToken]
+    [HttpPost, ValidateAntiForgeryToken, EnableRateLimiting("auth")]
     public async Task<IActionResult> LinkAccount(LinkAccountViewModel model)
     {
         var ext = await ReadExternalAsync();

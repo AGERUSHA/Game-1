@@ -5,7 +5,9 @@ namespace Game1.Services;
 
 /// <summary>
 /// Sends email through SMTP configured in user-secrets / environment:
-/// Smtp:Host, Smtp:Port (587), Smtp:User, Smtp:Password, Smtp:From.
+/// Smtp:Host, Smtp:Port (587), Smtp:User, Smtp:Password, Smtp:From, Smtp:FromName ("EDU AI").
+/// Gmail: Host = smtp.gmail.com, User = From = your Gmail address, Password = a 16-letter
+/// app password (Google account → Security → 2-Step Verification → App passwords), not the normal one.
 /// Without Smtp:Host the message is only written to the log (handy for local development).
 /// </summary>
 public class EmailSender(IConfiguration config, ILogger<EmailSender> log)
@@ -20,12 +22,24 @@ public class EmailSender(IConfiguration config, ILogger<EmailSender> log)
             return;
         }
 
+        // Google shows app passwords in groups ("abcd efgh ijkl mnop") — the spaces are not part of it.
+        var password = (config["Smtp:Password"] ?? "").Replace(" ", "");
         using var client = new SmtpClient(config["Smtp:Host"], int.TryParse(config["Smtp:Port"], out var port) ? port : 587)
         {
             EnableSsl = true,
-            Credentials = new NetworkCredential(config["Smtp:User"], config["Smtp:Password"]),
+            Timeout = 15_000,
+            Credentials = new NetworkCredential(config["Smtp:User"], password),
         };
-        using var message = new MailMessage(config["Smtp:From"] ?? config["Smtp:User"]!, to, subject, html) { IsBodyHtml = true };
+        var from = new MailAddress(config["Smtp:From"] ?? config["Smtp:User"]!, config["Smtp:FromName"] ?? "EDU AI");
+        using var message = new MailMessage(from, new MailAddress(to))
+        {
+            Subject = subject,
+            Body = html,
+            IsBodyHtml = true,
+            SubjectEncoding = System.Text.Encoding.UTF8,
+            BodyEncoding = System.Text.Encoding.UTF8,
+        };
         await client.SendMailAsync(message);
+        log.LogInformation("Email \"{Subject}\" sent to {To}", subject, to);
     }
 }

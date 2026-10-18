@@ -5,15 +5,27 @@ using Game1.Models;
 using Game1.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.WebEncoders;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+
+// Compress HTML responses (~21 KB -> ~5 KB per page). Static css/js are already
+// compressed at build time by MapStaticAssets, so they are left to it.
+builder.Services.AddResponseCompression(o =>
+{
+    o.EnableForHttps = true;
+    o.Providers.Add<BrotliCompressionProvider>();
+    o.Providers.Add<GzipCompressionProvider>();
+    o.MimeTypes = ["text/html; charset=utf-8", "text/html"];
+});
 
 // Output Cyrillic / Kazakh text as-is instead of HTML entities.
 builder.Services.Configure<WebEncoderOptions>(o => o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
@@ -36,7 +48,21 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // "Forgot password": signed one-hour links, sent by email (SMTP from user-secrets).
 builder.Services.AddSingleton<PasswordResetTokens>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<PasswordResetCodes>();
+builder.Services.AddSingleton<LoginLockout>();
 builder.Services.AddScoped<EmailSender>();
+
+// Brute-force / spam protection for sign-in, sign-up and password reset forms:
+// at most 60 submissions per minute from one IP address (a whole class behind one campus NAT fits),
+// then "429 Too many requests". Guessing one account's password is stopped separately (LoginLockout).
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    o.AddPolicy("auth", ctx => RateLimitPartition.GetFixedWindowLimiter(
+        ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1) }));
+});
 
 // Cookie-based sign-in.
 var auth = builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -129,11 +155,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseResponseCompression();
+
 // Friendly 404 / 403 pages (Views/Shared/Error.cshtml).
 app.UseStatusCodePagesWithReExecute("/Home/Status/{0}");
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
