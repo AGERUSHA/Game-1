@@ -8,11 +8,11 @@ namespace Game1.Services;
 /// Smtp:Host, Smtp:Port (587), Smtp:User, Smtp:Password, Smtp:From, Smtp:FromName ("EDU AI").
 /// Gmail: Host = smtp.gmail.com, User = From = your Gmail address, Password = a 16-letter
 /// app password (Google account → Security → 2-Step Verification → App passwords), not the normal one.
-/// Without Smtp:Host the message is only written to the log (handy for local development).
+/// Without Smtp:Host / Smtp:Password the message is only written to the log (handy for local development).
 /// </summary>
 public class EmailSender(IConfiguration config, ILogger<EmailSender> log)
 {
-    public bool IsConfigured => !string.IsNullOrEmpty(config["Smtp:Host"]);
+    public bool IsConfigured => !string.IsNullOrEmpty(config["Smtp:Host"]) && !string.IsNullOrEmpty(config["Smtp:Password"]);
 
     public async Task SendAsync(string to, string subject, string html)
     {
