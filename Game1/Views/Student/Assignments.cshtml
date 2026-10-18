@@ -8,6 +8,7 @@
         "in-progress" => ("badge-primary", L.T("В работе", "Орындалуда", "In progress"), "active"),
         "submitted" => ("badge-warning", L.T("На проверке", "Тексерілуде", "Under review"), "submitted"),
         "graded" => ("badge-success", L.T("Оценено", "Бағаланды", "Graded"), "graded"),
+        "returned" => ("badge-warning", L.T("На доработку", "Пысықтауға", "Needs rework"), "active"),
         _ => ("badge-error", L.T("Просрочено", "Мерзімі өтті", "Overdue"), "active")
     };
     int Count(string g) => Model.Count(a => Status(a.Status).group == g);
@@ -18,7 +19,7 @@
         <h1>@L.T("Задания", "Тапсырмалар", "Assignments")</h1>
         <p>@L.T("Практические работы, дедлайны и оценки в одном месте.", "Практикалық жұмыстар, мерзімдер мен бағалар бір жерде.", "Practical work, deadlines and grades in one place.")</p>
     </div>
-    @if (Model.FirstOrDefault(x => x.Status is "in-progress" or "todo") is { } next)
+    @if (Model.FirstOrDefault(x => x.Status is "in-progress" or "todo" or "returned") is { } next)
     {
         <a class="btn btn-primary" href="/Student/Assignment/@next.Id">@Html.Icon("upload") @L.T("Сдать работу", "Жұмысты тапсыру", "Submit work")</a>
     }
@@ -28,7 +29,8 @@
     <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Активные", "Белсенді", "Active")</span><span class="ibox ibox-info">@Html.Icon("list-todo")</span></div><div class="stat-value">@Count("active")</div></div>
     <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("На проверке", "Тексерілуде", "Under review")</span><span class="ibox ibox-warning">@Html.Icon("hourglass")</span></div><div class="stat-value">@Count("submitted")</div></div>
     <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Оценено", "Бағаланды", "Graded")</span><span class="ibox ibox-success">@Html.Icon("check-circle-2")</span></div><div class="stat-value">@Count("graded")</div></div>
-    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средняя оценка", "Орташа баға", "Average grade")</span><span class="ibox">@Html.Icon("star")</span></div><div class="stat-value">94<small>%</small></div></div>
+    @{ var graded = Model.Where(x => x.Score != null).ToList(); }
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средняя оценка", "Орташа баға", "Average grade")</span><span class="ibox">@Html.Icon("star")</span></div><div class="stat-value">@(graded.Count == 0 ? "—" : ((int)graded.Average(x => x.Score!.Value * 100.0 / x.MaxScore)).ToString())<small>@(graded.Count == 0 ? "" : "%")</small></div></div>
 </div>
 
 <section class="card card-flush">

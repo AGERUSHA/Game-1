@@ -18,6 +18,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<LessonCompletion> LessonCompletions => Set<LessonCompletion>();
     public DbSet<MaterialMark> MaterialMarks => Set<MaterialMark>();
 
+    // Tests and assignments.
+    public DbSet<TestEntity> Tests => Set<TestEntity>();
+    public DbSet<QuestionEntity> Questions => Set<QuestionEntity>();
+    public DbSet<TestAttempt> TestAttempts => Set<TestAttempt>();
+    public DbSet<AssignmentEntity> Assignments => Set<AssignmentEntity>();
+    public DbSet<SubmissionEntity> Submissions => Set<SubmissionEntity>();
+    public DbSet<SubmissionFile> SubmissionFiles => Set<SubmissionFile>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         b.Entity<User>().HasIndex(u => u.Email).IsUnique();
@@ -47,5 +55,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         b.Entity<MaterialMark>().HasIndex(m => new { m.UserId, m.MaterialId }).IsUnique();
         b.Entity<MaterialMark>().HasOne(m => m.User).WithMany().OnDelete(DeleteBehavior.Cascade);
         b.Entity<MaterialMark>().HasOne(m => m.Material).WithMany().OnDelete(DeleteBehavior.NoAction);
+
+        b.Entity<TestEntity>().ToTable("Tests");
+        b.Entity<QuestionEntity>().ToTable("Questions");
+        b.Entity<TestAttempt>().HasOne(a => a.User).WithMany().OnDelete(DeleteBehavior.Cascade);
+        b.Entity<TestAttempt>().HasOne(a => a.Test).WithMany().OnDelete(DeleteBehavior.NoAction);
+        b.Entity<TestAttempt>().HasIndex(a => new { a.UserId, a.TestId });
+        b.Entity<AssignmentEntity>().ToTable("Assignments");
+        b.Entity<SubmissionEntity>().ToTable("Submissions");
+        b.Entity<SubmissionEntity>().HasOne(x => x.User).WithMany().OnDelete(DeleteBehavior.Cascade);
+        b.Entity<SubmissionEntity>().HasOne(x => x.Assignment).WithMany().OnDelete(DeleteBehavior.NoAction);
+        b.Entity<SubmissionEntity>().HasIndex(x => new { x.AssignmentId, x.UserId }).IsUnique();
     }
 }

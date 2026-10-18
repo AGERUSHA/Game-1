@@ -189,7 +189,10 @@ public class MockEduDataService(LangService l) : IEduDataService
         new(T("Big O нотация", "Big O нотациясы", "Big O notation"), "video", T("Алгоритмы и структуры данных", "Алгоритмдер және деректер құрылымы", "Algorithms & Data Structures"), "14:52", T("Месяц назад", "Ай бұрын", "1 month ago")),
     ];
 
-    public List<TestItem> GetTests() =>
+    public virtual TestItem? GetTest(int testId) => GetTests().FirstOrDefault(t => t.Id == testId);
+    public virtual AttemptView? GetAttempt(int attemptId) => null;
+
+    public virtual List<TestItem> GetTests() =>
     [
         new(1, T("Архитектура MVC", "MVC архитектурасы", "MVC architecture"), "PHP & Laravel", 10, 15, null, "available", 0, T("Средний", "Орташа", "Medium")),
         new(2, "SQL JOIN", T("SQL и базы данных", "SQL және деректер қоры", "SQL & Databases"), 12, 20, 58, "retake", 2, T("Средний", "Орташа", "Medium")),
@@ -199,7 +202,7 @@ public class MockEduDataService(LangService l) : IEduDataService
         new(6, T("Основы Pandas", "Pandas негіздері", "Pandas basics"), T("Python для анализа данных", "Деректерді талдауға арналған Python", "Python for Data Analysis"), 10, 15, null, "available", 0, T("Лёгкий", "Жеңіл", "Easy")),
     ];
 
-    public List<Question> GetQuestions(int testId) =>
+    public virtual List<Question> GetQuestions(int testId) =>
     [
         new(T("Что означает буква «C» в аббревиатуре MVC?", "MVC қысқартпасындағы «C» әрпі нені білдіреді?", "What does the letter “C” stand for in MVC?"),
             ["Component", "Controller", "Container", "Collection"], 1, "MVC"),
@@ -224,7 +227,7 @@ public class MockEduDataService(LangService l) : IEduDataService
             ["routes/web.php", "app/routes.php", "config/routes.php", "public/index.php"], 0, "Laravel"),
     ];
 
-    public List<Assignment> GetAssignments() =>
+    public virtual List<Assignment> GetAssignments() =>
     [
         new(T("Связи моделей в Eloquent", "Eloquent-тегі модель байланыстары", "Eloquent model relationships"), "PHP & Laravel", T("8 окт, 23:59", "8 қаз, 23:59", "Oct 8, 23:59"), "in-progress", null, 100, 2, Id: 1),
         new(T("Проектирование схемы БД", "ДҚ сұлбасын жобалау", "Database schema design"), T("SQL и базы данных", "SQL және деректер қоры", "SQL & Databases"), T("10 окт, 18:00", "10 қаз, 18:00", "Oct 10, 18:00"), "todo", null, 100, 4, Id: 2),
@@ -236,7 +239,7 @@ public class MockEduDataService(LangService l) : IEduDataService
     ];
 
 
-    public AssignmentDetail? GetAssignment(int id)
+    public virtual AssignmentDetail? GetAssignment(int id)
     {
         var a = GetAssignments().FirstOrDefault(x => x.Id == id);
         if (a is null) return null;

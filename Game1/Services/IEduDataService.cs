@@ -27,8 +27,12 @@ public interface IEduDataService
     List<CourseModule> GetCurriculum(int courseId);
     /// <summary>Library of the courses the student is enrolled in.</summary>
     List<Material> GetMaterials();
+    /// <summary>Tests of the student's courses with their best score and status.</summary>
     List<TestItem> GetTests();
+    TestItem? GetTest(int testId);
     List<Question> GetQuestions(int testId);
+    /// <summary>The signed-in student's own attempt (null for someone else's).</summary>
+    AttemptView? GetAttempt(int attemptId);
     List<Assignment> GetAssignments();
     AssignmentDetail? GetAssignment(int id);
     List<Recommendation> GetRecommendations();

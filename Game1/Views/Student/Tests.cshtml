@@ -27,10 +27,14 @@
 <div class="grid cols-4 mb-6 stagger">
     <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Всего тестов", "Барлық тест", "Total tests")</span><span class="ibox">@Html.Icon("clipboard-list")</span></div><div class="stat-value">@Model.Count</div></div>
     <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Пройдено", "Тапсырылды", "Passed")</span><span class="ibox ibox-success">@Html.Icon("check-circle-2")</span></div><div class="stat-value">@Model.Count(t => t.Status == "passed")</div></div>
-    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средний балл", "Орташа балл", "Average score")</span><span class="ibox">@Html.Icon("target")</span></div><div class="stat-value">78<small>%</small></div></div>
-    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("XP за тесты", "Тесттерден XP", "XP from tests")</span><span class="ibox">@Html.Icon("zap")</span></div><div class="stat-value">640</div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Средний балл", "Орташа балл", "Average score")</span><span class="ibox">@Html.Icon("target")</span></div><div class="stat-value">@(Model.Any(t => t.BestScore != null) ? (int)Model.Where(t => t.BestScore != null).Average(t => t.BestScore!.Value) : 0)<small>%</small></div></div>
+    <div class="card stat"><div class="stat-top"><span class="stat-label">@L.T("Попыток", "Әрекеттер", "Attempts")</span><span class="ibox">@Html.Icon("rotate-ccw")</span></div><div class="stat-value">@Model.Sum(t => t.Attempts)</div></div>
 </div>
 
+@if (Model.Count == 0)
+{
+    <partial name="_EmptyState" model='new EmptyState("clipboard-list", L.T("Тестов пока нет", "Әзірге тест жоқ", "No tests yet"), L.T("Тесты появятся, когда вы запишетесь на курс.", "Курсқа жазылғанда тесттер шығады.", "Tests appear once you enroll in a course."), null, L.T("Открыть каталог", "Каталогты ашу", "Open the catalog"), "/Student/Courses")' />
+}
 <div class="grid cols-3 stagger" id="testGrid">
     @foreach (var t in Model)
     {
@@ -47,25 +51,25 @@
             <div class="test-meta">
                 <div><small>@L.T("Вопросов", "Сұрақ", "Questions")</small><b>@t.Questions</b></div>
                 <div><small>@L.T("Время", "Уақыт", "Time")</small><b>@t.Minutes @L.T("мин", "мин", "min")</b></div>
-                <div><small>@L.T("Лучший", "Үздік", "Best")</small><b class="@(t.BestScore >= 70 ? "c-success" : t.BestScore is not null ? "c-warning" : "")">@(t.BestScore is int b ? $"{b}%" : "—")</b></div>
+                <div><small>@L.T("Лучший", "Үздік", "Best")</small><b class="@(t.BestScore >= t.PassScore ? "c-success" : t.BestScore is not null ? "c-warning" : "")">@(t.BestScore is int b ? $"{b}%" : "—")</b></div>
             </div>
             @if (t.BestScore is int score)
             {
-                <div>@Html.Progress(score, score >= 70 ? "progress-sm progress-success" : "progress-sm progress-warning")</div>
+                <div>@Html.Progress(score, score >= t.PassScore ? "progress-sm progress-success" : "progress-sm progress-warning")</div>
             }
             <div class="flex gap-2 mt-1">
                 @if (t.Status == "locked")
                 {
-                    <button class="btn btn-secondary btn-block" disabled>@Html.Icon("lock", "icon-sm") @L.T("Откроется после модуля 3", "3-модульден кейін ашылады", "Unlocks after module 3")</button>
+                    <button class="btn btn-secondary btn-block" disabled>@Html.Icon("lock", "icon-sm") @L.T("Откроется после уроков модуля", "Модуль сабақтарынан кейін ашылады", "Unlocks after the module lessons")</button>
                 }
                 else
                 {
                     <a class="btn @(t.Status == "passed" ? "btn-secondary" : "btn-primary") grow" href="/Student/TakeTest/@t.Id">
                         @(t.Status == "passed" ? L.T("Пройти снова", "Қайта тапсыру", "Retake") : L.T("Пройти тест", "Тест тапсыру", "Take test")) @Html.Icon("arrow-right", "icon-sm")
                     </a>
-                    @if (t.BestScore is not null)
+                    @if (t.LastAttemptId is int last)
                     {
-                        <a class="btn btn-outline btn-icon" href="/Student/TestResult/@t.Id" title="@L.T("Результат и разбор", "Нәтиже және талдау", "Result & review")" aria-label="@L.T("Результат", "Нәтиже", "Result")">@Html.Icon("bar-chart-3", "icon-sm")</a>
+                        <a class="btn btn-outline btn-icon" href="/Student/TestResult/@last" title="@L.T("Результат и разбор", "Нәтиже және талдау", "Result & review")" aria-label="@L.T("Результат", "Нәтиже", "Result")">@Html.Icon("bar-chart-3", "icon-sm")</a>
                     }
                 }
             </div>

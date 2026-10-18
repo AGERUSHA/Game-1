@@ -1,13 +1,16 @@
 using System.Security.Claims;
+using Game1.Data;
 using Game1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Game1.Controllers;
 
 /// <summary>Student area. Courses, lessons and materials come from SQL Server; the rest is still mock data (IEduDataService).</summary>
 [Authorize(Roles = "student,admin")]
-public class StudentController(IEduDataService data, CourseStore store, LangService L) : Controller
+public class StudentController(IEduDataService data, CourseStore store, TestStore tests, AssignmentStore assignments,
+    AppDbContext db, LangService L) : Controller
 {
     private int MyId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -67,6 +70,7 @@ public class StudentController(IEduDataService data, CourseStore store, LangServ
         var page = data.GetLesson(id);
         if (page == null) return NotFound();
         if (!page.Course.Enrolled || page.Lesson.Status == "locked") return RedirectToAction(nameof(CourseDetails), new { id = page.Course.Id });
+        if (page.TestId != null || page.AssignmentId != null) return RedirectToAction(nameof(Lesson), new { id });   // pass the test / hand in the work
 
         await store.CompleteLessonAsync(MyId, id, page.Course.Id);
         if (page.NextId is int next) return RedirectToAction(nameof(Lesson), new { id = next });
@@ -97,34 +101,95 @@ public class StudentController(IEduDataService data, CourseStore store, LangServ
 
     public IActionResult Tests() => View(data.GetTests());
 
-    public IActionResult TakeTest(int id = 1)
+    /// <summary>Opens (or resumes) an attempt. The page gets the questions without the right answers.</summary>
+    public async Task<IActionResult> TakeTest(int id)
     {
-        ViewData["Test"] = data.GetTests().FirstOrDefault(t => t.Id == id) ?? data.GetTests()[0];
-        return View(data.GetQuestions(id));
+        var test = await db.Tests.FindAsync(id);
+        var item = data.GetTest(id);
+        if (test == null || item == null || data.GetCourse(test.CourseId) is not { Enrolled: true }) return NotFound();
+        if (item.Status == "locked")
+        {
+            TempData["Error"] = L.T("Тест откроется после предыдущих уроков курса.", "Тест курстың алдыңғы сабақтарынан кейін ашылады.", "The test opens after the earlier lessons of the course.");
+            return RedirectToAction(nameof(Tests));
+        }
+        var attempt = await tests.StartOrResumeAsync(MyId, test);
+        var view = data.GetAttempt(attempt.Id)!;
+        ViewData["Test"] = item;
+        ViewData["AttemptId"] = attempt.Id;
+        ViewData["Answers"] = view.Answers;
+        ViewData["SecondsLeft"] = Math.Max(0, test.Minutes * 60 - (int)(DateTime.UtcNow - attempt.StartedAt).TotalSeconds);
+        return View(view.Questions);
     }
 
-    /// <summary>Result + per-question breakdown. a = chosen option per question ("1,0,-1,…", -1 = skipped), t = seconds spent.</summary>
-    public IActionResult TestResult(int id = 1, string? a = null, int? t = null)
+    /// <summary>One answer (fetch from TakeTest). The first choice is final; the reply reveals the right option.</summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Answer(int attemptId, int index, int option)
     {
-        var test = data.GetTests().FirstOrDefault(x => x.Id == id);
-        if (test is null) return NotFound();
-        var questions = data.GetQuestions(id);
-        var answers = (a ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => int.TryParse(x, out var n) && n >= -1 && n <= 3 ? n : -1).ToList();
-        if (answers.Count != questions.Count)   // opened directly: show a sample attempt
-            answers = questions.Select((q, i) => i is 1 or 6 ? (q.Correct + 1) % q.Options.Length : q.Correct).ToList();
-        ViewData["Test"] = test;
-        ViewData["Answers"] = answers;
-        ViewData["Seconds"] = t is > 0 ? t : test.Minutes * 45 + 17;   // sample: ~¾ of the time limit
-        return View(questions);
+        var r = await tests.AnswerAsync(MyId, attemptId, index, option);
+        return r.Error == null ? Json(new { ok = r.Ok, correct = r.Correct, explanation = r.Explanation })
+                               : Json(new { error = r.Error });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> FinishTest(int attemptId)
+    {
+        var a = await db.TestAttempts.Include(x => x.Test).FirstOrDefaultAsync(x => x.Id == attemptId && x.UserId == MyId);
+        if (a == null) return NotFound();
+        await tests.FinishAsync(a, a.Test);
+        return RedirectToAction(nameof(TestResult), new { id = a.Id });
+    }
+
+    /// <summary>Result + per-question review of one of the student's own attempts.</summary>
+    public IActionResult TestResult(int id)
+    {
+        var a = data.GetAttempt(id);
+        if (a == null) return NotFound();
+        if (!a.Finished) return RedirectToAction(nameof(TakeTest), new { id = a.Test.Id });
+        ViewData["Test"] = a.Test;
+        ViewData["Answers"] = a.Answers;
+        ViewData["Seconds"] = a.Seconds;
+        ViewData["AttemptId"] = a.Id;
+        return View(a.Questions);
     }
 
     public IActionResult Assignments() => View(data.GetAssignments());
 
-    public IActionResult Assignment(int id = 1)
+    public IActionResult Assignment(int id)
     {
         var a = data.GetAssignment(id);
         return a is null ? NotFound() : View(a);
+    }
+
+    /// <summary>Upload of the work (files + comment). Up to 10 files of the assignment's size limit.</summary>
+    [HttpPost, ValidateAntiForgeryToken, RequestSizeLimit(300_000_000), RequestFormLimits(MultipartBodyLengthLimit = 300_000_000)]
+    public async Task<IActionResult> SubmitAssignment(int id, string? comment, List<IFormFile> files)
+    {
+        var a = await db.Assignments.FindAsync(id);
+        var enrolledAt = await db.Enrollments.Where(e => e.UserId == MyId && e.CourseId == (a == null ? 0 : a.CourseId)).Select(e => (DateTime?)e.EnrolledAt).FirstOrDefaultAsync();
+        if (a == null || enrolledAt == null) return NotFound();
+
+        var r = await assignments.SubmitAsync(MyId, a, comment, files, SqlEduDataService.AssignmentDue(a, enrolledAt));
+        if (r.Ok)
+            TempData["Success"] = L.T("Работа отправлена на проверку", "Жұмыс тексеруге жіберілді", "Work submitted for review");
+        else
+            TempData["Error"] = r.Error switch
+            {
+                "no-files" => L.T("Прикрепите хотя бы один файл.", "Кемінде бір файл тіркеңіз.", "Attach at least one file."),
+                "too-many" => L.T($"Не больше {AssignmentStore.MaxFiles} файлов.", $"{AssignmentStore.MaxFiles} файлдан аспауы керек.", $"At most {AssignmentStore.MaxFiles} files."),
+                "bad-type" => L.T("Неподдерживаемый формат файла.", "Файл пішіміне қолдау көрсетілмейді.", "Unsupported file format."),
+                "too-big" => L.T($"Файл больше {a.MaxMb} MB.", $"Файл {a.MaxMb} MB-тан үлкен.", $"A file is larger than {a.MaxMb} MB."),
+                "empty" => L.T("Пустой файл.", "Бос файл.", "Empty file."),
+                _ => L.T("Работа уже отправлена — изменить её можно, только если преподаватель вернёт её на доработку.", "Жұмыс жіберілген — оқытушы қайтарса ғана өзгертуге болады.", "Already submitted — you can change it only if the teacher returns it."),
+            };
+        return RedirectToAction(nameof(Assignment), new { id });
+    }
+
+    /// <summary>Download of a file from the student's own submission.</summary>
+    public async Task<IActionResult> SubmissionFile(int id)
+    {
+        var f = await db.SubmissionFiles.Include(x => x.Submission).FirstOrDefaultAsync(x => x.Id == id && x.Submission.UserId == MyId);
+        if (f == null || !System.IO.File.Exists(assignments.PathOf(f))) return NotFound();
+        return PhysicalFile(assignments.PathOf(f), "application/octet-stream", f.FileName);
     }
 
     public IActionResult Ai() => View(data);

@@ -15,7 +15,7 @@ namespace Game1.Controllers;
 /// <summary>Account settings: profile, photo, password, delete account — saved to SQL Server.</summary>
 [Authorize]
 public class SettingsController(IEduDataService data, AppDbContext db, IPasswordHasher<User> hasher,
-    LangService L, IWebHostEnvironment env) : Controller
+    LangService L, IWebHostEnvironment env, AssignmentStore assignments) : Controller
 {
     private const long MaxAvatarBytes = 2 * 1024 * 1024;
 
@@ -125,7 +125,8 @@ public class SettingsController(IEduDataService data, AppDbContext db, IPassword
             return Done("security", L.T("Нельзя удалить последнего администратора.", "Соңғы әкімшіні жоюға болмайды.", "The last administrator cannot be deleted."), error: true);
 
         DeleteAvatarFile(user.AvatarUrl);
-        db.Users.Remove(user);   // external logins are removed by cascade
+        await assignments.DeleteUserFilesAsync(user.Id);
+        db.Users.Remove(user);   // external logins, progress, attempts, submissions are removed by cascade
         await db.SaveChangesAsync();
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Redirect("/");

@@ -3,8 +3,18 @@
 @{
     Layout = "_FocusLayout";
     var test = (TestItem)ViewData["Test"]!;
+    var attemptId = (int)ViewData["AttemptId"]!;
+    var given = (List<int>)ViewData["Answers"]!;
+    var secondsLeft = (int)ViewData["SecondsLeft"]!;
     ViewData["Title"] = test.Title;
-    var payload = System.Text.Json.JsonSerializer.Serialize(Model.Select(q => new { q.Text, q.Options, q.Code, q.Topic, q.Correct }), new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+    // The right option is sent only for questions already answered in this attempt (resume after reload).
+    var payload = System.Text.Json.JsonSerializer.Serialize(Model.Select((q, i) => new
+    {
+        q.Text, q.Options, q.Code, q.Topic,
+        Answer = given[i] >= 0 ? given[i] : (int?)null,
+        Correct = given[i] >= 0 ? q.Correct : (int?)null,
+        Explanation = given[i] >= 0 ? q.Explanation : null,
+    }), new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
 }
 
 <header class="focus-bar">
@@ -16,7 +26,7 @@
         </div>
     </div>
     <div class="flex items-center gap-2">
-        <span class="quiz-timer">@Html.Icon("timer") <span id="timer">12:48</span></span>
+        <span class="quiz-timer">@Html.Icon("timer") <span id="timer">@(secondsLeft / 60):@((secondsLeft % 60).ToString("00"))</span></span>
         <partial name="_LangSwitcher" />
     </div>
 </header>
@@ -24,10 +34,10 @@
 <main class="content">
     <div class="quiz-shell">
         <div class="quiz-top">
-            <div class="quiz-counter">@L.T("Вопрос", "Сұрақ", "Question") <b id="qNum">4</b> / @Model.Count</div>
-            <span class="badge badge-primary" id="qTopic">Eloquent</span>
+            <div class="quiz-counter">@L.T("Вопрос", "Сұрақ", "Question") <b id="qNum">1</b> / @Model.Count</div>
+            <span class="badge badge-primary" id="qTopic"></span>
         </div>
-        <div class="progress progress-lg is-ready"><span id="qBar" style="--value:40%"></span></div>
+        <div class="progress progress-lg is-ready"><span id="qBar" style="--value:0%"></span></div>
         <div class="quiz-dots" id="qDots" aria-label="@L.T("Навигация по вопросам", "Сұрақтар бойынша навигация", "Question navigation")"></div>
 
         <section class="card question-card">
@@ -38,6 +48,10 @@
             <h2 id="qText"></h2>
             <pre class="question-code" id="qCode" hidden></pre>
             <div class="options" id="qOptions" role="radiogroup"></div>
+            <div class="ai-explain mt-4" id="qExplain" hidden>
+                <div class="ai-explain-head">@Html.Icon("lightbulb", "icon-sm") @L.T("Почему так", "Неліктен", "Why")</div>
+                <p id="qExplainText"></p>
+            </div>
         </section>
 
         <div class="quiz-nav">
@@ -48,7 +62,7 @@
 
         <div class="card card-soft mt-6 flex items-center gap-4">
             <span class="ai-avatar sm">@Html.Icon("sparkles")</span>
-            <p class="text-sm muted grow">@L.T("После завершения AI разберёт ваши ответы и подскажет, какие темы стоит повторить.", "Аяқтағаннан кейін AI жауаптарыңызды талдап, қай тақырыптарды қайталау керегін айтады.", "When you finish, the AI will review your answers and suggest topics to revisit.")</p>
+            <p class="text-sm muted grow">@L.T($"Ответ засчитывается сразу и не меняется. Для зачёта нужно {test.PassScore}%. Если закрыть страницу, попытка продолжится с того же места, пока не выйдет время.", $"Жауап бірден есептеледі және өзгермейді. Сынаққа {test.PassScore}% керек. Бетті жапсаңыз, уақыт біткенше әрекет сол жерден жалғасады.", $"Each answer counts immediately and is final. {test.PassScore}% is needed to pass. If you close the page, the attempt resumes where you left off until time runs out.")</p>
         </div>
     </div>
 </main>
@@ -60,7 +74,10 @@
         <p class="muted mt-2" id="finishInfo"></p>
         <div class="flex gap-3 justify-center mt-6 wrap">
             <button class="btn btn-outline" data-modal-close>@L.T("Вернуться", "Оралу", "Go back")</button>
-            <a class="btn btn-primary" id="finishLink" href="/Student/TestResult/@test.Id">@L.T("Завершить и получить разбор", "Аяқтап, талдау алу", "Finish & get review") @Html.Icon("sparkles", "icon-sm")</a>
+            <form method="post" asp-action="FinishTest" id="finishForm">
+                <input type="hidden" name="attemptId" value="@attemptId" />
+                <button class="btn btn-primary" type="submit">@L.T("Завершить и получить разбор", "Аяқтап, талдау алу", "Finish & get review") @Html.Icon("sparkles", "icon-sm")</button>
+            </form>
         </div>
     </div>
 </div>
@@ -73,13 +90,15 @@
         next: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Далее", "Келесі", "Next"))),
         finish: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Завершить", "Аяқтау", "Finish"))),
         answered: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Отвечено", "Жауап берілді", "Answered"))),
-        unanswered: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Без ответа", "Жауапсыз", "Unanswered")))
+        unanswered: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Без ответа", "Жауапсыз", "Unanswered"))),
+        failed: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(L.T("Ответ не сохранился — проверьте интернет и нажмите ещё раз", "Жауап сақталмады — интернетті тексеріп, қайта басыңыз", "The answer was not saved — check your connection and try again")))
     };
-    // Demo state: first three questions already answered, user is on question 4
-    const answers = [1, 1, 1, null, null, null, null, null, null, null];
-    let i = 3;
-    const keys = ["A", "B", "C", "D"];
+    const answers = questions.map(q => q.answer ?? null);
+    let i = Math.max(0, answers.findIndex(a => a === null));
+    if (answers.every(a => a !== null)) i = questions.length - 1;
+    const keys = ["A", "B", "C", "D", "E", "F"];
     const el = id => document.getElementById(id);
+    const token = document.querySelector('#finishForm input[name="__RequestVerificationToken"]').value;
 
     function render() {
         const q = questions[i];
@@ -94,7 +113,7 @@
         q.options.forEach((o, k) => {
             const b = document.createElement("button");
             b.type = "button";
-            const answered = answers[i] !== null;
+            const answered = answers[i] !== null && q.correct != null;
             b.className = "option" + (answered && k === q.correct ? " correct" : answered && answers[i] === k ? " wrong" : "");
             b.setAttribute("role", "radio");
             b.setAttribute("aria-checked", answers[i] === k);
@@ -104,11 +123,13 @@
             el("qOptions").appendChild(b);
         });
         el("qOptions").classList.toggle("locked", answers[i] !== null);
+        el("qExplain").hidden = !(answers[i] !== null && q.explanation);
+        el("qExplainText").textContent = q.explanation || "";
 
         el("qDots").innerHTML = "";
-        questions.forEach((_, k) => {
+        questions.forEach((qq, k) => {
             const d = document.createElement("button");
-            d.className = "quiz-dot" + (k === i ? " current" : answers[k] !== null ? " answered " + (answers[k] === questions[k].correct ? "ok" : "bad") : "");
+            d.className = "quiz-dot" + (k === i ? " current" : answers[k] !== null && qq.correct != null ? " answered " + (answers[k] === qq.correct ? "ok" : "bad") : "");
             d.textContent = k + 1;
             d.onclick = () => { i = k; render(); };
             el("qDots").appendChild(d);
@@ -123,31 +144,38 @@
         window.eduIcons();
     }
 
-    // Ух reacts to each answer; an answer is final once chosen (instant feedback mode)
+    // The choice goes to the server first; only its reply tells which option was right.
     const owl = el("quizOwl");
-    function choose(k) {
-        if (answers[i] !== null) return;
-        answers[i] = k;
-        const ok = k === questions[i].correct;
+    let busy = false;
+    async function choose(k) {
+        if (answers[i] !== null || busy) return;
+        busy = true;
+        const qi = i;
+        let r;
+        try {
+            const body = new URLSearchParams({ attemptId: "@attemptId", index: qi, option: k });
+            const res = await fetch("/Student/Answer", { method: "POST", body, headers: { RequestVerificationToken: token } });
+            r = await res.json();
+        } catch { r = { error: "network" }; }
+        busy = false;
+        if (r.error === "finished") { el("finishForm").submit(); return; }
+        if (r.error) { window.eduToast(t.failed, "alert-circle"); return; }
+        answers[qi] = k;
+        questions[qi].correct = r.correct;
+        questions[qi].explanation = r.explanation;
         render();
         owl.classList.remove("is-cheer", "is-sad");
-        if (ok) {
+        if (r.ok) {
             window.eduOwl.mood(owl, "is-cheer", 1200);
-            const r = el("qOptions").children[k].getBoundingClientRect();
-            window.eduCelebrate({ xp: 12, x: r.right - 60, y: r.top, quiet: true });
+            const rect = el("qOptions").children[k].getBoundingClientRect();
+            window.eduCelebrate({ xp: 5, x: rect.right - 60, y: rect.top, quiet: true });
         } else {
             window.eduOwl.mood(owl, "is-sad", 2600);
         }
-        window.eduOwl.say(owl, window.eduOwl.pick(ok ? EDU_T.testCorrect : EDU_T.testWrong), 2600);
+        window.eduOwl.say(owl, window.eduOwl.pick(r.ok ? EDU_T.testCorrect : EDU_T.testWrong), 2600);
     }
     owl.addEventListener("click", () => {
         if (answers[i] === null) window.eduOwl.say(owl, window.eduOwl.pick(EDU_T.click));
-    });
-
-    // Finishing sends the chosen answers and time spent to the result page
-    const startedLeft = 12 * 60 + 48, alreadySpent = (@test.Minutes * 60) - startedLeft;
-    el("finishLink").addEventListener("click", () => {
-        el("finishLink").href = `/Student/TestResult/@test.Id?a=${answers.map(x => x ?? -1).join(",")}&t=${alreadySpent + (startedLeft - left)}`;
     });
 
     el("prevBtn").onclick = () => { if (i > 0) { i--; render(); } };
@@ -157,18 +185,16 @@
     };
     document.addEventListener("keydown", e => {
         if (e.target.tagName === "INPUT") return;
-        const k = "abcd1234".indexOf(e.key.toLowerCase());
-        if (k >= 0) choose(k % 4);
+        const k = "abcdef123456".indexOf(e.key.toLowerCase());
+        if (k >= 0 && k % 6 < questions[i].options.length) choose(k % 6);
         if (e.key === "ArrowRight") el("nextBtn").click();
         if (e.key === "ArrowLeft") el("prevBtn").click();
     });
 
-    // Mock countdown
-    let left = 12 * 60 + 48;
-    // Under 2 minutes the timer turns red and Ух starts chewing a pencil
+    // Countdown from the server's remaining time; at zero the attempt is submitted as is.
+    let left = @secondsLeft;
     let nervous = false;
-    setInterval(() => {
-        if (left > 0) left--;
+    const tick = () => {
         el("timer").textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
         if (left <= 120 && !nervous) {
             nervous = true;
@@ -176,7 +202,11 @@
             owl.classList.add("is-nervous");
             window.eduOwl.say(owl, EDU_T.testNervous, 3200);
         }
-    }, 1000);
+        if (left <= 0) { clearInterval(timer); el("finishForm").submit(); }
+        left--;
+    };
+    const timer = setInterval(tick, 1000);
+    tick();
 
     render();
 })();

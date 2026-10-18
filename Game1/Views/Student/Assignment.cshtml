@@ -5,17 +5,18 @@
     ViewData["Nav"] = "assignments";
 
     // Lifecycle: draft → submitted → under review → graded
-    var stage = a.Status switch { "submitted" => 2, "graded" => 4, _ => 0 };
-    var canSubmit = a.Status is "todo" or "in-progress" or "overdue";
+    var stage = a.Status switch { "submitted" => 3, "graded" => 4, _ => 0 };
+    var canSubmit = a.Status is "todo" or "in-progress" or "overdue" or "returned";
     var steps = new[]
     {
-        L.T("Черновик", "Жоба", "Draft"),
+        L.T("Выполнение", "Орындау", "Working"),
         L.T("Отправлено", "Жіберілді", "Submitted"),
         L.T("На проверке", "Тексерілуде", "In review"),
         L.T("Проверено", "Тексерілді", "Graded"),
     };
     var teacherInitials = string.Concat(Model.Teacher.Split(' ').Take(2).Select(w => w[0]));
     var deadlineCls = a.Status == "overdue" ? "badge-error" : a.DaysLeft is >= 0 and <= 2 && canSubmit ? "badge-warning" : "";
+    var formats = string.Join(",", Model.Formats);
 }
 
 <nav class="breadcrumbs mb-4" aria-label="@L.T("Навигация", "Навигация", "Breadcrumbs")">
@@ -56,13 +57,18 @@
 
 <div class="grid cols-main-side" style="align-items:start">
     @* ---------- Files & comment ---------- *@
-    <section class="card card-lg">
+    <form class="card card-lg" method="post" asp-action="SubmitAssignment" asp-route-id="@a.Id" enctype="multipart/form-data" id="submitForm"
+          data-upload="#uploadBar" data-upload-error="@L.T("Не удалось загрузить — проверьте интернет", "Жүктеу сәтсіз — интернетті тексеріңіз", "Upload failed — check your connection")">
         <div class="card-head"><div class="card-title">@Html.Icon("file-up") @L.T("Файлы работы", "Жұмыс файлдары", "Your files")</div></div>
 
+        @if (a.Status == "returned")
+        {
+            <div class="ai-callout mb-4">@Html.Icon("rotate-ccw", "icon-sm") <div class="text-sm">@L.T("Преподаватель вернул работу на доработку. Исправьте и отправьте заново — новые файлы заменят старые.", "Оқытушы жұмысты пысықтауға қайтарды. Түзетіп, қайта жіберіңіз — жаңа файлдар ескілерін ауыстырады.", "The teacher returned your work. Fix it and submit again — new files replace the old ones.")@if (Model.Feedback != null) { <br /><b>«@Model.Feedback»</b> }</div></div>
+        }
         @if (canSubmit)
         {
-            <label class="dropzone asg-drop" data-dropzone="#asgFiles" data-max-mb="@Model.MaxMb" data-accept="@string.Join(",", Model.Formats)">
-                <input type="file" multiple hidden accept="@string.Join(",", Model.Formats)" />
+            <label class="dropzone asg-drop" data-dropzone="#asgFiles" data-max-mb="@Model.MaxMb" data-accept="@formats">
+                <input type="file" name="files" multiple hidden accept="@formats" />
                 <span class="ibox ibox-lg">@Html.Icon("cloud-upload")</span>
                 <b class="mt-3">@L.T("Перетащите файлы сюда или", "Файлдарды осында сүйреңіз немесе", "Drag files here or") <u class="c-primary">@L.T("выберите на диске", "дисктен таңдаңыз", "browse")</u></b>
                 <small class="subtle">@L.T("Форматы", "Пішімдер", "Formats"): @string.Join(", ", Model.Formats) · @L.T("до", "дейін", "up to") @Model.MaxMb MB</small>
@@ -71,16 +77,16 @@
 
         <div class="label-caps mt-6 mb-2" data-files-title>@L.T("Прикреплено", "Тіркелген", "Attached") (<span data-files-count>@Model.Files.Count</span>)</div>
         <ul class="file-list" id="asgFiles" data-empty-text="@L.T("Файлы ещё не прикреплены", "Файлдар әлі тіркелмеген", "No files attached yet")"
-            data-t-uploaded="@L.T("Загружено", "Жүктелді", "Uploaded")" data-t-too-big="@L.T("Файл больше лимита", "Файл шектен үлкен", "File exceeds the limit")" data-t-bad-type="@L.T("Неподдерживаемый формат", "Қолдау көрсетілмейтін пішім", "Unsupported format")" data-t-remove="@L.T("Удалить", "Жою", "Remove")">
-            @foreach (var f in Model.Files)
+            data-t-uploaded="@L.T("Загружено", "Жүктелді", "Uploaded")" data-t-ready="@L.T("готов к отправке", "жіберуге дайын", "ready to send")" data-t-too-big="@L.T("Файл больше лимита", "Файл шектен үлкен", "File exceeds the limit")" data-t-bad-type="@L.T("Неподдерживаемый формат", "Қолдау көрсетілмейтін пішім", "Unsupported format")" data-t-remove="@L.T("Удалить", "Жою", "Remove")">
+            @foreach (var f in canSubmit ? [] : Model.Files)
             {
                 <li class="file-item">
                     <span class="ibox ibox-sm">@Html.Icon(f.Icon)</span>
                     <div class="grow"><div class="file-name">@f.Name</div><small class="subtle">@f.Size · @L.T("Загружено", "Жүктелді", "Uploaded")</small></div>
-                    @Html.Icon("check-circle-2", "c-success")
+                    <a class="icon-btn" href="/Student/SubmissionFile/@f.Id" aria-label="@L.T("Скачать", "Жүктеу", "Download")">@Html.Icon("download")</a>
                 </li>
             }
-            @if (Model.Files.Count == 0)
+            @if (canSubmit || Model.Files.Count == 0)
             {
                 <li class="file-empty subtle">@L.T("Файлы ещё не прикреплены", "Файлдар әлі тіркелмеген", "No files attached yet")</li>
             }
@@ -88,18 +94,18 @@
 
         <div class="field mt-6">
             <label class="label" for="asgComment">@L.T("Комментарий к работе", "Жұмысқа түсініктеме", "Comment for the teacher")</label>
-            <textarea class="textarea" id="asgComment" maxlength="500" rows="4" data-counter="#asgCount" @(canSubmit ? "" : "readonly") placeholder="@L.T("Что сделано, на что обратить внимание…", "Не жасалды, неге назар аудару керек…", "What you did, what to look at…")">@Model.Comment</textarea>
+            <textarea class="textarea" id="asgComment" name="comment" maxlength="1000" rows="4" data-counter="#asgCount" @(canSubmit ? "" : "readonly") placeholder="@L.T("Что сделано, на что обратить внимание…", "Не жасалды, неге назар аудару керек…", "What you did, what to look at…")">@Model.Comment</textarea>
             <small class="subtle text-right tabular" id="asgCount"></small>
         </div>
 
         @if (canSubmit)
         {
-            <div class="flex justify-between gap-3 wrap mt-6 asg-actions">
-                <button class="btn btn-outline" type="button" data-toast="@L.T("Черновик сохранён", "Жоба сақталды", "Draft saved")" data-toast-icon="save">@Html.Icon("save") @L.T("Сохранить черновик", "Жобаны сақтау", "Save draft")</button>
-                <button class="btn btn-primary" type="button" data-modal-open="#submitModal">@Html.Icon("send") @L.T("Отправить на проверку", "Тексеруге жіберу", "Submit for review") (+@Model.Xp XP)</button>
+            <div class="progress progress-sm mt-4" id="uploadBar" hidden><span style="--value:0%"></span></div>
+            <div class="flex justify-end gap-3 wrap mt-6 asg-actions">
+                <button class="btn btn-primary" type="button" data-modal-open="#submitModal">@Html.Icon("send") @L.T("Отправить на проверку", "Тексеруге жіберу", "Submit for review")</button>
             </div>
         }
-    </section>
+    </form>
 
     @* ---------- Review ---------- *@
     <aside class="col gap-6">
@@ -115,20 +121,16 @@
                         <span class="label-caps">@L.T("Итоговая оценка", "Қорытынды баға", "Final grade")</span>
                         <div class="grade-score"><b>@score</b> / @a.MaxScore</div>
                     </div>
-                    <span class="xp-chip">@Html.Icon("zap", "icon-sm") +@Model.Xp XP @L.T("начислено", "есептелді", "earned")</span>
+                    <span class="xp-chip">@Html.Icon("zap", "icon-sm") @(score * 100 / Math.Max(1, a.MaxScore))%</span>
                 </div>
                 <div class="flex items-center gap-3 mt-5">
                     <span class="avatar av-3">@teacherInitials</span>
                     <div><b>@Model.Teacher</b><div class="text-sm subtle">@Model.TeacherTitle</div></div>
                 </div>
-                <blockquote class="review-quote">
+                <blockquote class="review-quote" hidden="@(Model.Feedback == null)">
                     <p>@Model.Feedback</p>
                     @if (Model.Tip != null) { <p class="review-tip">@Html.Icon("lightbulb", "icon-sm") @Model.Tip</p> }
                 </blockquote>
-                <div class="flex gap-2 wrap mt-5">
-                    <button class="btn btn-outline grow" type="button" data-toast="@L.T("Сообщение отправлено куратору", "Хабар кураторға жіберілді", "Message sent to the curator")" data-toast-icon="message-circle">@Html.Icon("message-circle") @L.T("Задать вопрос", "Сұрақ қою", "Ask a question")</button>
-                    <button class="btn btn-secondary" type="button" data-toast="@L.T("Рецензия сохранена в PDF", "Рецензия PDF-ке сақталды", "Review saved as PDF")" data-toast-icon="download">@Html.Icon("download") PDF</button>
-                </div>
             </section>
         }
         else
@@ -147,7 +149,8 @@
                 <li>@Html.Icon("check", "icon-sm c-success") @L.T("Форматы", "Пішімдер", "Formats"): @string.Join(", ", Model.Formats)</li>
                 <li>@Html.Icon("check", "icon-sm c-success") @L.T("Размер до", "Көлемі", "Size up to") @Model.MaxMb MB</li>
                 <li>@Html.Icon("check", "icon-sm c-success") @L.T("Максимум баллов", "Ең көп балл", "Max score"): @a.MaxScore</li>
-                <li>@Html.Icon("check", "icon-sm c-success") @L.T("После дедлайна — минус 10% за день", "Мерзімнен кейін — күніне 10% кем", "After the deadline: −10% per day")</li>
+                <li>@Html.Icon("check", "icon-sm c-success") @L.T("До 10 файлов за раз", "Бір реттен 10 файлға дейін", "Up to 10 files at once")</li>
+                <li>@Html.Icon("check", "icon-sm c-success") @L.T("После дедлайна работа отмечается как поздняя", "Мерзімнен кейін жұмыс кеш деп белгіленеді", "Work after the deadline is marked late")</li>
             </ul>
         </section>
     </aside>
@@ -162,7 +165,7 @@
             <p class="muted mt-2">@L.T("После отправки файлы нельзя изменить, пока преподаватель не вернёт работу на доработку.", "Жіберілгеннен кейін оқытушы қайтармайынша файлдарды өзгертуге болмайды.", "After submitting you can't change the files unless the teacher returns the work.")</p>
             <div class="flex gap-3 justify-center mt-6">
                 <button class="btn btn-outline" type="button" data-modal-close>@L.T("Отмена", "Болдырмау", "Cancel")</button>
-                <button class="btn btn-primary" type="button" data-modal-close data-xp="@Model.Xp" data-toast="@L.T("Работа отправлена на проверку", "Жұмыс тексеруге жіберілді", "Work submitted for review")" data-toast-icon="check-circle-2">@L.T("Отправить", "Жіберу", "Submit")</button>
+                <button class="btn btn-primary" type="submit" form="submitForm">@L.T("Отправить", "Жіберу", "Submit")</button>
             </div>
         </div>
     </div>

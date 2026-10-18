@@ -340,41 +340,39 @@
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => { if (storedTheme() === "system") applyTheme("system"); });
 
   /* ---------- File dropzone: <label data-dropzone="#list" data-max-mb data-accept> ---------- */
-  // UI only for now: files are listed with a progress bar; real upload comes with the backend.
+  // Chosen / dropped files are kept in a DataTransfer and mirrored into the zone's <input type=file>,
+  // so the surrounding form uploads exactly the files listed (invalid ones are shown but not sent).
+  // A form with [data-upload] posts via XHR to show real upload progress, then follows the redirect.
   function fmtSize(b) { return b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB"; }
   function fileIcon(name) {
     const ext = name.split(".").pop().toLowerCase();
     return { zip: "file-archive", rar: "file-archive", sql: "database", pdf: "file-text", doc: "file-text", docx: "file-text", png: "image", jpg: "image", jpeg: "image" }[ext] || "file-code-2";
   }
+  const zoneFiles = new WeakMap();   // zone → DataTransfer of valid files
+  function zoneInput(zone) { return zone.querySelector("input[type=file]"); }
   function addFiles(zone, files) {
     const list = $(zone.dataset.dropzone); if (!list) return;
     const maxMb = +zone.dataset.maxMb || 25;
     const accept = (zone.dataset.accept || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+    const dt = zoneFiles.get(zone) || new DataTransfer(); zoneFiles.set(zone, dt);
     const d = list.dataset;
     list.querySelector(".file-empty")?.remove();
     Array.from(files).forEach(f => {
+      if (Array.from(dt.files).some(x => x.name === f.name && x.size === f.size)) return;   // same file twice
       const ext = "." + f.name.split(".").pop().toLowerCase();
       const err = f.size > maxMb * 1048576 ? d.tTooBig : accept.length && !accept.includes(ext) ? d.tBadType : "";
+      if (!err) dt.items.add(f);
       const li = document.createElement("li");
       li.className = "file-item" + (err ? " is-error" : "");
+      li.dataset.file = err ? "" : f.name + "|" + f.size;
       li.innerHTML = `<span class="ibox ibox-sm"><i data-lucide="${err ? "file-x-2" : fileIcon(f.name)}" class="icon"></i></span>
         <div class="grow"><div class="file-name"></div><small class="subtle" data-meta></small></div>
-        <button class="icon-btn" type="button" data-file-remove aria-label="${d.tRemove}"><i data-lucide="x" class="icon"></i></button>
-        ${err ? "" : '<span class="file-bar" style="width:0"></span>'}`;
+        <button class="icon-btn" type="button" data-file-remove aria-label="${d.tRemove}"><i data-lucide="x" class="icon"></i></button>`;
       li.querySelector(".file-name").textContent = f.name;
-      const meta = li.querySelector("[data-meta]");
-      meta.textContent = err ? `${fmtSize(f.size)} · ${err}` : `0 / ${fmtSize(f.size)}`;
+      li.querySelector("[data-meta]").textContent = err ? `${fmtSize(f.size)} · ${err}` : `${fmtSize(f.size)} · ${d.tReady || ""}`;
       list.appendChild(li);
-      if (!err) {
-        const bar = li.querySelector(".file-bar"); let p = 0;
-        const t = setInterval(() => {
-          p = Math.min(100, p + 8 + Math.random() * 18);
-          bar.style.width = p + "%";
-          meta.textContent = p < 100 ? `${fmtSize(f.size * p / 100)} / ${fmtSize(f.size)}` : `${fmtSize(f.size)} · ${d.tUploaded}`;
-          if (p >= 100) { clearInterval(t); setTimeout(() => bar.remove(), 300); }
-        }, 160);
-      }
     });
+    const input = zoneInput(zone); if (input) input.files = dt.files;
     updateFileCount(list); icons();
   }
   function updateFileCount(list) {
@@ -384,7 +382,11 @@
   }
   document.addEventListener("change", (e) => {
     const zone = e.target.closest("[data-dropzone]");
-    if (zone && e.target.type === "file") { addFiles(zone, e.target.files); e.target.value = ""; }
+    if (zone && e.target.type === "file" && !e.target.dataset.syncing) {
+      const picked = Array.from(e.target.files);
+      e.target.files = (zoneFiles.get(zone) || new DataTransfer()).files;   // keep earlier picks
+      addFiles(zone, picked);
+    }
   });
   ["dragenter", "dragover"].forEach(ev => document.addEventListener(ev, (e) => {
     const zone = e.target.closest?.("[data-dropzone]"); if (!zone) return;
@@ -397,7 +399,31 @@
   }));
   document.addEventListener("click", (e) => {
     const rm = e.target.closest("[data-file-remove]"); if (!rm) return;
-    const list = rm.closest(".file-list"); rm.closest(".file-item").remove(); updateFileCount(list);
+    const item = rm.closest(".file-item"), list = rm.closest(".file-list");
+    const zone = $$("[data-dropzone]").find(z => $(z.dataset.dropzone) === list);
+    if (zone && item.dataset.file) {
+      const keep = new DataTransfer();
+      Array.from(zoneFiles.get(zone)?.files || []).filter(f => f.name + "|" + f.size !== item.dataset.file).forEach(f => keep.items.add(f));
+      zoneFiles.set(zone, keep);
+      const input = zoneInput(zone); if (input) input.files = keep.files;
+    }
+    item.remove(); updateFileCount(list);
+  });
+  document.addEventListener("submit", (e) => {
+    const f = e.target;
+    if (!f.matches("[data-upload]") || !window.FormData || !window.XMLHttpRequest) return;
+    e.preventDefault();
+    const btn = e.submitter || f.querySelector("[type=submit]");
+    const bar = $(f.dataset.upload);
+    $$("button", f).forEach(b => b.disabled = true);
+    const data = new FormData(f);
+    if (btn?.name) data.append(btn.name, btn.value);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", f.action);
+    xhr.upload.onprogress = (p) => { if (bar && p.lengthComputable) { bar.hidden = false; bar.style.setProperty("--value", Math.round(p.loaded * 100 / p.total) + "%"); } };
+    xhr.onload = () => { location.href = xhr.responseURL || location.href; };
+    xhr.onerror = () => { $$("button", f).forEach(b => b.disabled = false); toast(f.dataset.uploadError || "Upload failed", "alert-circle"); };
+    xhr.send(data);
   });
 
   /* ---------- Character counter: <textarea maxlength data-counter="#out"> ---------- */

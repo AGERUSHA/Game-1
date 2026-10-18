@@ -11,7 +11,7 @@
     var skipped = answers.Count(x => x < 0);
     var wrong = total - correct - skipped;
     var pct = total == 0 ? 0 : (int)Math.Round(correct * 100.0 / total);
-    var passed = pct >= 70;
+    var passed = pct >= test.PassScore;
     var xp = correct * 5 + (passed ? 25 : 0);
     string Time(int s) => $"{s / 60}:{s % 60:00}";
     string[] keys = ["A", "B", "C", "D"];
@@ -35,7 +35,7 @@
         <p class="muted mt-2">
             @(passed
                 ? L.T("Тест сдан. Результата достаточно для зачёта модуля.", "Тест тапсырылды. Нәтиже модульді есептеуге жеткілікті.", "Passed. Your score is enough to complete the module.")
-                : L.T("Пока не хватило до зачёта (нужно 70%). Разберите ошибки и попробуйте снова.", "Сынаққа әлі жетпеді (70% керек). Қателерді талдап, қайталап көріңіз.", "Not enough to pass yet (70% needed). Review the mistakes and try again."))
+                : L.T($"Пока не хватило до зачёта (нужно {test.PassScore}%). Разберите ошибки и попробуйте снова.", $"Сынаққа әлі жетпеді ({test.PassScore}% керек). Қателерді талдап, қайталап көріңіз.", $"Not enough to pass yet ({test.PassScore}% needed). Review the mistakes and try again."))
         </p>
         <div class="result-stats">
             <div><span class="label-caps">@L.T("Верно", "Дұрыс", "Correct")</span><b>@correct <small>/ @total</small></b></div>
@@ -55,7 +55,6 @@
     <div class="result-side">
         <div class="result-owl @(passed ? "is-cheer" : "is-sad")" data-owl aria-hidden="true"><partial name="_Owl" model="8" /></div>
         @Html.Ring(pct, 150, 12, null, passed ? null : "ring-warn")
-        <span class="result-streak">🔥 @L.T("Серия 7 дней сохранена", "7 күндік серия сақталды", "7-day streak kept")</span>
     </div>
 </section>
 
@@ -77,7 +76,7 @@
         {
             <div class="ai-callout mt-6">
                 @Html.Icon("sparkles", "icon-sm")
-                <div class="text-sm">@L.T("Слабая тема", "Әлсіз тақырып", "Weakest topic"): <b>@weak.Topic</b>. @L.T("AI соберёт 5 карточек для повторения.", "AI қайталауға 5 карточка жинайды.", "AI will build 5 cards to review it.")</div>
+                <div class="text-sm">@L.T("Слабая тема", "Әлсіз тақырып", "Weakest topic"): <b>@weak.Topic</b>. @L.T("Повторите уроки по ней перед следующей попыткой.", "Келесі әрекет алдында осы тақырып сабақтарын қайталаңыз.", "Review its lessons before the next attempt.")</div>
             </div>
         }
     </aside>
@@ -122,15 +121,14 @@
                     @if (!ok)
                     {
                         <div class="ai-explain">
-                            <div class="ai-explain-head">@Html.Icon("sparkles", "icon-sm") @L.T("AI-разбор", "AI-талдау", "AI explanation")</div>
+                            <div class="ai-explain-head">@Html.Icon("lightbulb", "icon-sm") @L.T("Разбор", "Талдау", "Explanation")</div>
                             <p>
-                                @L.T($"Правильный ответ — «{q.Options[q.Correct]}». Это ключевая идея темы «{q.Topic}»: стоит повторить её на коротком примере.",
-                                     $"Дұрыс жауап — «{q.Options[q.Correct]}». Бұл «{q.Topic}» тақырыбының негізгі идеясы: оны қысқа мысалмен қайталаңыз.",
-                                     $"The correct answer is “{q.Options[q.Correct]}”. It is the key idea of “{q.Topic}” — worth revisiting with a short example.")
+                                @(q.Explanation ?? L.T($"Правильный ответ — «{q.Options[q.Correct]}». Повторите тему «{q.Topic}» на коротком примере.",
+                                     $"Дұрыс жауап — «{q.Options[q.Correct]}». «{q.Topic}» тақырыбын қысқа мысалмен қайталаңыз.",
+                                     $"The correct answer is “{q.Options[q.Correct]}”. Revisit “{q.Topic}” with a short example."))
                             </p>
                             <div class="flex gap-2 wrap mt-3">
                                 <a class="btn btn-secondary btn-sm" href="/Student/Ai">@Html.Icon("message-circle", "icon-sm") @L.T("Объяснить подробнее", "Толығырақ түсіндіру", "Explain more")</a>
-                                <button class="btn btn-ghost btn-sm" type="button" data-toast="@L.T("Карточка добавлена в колоду", "Карточка колодаға қосылды", "Card added to your deck")" data-toast-icon="layers">@Html.Icon("plus", "icon-sm") @L.T("В карточки", "Карточкаларға", "Add to flashcards")</button>
                             </div>
                         </div>
                     }

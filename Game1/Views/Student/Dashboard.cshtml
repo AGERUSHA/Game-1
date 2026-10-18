@@ -7,7 +7,7 @@
     var nextLesson = course == null ? null : Model.GetCurriculum(course.Id).SelectMany(m => m.Lessons).FirstOrDefault(l => l.Status == "current");
     var continueHref = nextLesson != null ? $"/Student/Lesson/{nextLesson.Id}" : course != null ? $"/Student/CourseDetails/{course.Id}" : "/Student/Courses";
     var weekly = Model.GetWeeklyActivity();
-    var deadlines = Model.GetAssignments().Where(a => a.DaysLeft >= 0).Take(3).ToList();
+    var deadlines = Model.GetAssignments().Where(a => a.Status is "todo" or "returned" && a.DaysLeft >= 0).OrderBy(a => a.DaysLeft).Take(3).ToList();
     var quests = Model.GetDailyQuests();
     var dueDecks = Model.GetDecks().Where(d => d.Due > 0).ToList();
 }
@@ -104,14 +104,18 @@
         <div class="list">
             @foreach (var a in deadlines)
             {
-                <div class="list-item">
+                <a class="list-item" href="/Student/Assignment/@a.Id" style="color:inherit;text-decoration:none">
                     <span class="ibox ibox-sm @(a.DaysLeft <= 2 ? "ibox-warning" : "")">@Html.Icon("file-text")</span>
                     <div class="grow">
                         <div class="list-title">@a.Title</div>
                         <div class="list-meta">@a.Course · @a.Deadline</div>
                     </div>
                     <span class="badge @(a.DaysLeft <= 2 ? "badge-warning" : "badge-primary")">@a.DaysLeft @L.T("дн.", "күн", "d")</span>
-                </div>
+                </a>
+            }
+            @if (deadlines.Count == 0)
+            {
+                <p class="text-sm muted">@L.T("Сдавать пока нечего — можно спокойно учиться 🎉", "Әзірге тапсыратын ештеңе жоқ — тыныш оқи беріңіз 🎉", "Nothing due right now — enjoy learning 🎉")</p>
             }
         </div>
         <a class="btn btn-secondary btn-block mt-5" href="/Student/Assignments">@L.T("Все задания", "Барлық тапсырмалар", "All assignments")</a>

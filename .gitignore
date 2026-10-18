@@ -19,3 +19,6 @@ obj/
 
 # User-uploaded files (avatars)
 Game1/wwwroot/uploads/
+
+# Uploaded assignment files (private, served by the app)
+Game1/App_Data/

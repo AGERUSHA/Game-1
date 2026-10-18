@@ -38,6 +38,9 @@ builder.Services.AddScoped<IEduDataService, SqlEduDataService>();
 
 // Student actions on courses: enrol, complete lessons, rate, bookmark.
 builder.Services.AddScoped<CourseStore>();
+// Tests (answers checked on the server) and assignment hand-in (files in App_Data, not wwwroot).
+builder.Services.AddScoped<TestStore>();
+builder.Services.AddScoped<AssignmentStore>();
 
 // Game zone catalog (hub cards, game of the day).
 builder.Services.AddScoped<GameCatalog>();
@@ -135,6 +138,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
     CourseSeed.Run(db);   // demo catalog on an empty database
+    TestSeed.Run(db);     // quizzes and assignments for the demo test / assignment lessons
 
     // Admin credentials come from user-secrets / environment (SeedAdmin:Email, SeedAdmin:Password),
     // never from source code.

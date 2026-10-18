@@ -4,6 +4,7 @@
     ViewData["Title"] = l.Title;
     ViewData["Nav"] = "courses";
     var done = l.Status == "completed";
+    var linked = Model.TestId != null || Model.AssignmentId != null;   // completed by passing the test / handing in the work
     var (typeIcon, typeName) = l.Type switch
     {
         "video" => ("play-circle", L.T("Видео", "Бейне", "Video")),
@@ -61,16 +62,16 @@
         {
             <div class="card card-soft flex gap-3 items-center wrap">
                 <span class="ibox">@Html.Icon("clipboard-check")</span>
-                <div class="grow"><b>@L.T("Тест по модулю", "Модуль бойынша тест", "Module quiz")</b><div class="text-sm muted">@L.T("Тесты курса — в разделе «Тесты».", "Курс тесттері — «Тесттер» бөлімінде.", "Course quizzes are in the Tests section.")</div></div>
-                <a class="btn btn-secondary" href="/Student/Tests">@L.T("К тестам", "Тесттерге", "Go to tests") @Html.Icon("arrow-right", "icon-sm")</a>
+                <div class="grow"><b>@L.T("Тест по модулю", "Модуль бойынша тест", "Module quiz")</b><div class="text-sm muted">@L.T("Урок засчитается, когда вы сдадите тест.", "Тестті тапсырғанда сабақ есептеледі.", "The lesson counts once you pass the test.")</div></div>
+                <a class="btn btn-primary" href="@(Model.TestId is int tid ? $"/Student/TakeTest/{tid}" : "/Student/Tests")">@(done ? L.T("Пройти ещё раз", "Қайта тапсыру", "Take again") : L.T("Начать тест", "Тестті бастау", "Start the test")) @Html.Icon("arrow-right", "icon-sm")</a>
             </div>
         }
         else if (l.Type == "assignment")
         {
             <div class="card card-soft flex gap-3 items-center wrap">
                 <span class="ibox">@Html.Icon("file-code-2")</span>
-                <div class="grow"><b>@L.T("Практическое задание", "Практикалық тапсырма", "Practical assignment")</b><div class="text-sm muted">@L.T("Сдать работу можно в разделе «Задания».", "Жұмысты «Тапсырмалар» бөлімінде тапсыруға болады.", "Hand in your work in the Assignments section.")</div></div>
-                <a class="btn btn-secondary" href="/Student/Assignments">@L.T("К заданиям", "Тапсырмаларға", "Go to assignments") @Html.Icon("arrow-right", "icon-sm")</a>
+                <div class="grow"><b>@L.T("Практическое задание", "Практикалық тапсырма", "Practical assignment")</b><div class="text-sm muted">@L.T("Урок засчитается, когда вы отправите работу.", "Жұмысты жібергенде сабақ есептеледі.", "The lesson counts once you hand in the work.")</div></div>
+                <a class="btn btn-primary" href="@(Model.AssignmentId is int aid ? $"/Student/Assignment/{aid}" : "/Student/Assignments")">@(done ? L.T("Открыть работу", "Жұмысты ашу", "Open the work") : L.T("Сдать работу", "Жұмысты тапсыру", "Hand in")) @Html.Icon("arrow-right", "icon-sm")</a>
             </div>
         }
 
@@ -80,7 +81,11 @@
                 <a class="btn btn-outline" href="/Student/Lesson/@prev">@Html.Icon("arrow-left", "icon-sm") @L.T("Назад", "Артқа", "Back")</a>
             }
             <div class="grow"></div>
-            @if (!done)
+            @if (!done && linked)
+            {
+                <span class="text-sm muted">@L.T("Следующий урок откроется после этого шага.", "Келесі сабақ осы қадамнан кейін ашылады.", "The next lesson opens after this step.")</span>
+            }
+            else if (!done)
             {
                 <form method="post" asp-action="CompleteLesson" asp-route-id="@l.Id">
                     <button class="btn btn-primary btn-lg" type="submit">@Html.Icon("check") @(Model.NextId == null ? L.T("Завершить курс", "Курсты аяқтау", "Finish the course") : L.T("Урок пройден — дальше", "Сабақ өтілді — әрі қарай", "Done — next lesson"))</button>

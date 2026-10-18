@@ -39,14 +39,19 @@ public record Material(string Title, string Type, string Course, string Meta, st
 
 /// <summary>Lesson page: the lesson, where it sits in the course, and its neighbours.</summary>
 public record LessonPage(Course Course, string Module, Lesson Lesson, string Body, string? VideoEmbed,
-    int? PrevId, int? NextId, int Number, int Total);
+    int? PrevId, int? NextId, int Number, int Total, int? TestId = null, int? AssignmentId = null);
 
 /// <summary>Material page: text / video / file of one library item.</summary>
 public record MaterialPage(Material Material, int CourseId, string Body, string? VideoEmbed, string? FileUrl);
 
-public record TestItem(int Id, string Title, string Course, int Questions, int Minutes, int? BestScore, string Status, int Attempts, string Difficulty);
+/// <summary>Status: available | passed | retake | locked. LastAttemptId → result page of the latest finished attempt.</summary>
+public record TestItem(int Id, string Title, string Course, int Questions, int Minutes, int? BestScore, string Status, int Attempts, string Difficulty,
+    int PassScore = 70, int? LastAttemptId = null, int CourseId = 0);
 
-public record Question(string Text, string[] Options, int Correct, string Topic, string? Code = null);
+public record Question(string Text, string[] Options, int Correct, string Topic, string? Code = null, string? Explanation = null);
+
+/// <summary>A finished (or running) test attempt with everything the result page needs.</summary>
+public record AttemptView(int Id, TestItem Test, List<Question> Questions, List<int> Answers, int Seconds, bool Finished, int Score, int PassScore);
 
 public record Assignment(string Title, string Course, string Deadline, string Status, int? Score, int MaxScore, int DaysLeft, int Id = 0);
 
@@ -56,7 +61,7 @@ public record AssignmentDetail(
     string Teacher, string TeacherTitle, string? Feedback, string? Tip, string? Comment,
     List<SubmittedFile> Files, string? ReviewedAgo);
 
-public record SubmittedFile(string Name, string Size, string Icon);
+public record SubmittedFile(string Name, string Size, string Icon, int Id = 0);
 
 public record Recommendation(string Icon, string Title, string Text, string Tag, string Action, string Href);
 

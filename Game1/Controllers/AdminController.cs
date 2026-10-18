@@ -12,7 +12,7 @@ namespace Game1.Controllers;
 /// <summary>Admin area. Users are managed in SQL Server; the rest is still demo UI.</summary>
 [Authorize(Roles = "admin")]
 public class AdminController(IEduDataService data, AppDbContext db, IPasswordHasher<User> hasher, LangService L,
-    EmailSender emailSender, ILogger<AdminController> log) : Controller
+    EmailSender emailSender, AssignmentStore assignments, ILogger<AdminController> log) : Controller
 {
     private static readonly string[] AllowedRoles = ["student", "teacher", "admin"];
 
@@ -116,6 +116,7 @@ public class AdminController(IEduDataService data, AppDbContext db, IPasswordHas
 
         var user = await db.Users.FindAsync(id);
         if (user == null) return NotFound();
+        await assignments.DeleteUserFilesAsync(user.Id);
         db.Users.Remove(user);
         await db.SaveChangesAsync();
         return Flash(L.T("Пользователь удалён.", "Пайдаланушы жойылды.", "User deleted."));

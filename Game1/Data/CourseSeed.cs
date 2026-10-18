@@ -149,7 +149,7 @@ public static class CourseSeed
     private static LessonEntity Test(string title, string duration) => new()
     {
         Title = title, Type = "test", Duration = duration,
-        Body = "Проверьте себя: ответьте на вопросы по пройденным урокам модуля. После теста отметьте урок пройденным.",
+        Body = "Проверьте себя: ответьте на вопросы по урокам модуля. Тест засчитывается при результате от 70% — тогда урок отмечается пройденным.",
     };
     private static LessonEntity Assignment(string title, string duration, string body) => new() { Title = title, Type = "assignment", Duration = duration, Body = body };
 }
